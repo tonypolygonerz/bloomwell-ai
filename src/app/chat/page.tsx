@@ -3,12 +3,15 @@
 import { useState, useRef, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useHybridChat } from '../../hooks/useHybridChat'
+import OnlinePermissionModal from '../../components/OnlinePermissionModal'
 
 interface Message {
   id: string
   role: 'user' | 'assistant'
   content: string
-  timestamp: Date
+  timestamp?: Date | string
+  createdAt?: Date | string
 }
 
 interface Conversation {
@@ -33,6 +36,13 @@ export default function ChatPage() {
   const [showNewThreadModal, setShowNewThreadModal] = useState(false)
   const [newThreadTitle, setNewThreadTitle] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  
+  // Hybrid chat functionality
+  const { sendMessage: sendHybridMessage } = useHybridChat()
+  const [showOnlinePermission, setShowOnlinePermission] = useState(false)
+  const [pendingMessage, setPendingMessage] = useState('')
+  const [pendingConversationId, setPendingConversationId] = useState<string | null>(null)
+  const [pendingConversationHistory, setPendingConversationHistory] = useState<any[]>([])
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -99,9 +109,61 @@ export default function ChatPage() {
         setShowNewThreadModal(false)
         setNewThreadTitle('')
         loadConversations()
+        // Redirect to the new conversation URL
+        router.push(`/chat/${data.conversation.id}`)
       }
     } catch (error) {
       console.error('Error creating conversation:', error)
+    }
+  }
+
+  const createNewConversationAndSendMessage = async (title: string, message: string) => {
+    try {
+      setIsLoading(true)
+      setError('')
+
+      // First, create the conversation
+      const conversationResponse = await fetch('/api/conversations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title })
+      })
+
+      if (!conversationResponse.ok) {
+        throw new Error('Failed to create conversation')
+      }
+
+      const conversationData = await conversationResponse.json()
+      const conversationId = conversationData.conversation.id
+
+      // Then, send the initial message to the AI using hybrid system
+      const chatData = await sendHybridMessage(
+        message,
+        conversationId,
+        []
+      )
+
+      // If the system suggests online access, show permission modal
+      if (chatData.suggestOnline && chatData.responseType === 'suggestion') {
+        setPendingMessage(message)
+        setPendingConversationId(conversationId)
+        setPendingConversationHistory([])
+        setShowOnlinePermission(true)
+        // Don't redirect yet - wait for user decision
+        return
+      }
+
+      // Clear the input and redirect to the new conversation
+      setInputValue('')
+      setShowNewThreadModal(false)
+      setNewThreadTitle('')
+      loadConversations()
+      router.push(`/chat/${conversationId}`)
+    } catch (error) {
+      console.error('Error creating conversation and sending message:', error)
+      setError('Failed to start conversation. Please try again.')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -112,6 +174,8 @@ export default function ChatPage() {
         const data = await response.json()
         setMessages(data.conversation.messages || [])
         setCurrentConversationId(conversationId)
+        // Redirect to the conversation URL
+        router.push(`/chat/${conversationId}`)
       }
     } catch (error) {
       console.error('Error loading conversation:', error)
@@ -145,11 +209,12 @@ export default function ChatPage() {
     // Create new conversation if none exists
     if (!currentConversationId) {
       const title = inputValue.length > 50 ? inputValue.substring(0, 50) + '...' : inputValue
-      await createNewConversation(title)
+      await createNewConversationAndSendMessage(title, inputValue.trim())
+      return // The createNewConversationAndSendMessage function will handle the redirect
     }
 
     const userMessage: Message = {
-      id: Date.now().toString(),
+      id: generateMessageId(),
       role: 'user',
       content: inputValue.trim(),
       timestamp: new Date()
@@ -161,38 +226,36 @@ export default function ChatPage() {
     setError('')
 
     try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: userMessage.content,
-          conversationHistory: messages.slice(-10),
-          conversationId: currentConversationId
-        }),
-      })
+      // Use hybrid chat system
+      const data = await sendHybridMessage(
+        userMessage.content,
+        currentConversationId,
+        messages.slice(-10)
+      )
 
-      if (!response.ok) {
-        throw new Error('Failed to get response from AI')
-      }
-
-      const data = await response.json()
-      
       const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
+        id: generateMessageId(),
         role: 'assistant',
         content: data.response,
         timestamp: new Date()
       }
 
       setMessages(prev => [...prev, assistantMessage])
+
+      // If the system suggests online access, show permission modal
+      if (data.suggestOnline && data.responseType === 'suggestion') {
+        setPendingMessage(userMessage.content)
+        setPendingConversationId(currentConversationId)
+        setPendingConversationHistory(messages.slice(-10))
+        setShowOnlinePermission(true)
+      }
+
     } catch (error) {
       console.error('Chat error:', error)
       setError('Sorry, I encountered an error. Please try again.')
       
       const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
+        id: generateMessageId(),
         role: 'assistant',
         content: 'I apologize, but I\'m having trouble responding right now. Please try again in a moment.',
         timestamp: new Date()
@@ -209,6 +272,65 @@ export default function ChatPage() {
     setInputValue('')
   }
 
+  const handleOnlinePermissionApprove = async () => {
+    if (!pendingConversationId || !pendingMessage) return
+
+    setShowOnlinePermission(false)
+    setIsLoading(true)
+
+    try {
+      const data = await sendHybridMessage(
+        pendingMessage,
+        pendingConversationId,
+        pendingConversationHistory,
+        true // useOnline = true
+      )
+
+      const assistantMessage: Message = {
+        id: generateMessageId(),
+        role: 'assistant',
+        content: data.response,
+        timestamp: new Date()
+      }
+
+      setMessages(prev => [...prev, assistantMessage])
+      
+      // If this was a new conversation, redirect now
+      if (pendingConversationId && !currentConversationId) {
+        setInputValue('')
+        setShowNewThreadModal(false)
+        setNewThreadTitle('')
+        loadConversations()
+        router.push(`/chat/${pendingConversationId}`)
+      }
+    } catch (error) {
+      console.error('Online chat error:', error)
+      setError('Sorry, I encountered an error accessing online information.')
+    } finally {
+      setIsLoading(false)
+      setPendingMessage('')
+      setPendingConversationId(null)
+      setPendingConversationHistory([])
+    }
+  }
+
+  const handleOnlinePermissionDecline = () => {
+    setShowOnlinePermission(false)
+    
+    // If this was a new conversation, redirect now
+    if (pendingConversationId && !currentConversationId) {
+      setInputValue('')
+      setShowNewThreadModal(false)
+      setNewThreadTitle('')
+      loadConversations()
+      router.push(`/chat/${pendingConversationId}`)
+    }
+    
+    setPendingMessage('')
+    setPendingConversationId(null)
+    setPendingConversationHistory([])
+  }
+
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   }
@@ -223,6 +345,11 @@ export default function ChatPage() {
     if (diffDays === 2) return 'Yesterday'
     if (diffDays <= 7) return `${diffDays - 1} days ago`
     return date.toLocaleDateString()
+  }
+
+  // Generate unique ID for client-side only
+  const generateMessageId = () => {
+    return `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
   }
 
   if (status === 'loading') {
@@ -366,8 +493,9 @@ export default function ChatPage() {
                     className={`text-xs mt-2 ${
                       message.role === 'user' ? 'text-indigo-100' : 'text-gray-500'
                     }`}
+                    suppressHydrationWarning={true}
                   >
-                    {formatTime(message.timestamp)}
+                    {(message.timestamp || message.createdAt) ? formatTime(new Date(message.timestamp || message.createdAt!)) : 'Just now'}
                   </div>
                 </div>
               </div>
@@ -505,6 +633,15 @@ export default function ChatPage() {
           </div>
         </div>
       )}
+
+      {/* Online Permission Modal */}
+      <OnlinePermissionModal
+        isOpen={showOnlinePermission}
+        onClose={handleOnlinePermissionDecline}
+        onApprove={handleOnlinePermissionApprove}
+        onDecline={handleOnlinePermissionDecline}
+        message={pendingMessage}
+      />
     </div>
   )
 }

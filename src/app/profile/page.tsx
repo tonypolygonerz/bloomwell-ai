@@ -13,6 +13,35 @@ interface OrganizationData {
   focusAreas: string
 }
 
+interface ProPublicaOrganization {
+  ein: string
+  name: string
+  city: string
+  state: string
+  zip: string
+  country: string
+  category: string
+  subsection: string
+  ruling_date: string
+  deductibility: string
+  classification: string
+  asset_amount: string
+  income_amount: string
+  revenue_amount: string
+  ntee_code: string
+  ntee_classification: string
+  website: string
+  mission: string
+  address: string
+  full_address: {
+    street: string
+    city: string
+    state: string
+    zip: string
+    country: string
+  }
+}
+
 export default function ProfilePage() {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -20,6 +49,13 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+
+  // Search functionality
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<ProPublicaOrganization[]>([])
+  const [isSearching, setIsSearching] = useState(false)
+  const [showSearchResults, setShowSearchResults] = useState(false)
+  const [selectedOrganization, setSelectedOrganization] = useState<ProPublicaOrganization | null>(null)
 
   const [formData, setFormData] = useState<OrganizationData>({
     name: '',
@@ -65,6 +101,61 @@ export default function ProfilePage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const searchOrganizations = async (query: string) => {
+    if (!query.trim()) {
+      setSearchResults([])
+      setShowSearchResults(false)
+      return
+    }
+
+    setIsSearching(true)
+    try {
+      const response = await fetch(`/api/organization-search?q=${encodeURIComponent(query)}`)
+      if (response.ok) {
+        const data = await response.json()
+        setSearchResults(data.organizations || [])
+        setShowSearchResults(true)
+      } else {
+        setError('Failed to search organizations')
+      }
+    } catch (error) {
+      console.error('Error searching organizations:', error)
+      setError('Failed to search organizations')
+    } finally {
+      setIsSearching(false)
+    }
+  }
+
+  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setSearchQuery(value)
+    
+    // Debounce search
+    const timeoutId = setTimeout(() => {
+      searchOrganizations(value)
+    }, 500)
+
+    return () => clearTimeout(timeoutId)
+  }
+
+  const selectOrganization = (org: ProPublicaOrganization) => {
+    setSelectedOrganization(org)
+    setFormData(prev => ({
+      ...prev,
+      name: org.name,
+      mission: org.mission || prev.mission,
+    }))
+    setSearchQuery(org.name)
+    setShowSearchResults(false)
+  }
+
+  const clearSearch = () => {
+    setSearchQuery('')
+    setSearchResults([])
+    setShowSearchResults(false)
+    setSelectedOrganization(null)
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -140,6 +231,103 @@ export default function ProfilePage() {
           </div>
 
           <form onSubmit={handleSubmit} className="px-6 py-6 space-y-6">
+            {/* Organization Search */}
+            <div>
+              <label htmlFor="search" className="block text-sm font-medium text-gray-700">
+                Search for Your Organization
+              </label>
+              <div className="mt-1 relative">
+                <input
+                  type="text"
+                  id="search"
+                  value={searchQuery}
+                  onChange={handleSearchInputChange}
+                  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  placeholder="Search by organization name or EIN..."
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={clearSearch}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  >
+                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+                {isSearching && (
+                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-indigo-600"></div>
+                  </div>
+                )}
+              </div>
+              <p className="mt-1 text-sm text-gray-500">
+                Search using ProPublica's Nonprofit Explorer database
+              </p>
+
+              {/* Search Results */}
+              {showSearchResults && searchResults.length > 0 && (
+                <div className="mt-2 border border-gray-200 rounded-md bg-white shadow-lg max-h-60 overflow-y-auto">
+                  {searchResults.map((org) => (
+                    <div
+                      key={org.ein}
+                      onClick={() => selectOrganization(org)}
+                      className="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <h4 className="text-sm font-medium text-gray-900">{org.name}</h4>
+                          <p className="text-sm text-gray-500">
+                            {org.city}, {org.state} • EIN: {org.ein}
+                          </p>
+                          {org.mission && (
+                            <p className="text-xs text-gray-400 mt-1 line-clamp-2">
+                              {org.mission}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {showSearchResults && searchResults.length === 0 && !isSearching && (
+                <div className="mt-2 border border-gray-200 rounded-md bg-white p-3">
+                  <p className="text-sm text-gray-500">No organizations found. Try a different search term or enter details manually below.</p>
+                </div>
+              )}
+            </div>
+
+            {/* Selected Organization Info */}
+            {selectedOrganization && (
+              <div className="bg-green-50 border border-green-200 rounded-md p-4">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-sm font-medium text-green-800">
+                      Organization Found: {selectedOrganization.name}
+                    </h3>
+                    <p className="text-sm text-green-700 mt-1">
+                      EIN: {selectedOrganization.ein} • {selectedOrganization.city}, {selectedOrganization.state}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={clearSearch}
+                      className="text-sm text-green-600 hover:text-green-500 mt-1"
+                    >
+                      Use different organization
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Organization Name */}
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700">
@@ -295,3 +483,5 @@ export default function ProfilePage() {
     </div>
   )
 }
+
+
