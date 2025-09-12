@@ -63,9 +63,15 @@ export default async function Dashboard() {
             <h3 className="text-lg font-semibold mb-4">Organization Profile</h3>
             <a 
               href="/profile" 
-              className="block w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 text-center"
+              className="block w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 text-center mb-3"
             >
               Complete Profile Setup
+            </a>
+            <a 
+              href="/admin" 
+              className="block w-full bg-purple-600 text-white py-2 px-4 rounded hover:bg-purple-700 text-center"
+            >
+              Admin Dashboard
             </a>
           </div>
         </div>

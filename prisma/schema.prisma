@@ -10,14 +10,18 @@ datasource db {
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
-  password  String
+  password  String?  // Made optional for OAuth users
   name      String?
+  image     String?  // Profile image from OAuth providers
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
   organizationId String?
   organization   Organization? @relation(fields: [organizationId], references: [id])
   conversations Conversation[]
+  accounts      Account[]      // OAuth accounts
+  webinarRSVPs  WebinarRSVP[]  // Webinar RSVPs
+  notifications UserNotification[] // User notifications
 }
 
 model Organization {
@@ -56,4 +60,130 @@ model Message {
   
   conversationId String
   conversation   Conversation @relation(fields: [conversationId], references: [id])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model AdminUser {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  password  String   // Hashed password
+  role      String   // "super_admin" | "admin"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  webinars Webinar[] // Webinars created by this admin
+  notifications AdminNotification[] // Notifications sent by this admin
+}
+
+model Webinar {
+  id            String   @id @default(cuid())
+  title         String
+  description   String
+  scheduledDate DateTime
+  timezone      String
+  duration      Int      // Duration in minutes
+  thumbnailUrl  String?
+  uniqueSlug    String   @unique
+  status        String   // "draft" | "published" | "live" | "completed"
+  createdBy     String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  adminUser AdminUser     @relation(fields: [createdBy], references: [id])
+  rsvps    WebinarRSVP[]
+  notifications WebinarNotification[] // Automated webinar notifications
+  userNotifications UserNotification[] // User notifications related to this webinar
+}
+
+model WebinarRSVP {
+  id        String   @id @default(cuid())
+  webinarId String
+  userId    String
+  rsvpDate  DateTime @default(now())
+  attended  Boolean  @default(false)
+  
+  webinar Webinar @relation(fields: [webinarId], references: [id], onDelete: Cascade)
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([webinarId, userId]) // Prevent duplicate RSVPs
+}
+
+model NotificationTemplate {
+  id          String   @id @default(cuid())
+  name        String
+  subject     String
+  content     String
+  type        String   // "announcement" | "webinar_reminder" | "webinar_starting" | "webinar_followup"
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model AdminNotification {
+  id          String   @id @default(cuid())
+  title       String
+  message     String
+  type        String   // "announcement" | "webinar_reminder" | "system"
+  targetType  String   // "all_users" | "webinar_rsvps" | "specific_users"
+  targetData  String?  // JSON string for specific targeting criteria
+  scheduledAt DateTime? // For scheduled notifications
+  sentAt      DateTime?
+  status      String   // "draft" | "scheduled" | "sent" | "failed"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  adminId String
+  admin   AdminUser @relation(fields: [adminId], references: [id])
+  
+  userNotifications UserNotification[]
+}
+
+model UserNotification {
+  id         String   @id @default(cuid())
+  title      String
+  message    String
+  type       String   // "announcement" | "webinar_reminder" | "webinar_starting" | "webinar_followup"
+  isRead     Boolean  @default(false)
+  readAt     DateTime?
+  createdAt  DateTime @default(now())
+  
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  adminNotificationId String?
+  adminNotification   AdminNotification? @relation(fields: [adminNotificationId], references: [id])
+  
+  webinarId String?
+  webinar   Webinar? @relation(fields: [webinarId], references: [id])
+}
+
+model WebinarNotification {
+  id          String   @id @default(cuid())
+  type        String   // "24_hours" | "1_hour" | "starting_now" | "followup"
+  scheduledAt DateTime
+  sentAt      DateTime?
+  status      String   // "scheduled" | "sent" | "failed" | "cancelled"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  webinarId String
+  webinar   Webinar @relation(fields: [webinarId], references: [id], onDelete: Cascade)
 }

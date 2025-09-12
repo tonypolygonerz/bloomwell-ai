@@ -3,6 +3,7 @@
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { LogoutButton } from './LogoutButton'
+import NotificationBell from './NotificationBell'
 
 export function Navigation() {
   const { data: session, status } = useSession()
@@ -68,9 +69,16 @@ export function Navigation() {
               >
                 Profile
               </Link>
+              <Link 
+                href="/notifications" 
+                className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Notifications
+              </Link>
             </div>
           </div>
           <div className="flex items-center space-x-4">
+            <NotificationBell />
             <span className="text-sm text-gray-700">
               Welcome, {session?.user?.name || session?.user?.email}
             </span>
