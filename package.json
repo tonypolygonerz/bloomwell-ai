@@ -12,6 +12,8 @@
     "@prisma/client": "^6.15.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/xml2js": "^0.4.14",
+    "adm-zip": "^0.5.16",
     "autoprefixer": "^10.4.21",
     "bcryptjs": "^3.0.2",
     "jsonwebtoken": "^9.0.2",
@@ -19,7 +21,8 @@
     "next-auth": "^4.24.11",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "recharts": "^3.2.0"
+    "recharts": "^3.2.0",
+    "xml2js": "^0.6.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

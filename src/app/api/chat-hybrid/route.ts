@@ -14,6 +14,14 @@ const NONPROFIT_KEYWORDS = [
   'stakeholder', 'impact', 'evaluation', 'capacity building'
 ]
 
+// Keywords that indicate a grants search request
+const GRANTS_SEARCH_KEYWORDS = [
+  'find grants', 'search grants', 'federal grants', 'funding opportunities',
+  'grant opportunities', 'current grants', 'available grants', 'grants database',
+  'find funding', 'search funding', 'funding search', 'grants for',
+  'grants matching', 'grants that match', 'suitable grants', 'relevant grants'
+]
+
 // Keywords that indicate the query might benefit from online APIs
 const ONLINE_KEYWORDS = [
   'weather', 'time', 'date', 'current', 'news', 'today',
@@ -51,6 +59,122 @@ function shouldUseLocalOllama(message: string): boolean {
 function shouldSuggestOnline(message: string): boolean {
   const lowerMessage = message.toLowerCase()
   return ONLINE_KEYWORDS.some(keyword => lowerMessage.includes(keyword))
+}
+
+function isGrantsSearchRequest(message: string): boolean {
+  const lowerMessage = message.toLowerCase()
+  
+  // Check for grants search keywords
+  const hasGrantsKeywords = GRANTS_SEARCH_KEYWORDS.some(keyword => 
+    lowerMessage.includes(keyword)
+  )
+  
+  return hasGrantsKeywords
+}
+
+async function searchGrantsForUser(message: string, user: any): Promise<string> {
+  try {
+    // Extract potential search terms from the message
+    const searchTerms = extractSearchTerms(message)
+    
+    // Internal database query - NO API calls
+    const whereConditions: any = {
+      isActive: true,
+      closeDate: { gte: new Date() } // Only active grants
+    }
+
+    // Add search conditions if search terms exist
+    if (searchTerms) {
+      whereConditions.OR = [
+        { title: { contains: searchTerms } },
+        { description: { contains: searchTerms } },
+        { agencyCode: { contains: searchTerms } }
+      ]
+    }
+
+    // Query grants directly from database
+    const grants = await prisma.grant.findMany({
+      where: whereConditions,
+      orderBy: { closeDate: 'asc' },
+      take: 5, // Limit to top 5 results for chat
+      select: {
+        id: true,
+        title: true,
+        agencyCode: true,
+        closeDate: true,
+        description: true,
+        awardCeiling: true,
+        category: true
+      }
+    })
+
+    if (grants.length === 0) {
+      return `I searched our federal grants database but didn't find any current opportunities matching your criteria. 
+
+Here are some suggestions:
+- Try broader search terms
+- Check if there are any grants in different funding categories
+- Consider grants with different award amounts
+- Look for grants from different federal agencies
+
+Would you like me to search for grants in a specific category or agency?`
+    }
+
+    let response = `I found ${grants.length} current federal grant opportunities that might match your needs:\n\n`
+
+    grants.forEach((grant, index) => {
+      const closeDate = grant.closeDate ? new Date(grant.closeDate).toLocaleDateString() : 'TBD'
+      const awardAmount = grant.awardCeiling ? `$${(grant.awardCeiling / 1000).toFixed(0)}K` : 'Amount varies'
+      
+      response += `**${index + 1}. ${grant.title}**\n`
+      response += `   • Agency: ${grant.agencyCode || 'Various'}\n`
+      response += `   • Award Amount: ${awardAmount}\n`
+      response += `   • Application Deadline: ${closeDate}\n`
+      if (grant.description) {
+        response += `   • Description: ${grant.description.substring(0, 150)}...\n`
+      }
+      response += `\n`
+    })
+
+    // Get total count for context
+    const totalCount = await prisma.grant.count({
+      where: {
+        isActive: true,
+        closeDate: { gte: new Date() }
+      }
+    })
+
+    response += `\nThese are just a few of the ${totalCount} active grants in our database. Would you like me to search for grants in a specific area or with different criteria?`
+
+    return response
+  } catch (error) {
+    console.error('Error searching grants:', error)
+    return `I encountered an error while searching our grants database. Please try again or contact support if the issue persists.`
+  }
+}
+
+function extractSearchTerms(message: string): string | undefined {
+  const lowerMessage = message.toLowerCase()
+  
+  // Look for specific terms after "grants for" or "funding for"
+  const grantsForMatch = lowerMessage.match(/grants?\s+for\s+(.+?)(?:\?|$)/)
+  if (grantsForMatch) {
+    return grantsForMatch[1].trim()
+  }
+  
+  const fundingForMatch = lowerMessage.match(/funding\s+for\s+(.+?)(?:\?|$)/)
+  if (fundingForMatch) {
+    return fundingForMatch[1].trim()
+  }
+  
+  // Look for specific terms after "find" or "search"
+  const findMatch = lowerMessage.match(/(?:find|search)\s+(?:grants?\s+for\s+)?(.+?)(?:\?|$)/)
+  if (findMatch) {
+    return findMatch[1].trim()
+  }
+  
+  // If no specific terms found, return undefined to search all grants
+  return undefined
 }
 
 async function generateOllamaResponse(message: string, conversationHistory: any[]): Promise<string> {
@@ -167,6 +291,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Message and conversation ID are required' }, { status: 400 })
     }
 
+    // Check if this is a grants search request
+    const isGrantsSearch = isGrantsSearchRequest(message)
+    
     // Determine if we should use local Ollama or suggest online
     const useLocal = shouldUseLocalOllama(message)
     const suggestOnline = shouldSuggestOnline(message)
@@ -174,16 +301,22 @@ export async function POST(request: NextRequest) {
     // Debug logging
     console.log('Hybrid API Debug:', {
       message,
+      isGrantsSearch,
       useLocal,
       suggestOnline,
       hasNonprofitKeywords: NONPROFIT_KEYWORDS.some(keyword => message.toLowerCase().includes(keyword)),
-      hasOnlineKeywords: ONLINE_KEYWORDS.some(keyword => message.toLowerCase().includes(keyword))
+      hasOnlineKeywords: ONLINE_KEYWORDS.some(keyword => message.toLowerCase().includes(keyword)),
+      hasGrantsKeywords: GRANTS_SEARCH_KEYWORDS.some(keyword => message.toLowerCase().includes(keyword))
     })
 
     let aiResponse: string
     let responseType: 'local' | 'online' | 'suggestion'
 
-    if (useLocal) {
+    if (isGrantsSearch) {
+      // Handle grants search requests
+      aiResponse = await searchGrantsForUser(message, user)
+      responseType = 'local'
+    } else if (useLocal) {
       // Use local Ollama for nonprofit-specific queries
       aiResponse = await generateOllamaResponse(message, conversationHistory)
       responseType = 'local'

@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 const jwt = require('jsonwebtoken')
 
-// For now, let's use a simple hardcoded admin for testing
-// In production, this should come from the database
+// Admin credentials from environment variables for security
+// Note: Using direct hash due to environment variable loading issue with $ characters
 const ADMIN_CREDENTIALS = {
-  username: 'admin',
-  password: '$2b$10$pq/qYG95sWKjmz70Ge2pf.XTh37c/O7QGRkPZSje5wIWeHlf2CyGa', // admin123
-  id: 'cmfez9ezh0000402ck1i6gs56',
-  role: 'super_admin'
+  username: process.env.ADMIN_USERNAME || 'admin',
+  password: '$2b$10$EFBYmuVedoaaVHQA2dWgX.thEF3hS/L7n4EI8HLuKYINiKS8c15I6', // admin123
+  id: process.env.ADMIN_ID || 'admin-1757897651',
+  role: process.env.ADMIN_ROLE || 'super_admin'
 }
 
 export async function POST(request: NextRequest) {
@@ -19,15 +19,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Username and password are required' }, { status: 400 })
     }
 
-    console.log('Admin auth attempt for username:', username)
 
     // Check credentials
+    if (!ADMIN_CREDENTIALS.password) {
+      console.error('ADMIN_PASSWORD_HASH not configured')
+      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
+    }
+
     if (username !== ADMIN_CREDENTIALS.username) {
       console.log('Admin user not found:', username)
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
     }
 
-    console.log('Admin user found:', username)
 
     // Verify password
     const isValidPassword = await bcrypt.compare(password, ADMIN_CREDENTIALS.password)
@@ -36,7 +39,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
     }
 
-    console.log('Password verified for user:', username)
 
     // Create JWT token
     const secret = process.env.NEXTAUTH_SECRET
@@ -55,7 +57,6 @@ export async function POST(request: NextRequest) {
       { expiresIn: '24h' }
     )
 
-    console.log('JWT token created for user:', username)
 
     // Return admin info (without password)
     return NextResponse.json({

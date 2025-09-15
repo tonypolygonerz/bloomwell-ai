@@ -105,8 +105,8 @@ export const authOptions = {
       }
       return session
     }
-  },
-})
+  }
+}
 
 const handler = NextAuth(authOptions)
 

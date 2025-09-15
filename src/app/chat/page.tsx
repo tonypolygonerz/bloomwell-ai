@@ -63,7 +63,7 @@ export default function ChatPage() {
     const prompt = searchParams.get('prompt')
     if (prompt) {
       const promptMap: { [key: string]: string } = {
-        'find-grants': "I need help finding grants for my nonprofit organization. Can you guide me through the process of identifying and applying for funding opportunities?",
+        'find-grants': "I need help finding federal grants for my nonprofit organization. Can you search for current funding opportunities that match my organization's mission and needs?",
         'board-help': "I need assistance with board governance and management. What are the best practices for working with my board of directors?",
         'funding-ideas': "I need creative funding ideas for my nonprofit. What are some alternative revenue streams and fundraising strategies I should consider?",
         'start-nonprofit': "I'm interested in starting a new nonprofit organization. What are the key steps and requirements I need to know?",
@@ -578,7 +578,7 @@ export default function ChatPage() {
               <span className="text-sm text-gray-500 mb-2 block">Quick questions:</span>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {[
-                  { text: "How do I find grants?", prompt: "I need help finding grants for my nonprofit organization. Can you guide me through the process of identifying and applying for funding opportunities?" },
+                  { text: "🔍 Find Federal Grants", prompt: "I need help finding federal grants for my nonprofit organization. Can you search for current funding opportunities that match my organization's mission and needs?", highlight: true },
                   { text: "Help with my board", prompt: "I need assistance with board governance and management. What are the best practices for working with my board of directors?" },
                   { text: "Starting a nonprofit", prompt: "I'm interested in starting a new nonprofit organization. What are the key steps and requirements I need to know?" },
                   { text: "Need funding ideas", prompt: "I need creative funding ideas for my nonprofit. What are some alternative revenue streams and fundraising strategies I should consider?" },
@@ -588,7 +588,11 @@ export default function ChatPage() {
                   <button
                     key={item.text}
                     onClick={() => setInputValue(item.prompt)}
-                    className="text-sm bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-4 py-2 rounded-lg transition-colors border border-indigo-200 text-left"
+                    className={`text-sm px-4 py-2 rounded-lg transition-colors border text-left ${
+                      item.highlight 
+                        ? 'bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200 font-medium' 
+                        : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border-indigo-200'
+                    }`}
                     disabled={isLoading}
                   >
                     {item.text}

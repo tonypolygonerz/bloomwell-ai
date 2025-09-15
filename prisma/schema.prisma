@@ -187,3 +187,45 @@ model WebinarNotification {
   webinarId String
   webinar   Webinar @relation(fields: [webinarId], references: [id], onDelete: Cascade)
 }
+
+model Grant {
+  id                    String   @id @default(cuid())
+  opportunityId         String   @unique
+  opportunityNumber     String?
+  title                 String
+  agencyCode           String?
+  cfdaNumber           String?
+  postingDate          DateTime?
+  closeDate            DateTime?
+  description          String?
+  eligibilityCriteria  String?
+  awardCeiling         Int?
+  awardFloor           Int?
+  estimatedFunding     Int?
+  category             String?
+  fundingInstrument    String?
+  isActive             Boolean  @default(true)
+  lastSyncedAt         DateTime @default(now())
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  
+  @@index([closeDate])
+  @@index([agencyCode])
+  @@index([cfdaNumber])
+  @@map("grants")
+}
+
+model GrantSync {
+  id              String   @id @default(cuid())
+  fileName        String   @unique
+  extractedDate   DateTime
+  fileSize        String
+  syncStatus      String   // "pending", "processing", "completed", "failed"
+  recordsProcessed Int?
+  recordsDeleted  Int?
+  errorMessage    String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@map("grant_syncs")
+}
