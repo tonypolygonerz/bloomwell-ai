@@ -14,7 +14,7 @@ export function Navigation() {
 
   if (status === 'unauthenticated') {
     return (
-      <nav className="bg-white shadow-sm border-b">
+      <nav className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
@@ -31,7 +31,7 @@ export function Navigation() {
               </Link>
               <Link 
                 href="/auth/register" 
-                className="bg-indigo-600 text-white hover:bg-indigo-700 px-3 py-2 rounded-md text-sm font-medium"
+                className="bg-green-600 text-white hover:bg-green-700 px-3 py-2 rounded-md text-sm font-medium"
               >
                 Sign Up
               </Link>
@@ -43,7 +43,7 @@ export function Navigation() {
   }
 
   return (
-    <nav className="bg-white shadow-sm border-b">
+    <nav className="bg-white shadow-sm border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center space-x-8">

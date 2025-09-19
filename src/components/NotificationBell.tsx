@@ -165,7 +165,7 @@ export default function NotificationBell() {
       {/* Notification Bell */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-full"
+        className="relative p-2 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 rounded-full"
       >
         <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM4 19h6v-6H4v6zM4 5h6V1H4v4zM15 3h6v6h-6V3z" />
@@ -188,7 +188,7 @@ export default function NotificationBell() {
               {unreadCount > 0 && (
                 <button
                   onClick={markAllAsRead}
-                  className="text-sm text-indigo-600 hover:text-indigo-500"
+                  className="text-sm text-green-600 hover:text-green-700"
                 >
                   Mark all as read
                 </button>
@@ -199,7 +199,7 @@ export default function NotificationBell() {
           <div className="max-h-96 overflow-y-auto">
             {loading ? (
               <div className="p-4 text-center">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600 mx-auto"></div>
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600 mx-auto"></div>
                 <p className="mt-2 text-sm text-gray-500">Loading notifications...</p>
               </div>
             ) : notifications.length === 0 ? (
@@ -255,7 +255,7 @@ export default function NotificationBell() {
                   setIsOpen(false)
                   router.push('/notifications')
                 }}
-                className="w-full text-center text-sm text-indigo-600 hover:text-indigo-500"
+                className="w-full text-center text-sm text-green-600 hover:text-green-700"
               >
                 View all notifications
               </button>
