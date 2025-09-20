@@ -4,9 +4,33 @@ import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { LogoutButton } from './LogoutButton'
 import NotificationBell from './NotificationBell'
+import { usePathname } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 export function Navigation() {
   const { data: session, status } = useSession()
+  const pathname = usePathname()
+  const [adminUser, setAdminUser] = useState<any>(null)
+
+  useEffect(() => {
+    // Check for admin session
+    if (typeof window !== 'undefined') {
+      const adminSession = localStorage.getItem('adminSession')
+      if (adminSession) {
+        try {
+          const sessionData = JSON.parse(adminSession)
+          setAdminUser(sessionData.admin)
+        } catch (error) {
+          localStorage.removeItem('adminSession')
+        }
+      }
+    }
+  }, [])
+
+  // Don't show navigation on admin pages (they have their own header)
+  if (pathname?.startsWith('/admin')) {
+    return null
+  }
 
   if (status === 'loading') {
     return null

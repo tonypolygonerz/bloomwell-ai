@@ -19,12 +19,7 @@ interface GrantSync {
 }
 
 interface GrantsStatistics {
-  totalGrants: number
   activeGrants: number
-  upcomingGrants: number
-  totalAwardAmount: number
-  averageAwardAmount: number
-  topAgencies: { agencyCode: string; count: number }[]
 }
 
 export default function AdminGrantsPage() {
@@ -34,12 +29,7 @@ export default function AdminGrantsPage() {
   const [adminUser, setAdminUser] = useState<any>(null)
   const [syncHistory, setSyncHistory] = useState<GrantSync[]>([])
   const [statistics, setStatistics] = useState<GrantsStatistics>({
-    totalGrants: 0,
-    activeGrants: 0,
-    upcomingGrants: 0,
-    totalAwardAmount: 0,
-    averageAwardAmount: 0,
-    topAgencies: []
+    activeGrants: 0
   })
   const [error, setError] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
@@ -71,15 +61,8 @@ export default function AdminGrantsPage() {
         const syncData = await syncResponse.json()
         setSyncHistory(syncData.syncHistory || [])
         
-        // Set default statistics (no public API calls)
-        setStatistics({
-          totalGrants: 0,
-          activeGrants: 0,
-          upcomingGrants: 0,
-          totalAwardAmount: 0,
-          averageAwardAmount: 0,
-          topAgencies: []
-        })
+        // Use statistics from API response
+        setStatistics(syncData.statistics || { activeGrants: 0 })
       } else if (syncResponse.status === 401) {
         localStorage.removeItem('adminSession')
         router.push('/admin/login')
@@ -171,37 +154,16 @@ export default function AdminGrantsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="py-4">
-            <AdminBreadcrumb
-              items={[
-                { label: 'Grants Management' }
-              ]}
-            />
-          </div>
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Grants Management</h1>
-              <p className="mt-1 text-sm text-gray-500">
-                Manage federal grants data synchronization and monitoring
-              </p>
-            </div>
-            <div className="flex space-x-4">
-              <Link
-                href="/admin"
-                className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-              >
-                Back to Admin
-              </Link>
-            </div>
-          </div>
-        </div>
+    <>
+      {/* Page Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">Grants Management</h1>
+        <p className="mt-1 text-sm text-gray-500">
+          Manage federal grants data synchronization and monitoring
+        </p>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div>
         {/* Error/Success Messages */}
         {error && (
           <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
@@ -214,28 +176,8 @@ export default function AdminGrantsPage() {
           </div>
         )}
 
-        {/* Grants Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-purple-500 rounded-md flex items-center justify-center">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">Total Grants</dt>
-                    <dd className="text-lg font-medium text-gray-900">{statistics.totalGrants.toLocaleString()}</dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
-
+        {/* Active Grants Statistics */}
+        <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-6 mb-8">
           <div className="bg-white overflow-hidden shadow rounded-lg">
             <div className="p-5">
               <div className="flex items-center">
@@ -253,47 +195,10 @@ export default function AdminGrantsPage() {
                   </dl>
                 </div>
               </div>
-            </div>
-          </div>
-
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-orange-500 rounded-md flex items-center justify-center">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">Upcoming (30d)</dt>
-                    <dd className="text-lg font-medium text-gray-900">{statistics.upcomingGrants.toLocaleString()}</dd>
-                  </dl>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-indigo-500 rounded-md flex items-center justify-center">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-gray-500 truncate">Total Awards</dt>
-                    <dd className="text-lg font-medium text-gray-900">
-                      ${(statistics.totalAwardAmount / 1000000000).toFixed(1)}B
-                    </dd>
-                  </dl>
-                </div>
+              <div className="mt-2">
+                <p className="text-xs text-gray-500">
+                  Currently available grants that users can apply for (not expired)
+                </p>
               </div>
             </div>
           </div>
@@ -306,8 +211,14 @@ export default function AdminGrantsPage() {
             <div className="mt-2 max-w-xl text-sm text-gray-500">
               <p>
                 Synchronize federal grants data from grants.gov. This will download the latest XML extract, 
-                parse grant opportunities, and update the database. Expired grants will be automatically removed.
+                parse grant opportunities, and update the database. The system automatically:
               </p>
+              <ul className="mt-2 list-disc list-inside space-y-1">
+                <li>Removes expired grants (closeDate &lt; today - 1 day)</li>
+                <li>Handles duplicates using upsert operations</li>
+                <li>Updates existing grants with latest information</li>
+                <li>Only shows active grants to users</li>
+              </ul>
             </div>
             <div className="mt-5">
               <button
@@ -332,27 +243,6 @@ export default function AdminGrantsPage() {
           </div>
         </div>
 
-        {/* Top Agencies */}
-        {statistics.topAgencies.length > 0 && (
-          <div className="bg-white shadow sm:rounded-lg mb-8">
-            <div className="px-4 py-5 sm:p-6">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">Top Granting Agencies</h3>
-              <div className="mt-5">
-                <ul className="space-y-3">
-                  {statistics.topAgencies.slice(0, 10).map((agency, index) => (
-                    <li key={agency.agencyCode} className="flex justify-between items-center">
-                      <div className="flex items-center">
-                        <span className="text-sm font-medium text-gray-900">#{index + 1}</span>
-                        <span className="ml-3 text-sm text-gray-600">{agency.agencyCode}</span>
-                      </div>
-                      <span className="text-sm font-medium text-gray-900">{agency.count} grants</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Sync History */}
         <div className="bg-white shadow sm:rounded-lg">
@@ -431,6 +321,6 @@ export default function AdminGrantsPage() {
           </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }

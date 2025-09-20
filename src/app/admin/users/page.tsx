@@ -195,50 +195,39 @@ export default function UserManagement() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="py-4">
-            <AdminBreadcrumb
-              items={[
-                { label: 'Users' }
-              ]}
-            />
-          </div>
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
-              <p className="mt-1 text-sm text-gray-500">
-                Manage and monitor your customer base - {pagination.total} total users
-              </p>
-            </div>
-            <Link
-              href="/admin"
-              className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-            >
-              Back to Admin
-            </Link>
-          </div>
-        </div>
+    <>
+      {/* Page Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
+        <p className="mt-1 text-sm text-gray-500">
+          Manage and monitor your customer base - {pagination.total} total users
+        </p>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div>
         {/* Search and Filters */}
         <AdminSearchFilters
           type="users"
           onSearch={handleSearch}
-          onExport={handleExport}
-          showExport={true}
         />
 
         {/* Users Table */}
         <div className="bg-white shadow overflow-hidden sm:rounded-md">
           <div className="px-4 py-5 sm:px-6">
-            <h3 className="text-lg leading-6 font-medium text-gray-900">Users</h3>
-            <p className="mt-1 max-w-2xl text-sm text-gray-500">
-              Complete list of registered users with activity information
-            </p>
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="text-lg leading-6 font-medium text-gray-900">Users</h3>
+                <p className="mt-1 max-w-2xl text-sm text-gray-500">
+                  Complete list of registered users with activity information
+                </p>
+              </div>
+              <button
+                onClick={handleExport}
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+              >
+                Export CSV
+              </button>
+            </div>
           </div>
           <div className="border-t border-gray-200">
             {users.length === 0 ? (
@@ -469,6 +458,6 @@ export default function UserManagement() {
           </div>
         )}
       </div>
-    </div>
+    </>
   )
 }

@@ -359,6 +359,7 @@ function parseAmount(amountStr: string | undefined): number | undefined {
 
 /**
  * Cleans up expired grants (closeDate < today - 1 day)
+ * Only deletes grants that have a closeDate and it's in the past
  */
 export async function cleanupExpiredGrants(): Promise<number> {
   try {
@@ -369,9 +370,10 @@ export async function cleanupExpiredGrants(): Promise<number> {
     
     const result = await prisma.grant.deleteMany({
       where: { 
-        closeDate: { 
-          lt: oneDayAgo 
-        } 
+        AND: [
+          { closeDate: { not: null } }, // Only grants with a closeDate
+          { closeDate: { lt: oneDayAgo } } // And it's in the past
+        ]
       }
     })
     

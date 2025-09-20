@@ -28,7 +28,10 @@ export async function GET(request: NextRequest) {
       prisma.grant.count({
         where: {
           isActive: true,
-          closeDate: { gte: now }
+          OR: [
+            { closeDate: null }, // Grants without close date are considered active
+            { closeDate: { gte: now } } // Grants with close date in the future
+          ]
         }
       }),
       prisma.grantSync.findFirst({
