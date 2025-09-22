@@ -49,6 +49,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const admin = getAdminFromRequest(request)
+    console.log('Admin from request:', admin)
     
     if (!admin) {
       return NextResponse.json({ error: 'Admin authentication required' }, { status: 401 })
@@ -59,20 +60,31 @@ export async function POST(request: NextRequest) {
       title,
       description,
       scheduledDate,
-      timezone,
+      timezone = 'America/Los_Angeles',
       duration,
       thumbnailUrl,
-      status = 'draft'
+      status = 'draft',
+      guestSpeakers = [],
+      materials = [],
+      metaDescription,
+      categories = [],
+      maxAttendees = 100,
+      registrationRequired = true,
+      sendReminders = true
     } = body
 
     // Generate unique slug from title
-    const uniqueSlug = title
+    const baseSlug = title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '') + '-' + Date.now()
+      .replace(/(^-|-$)/g, '')
+    const uniqueSlug = baseSlug + '-' + Date.now()
+    const slug = baseSlug
 
     // Use the authenticated admin's ID
     const adminUserId = admin.id
+    console.log('Creating webinar with admin ID:', adminUserId)
+    console.log('Admin object:', admin)
 
     const webinar = await prisma.webinar.create({
       data: {
@@ -83,7 +95,14 @@ export async function POST(request: NextRequest) {
         duration: parseInt(duration),
         thumbnailUrl,
         uniqueSlug,
+        slug,
         status,
+        metaDescription,
+        maxAttendees: parseInt(maxAttendees),
+        isPublished: status === 'published',
+        categories: JSON.stringify(categories),
+        guestSpeakers: JSON.stringify(guestSpeakers),
+        materials: JSON.stringify(materials),
         createdBy: adminUserId
       }
     })

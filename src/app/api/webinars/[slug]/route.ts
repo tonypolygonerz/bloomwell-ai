@@ -12,9 +12,12 @@ export async function GET(
     const { slug } = await params
     const session = await getServerSession()
 
-    const webinar = await prisma.webinar.findUnique({
+    const webinar = await prisma.webinar.findFirst({
       where: {
-        uniqueSlug: slug,
+        OR: [
+          { slug: slug },
+          { uniqueSlug: slug } // Fallback for existing webinars
+        ],
         status: {
           in: ['published', 'live', 'completed'] // Only show published webinars publicly
         }
@@ -53,10 +56,18 @@ export async function GET(
       timezone: webinar.timezone,
       duration: webinar.duration,
       thumbnailUrl: webinar.thumbnailUrl,
+      slug: webinar.slug || webinar.uniqueSlug,
       uniqueSlug: webinar.uniqueSlug,
       status: webinar.status,
       rsvpCount: webinar._count.rsvps,
-      hasRSVPed
+      hasRSVPed,
+      maxAttendees: webinar.maxAttendees,
+      categories: webinar.categories || [],
+      guestSpeakers: webinar.guestSpeakers || [],
+      materials: webinar.materials || [],
+      jitsiRoomUrl: webinar.jitsiRoomUrl,
+      metaDescription: webinar.metaDescription,
+      socialImageUrl: webinar.socialImageUrl
     }
 
     return NextResponse.json(formattedWebinar)

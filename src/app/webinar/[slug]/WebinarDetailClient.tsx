@@ -1,12 +1,10 @@
-import { useState, useEffect } from 'react'
+'use client'
+
+import { useState } from 'react'
 import { useSession } from 'next-auth/react'
-import { useParams, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { format } from 'date-fns'
-import { Metadata } from 'next'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
 
 interface Webinar {
   id: string
@@ -21,7 +19,6 @@ interface Webinar {
   status: 'draft' | 'published' | 'live' | 'completed'
   rsvpCount: number
   maxAttendees: number
-  hasRSVPed: boolean
   categories: string[]
   guestSpeakers: Array<{
     name: string
@@ -40,49 +37,61 @@ interface Webinar {
   socialImageUrl?: string
 }
 
-export default function WebinarPage() {
-  const { data: session } = useSession()
-  const params = useParams()
-  const router = useRouter()
-  const slug = params.slug as string
+interface WebinarDetailClientProps {
+  webinar: Webinar & { _count: { rsvps: number } }
+}
 
-  const [webinar, setWebinar] = useState<Webinar | null>(null)
-  const [loading, setLoading] = useState(true)
+export default function WebinarDetailClient({ webinar }: WebinarDetailClientProps) {
+  const { data: session } = useSession()
+  const router = useRouter()
   const [rsvpLoading, setRsvpLoading] = useState(false)
   const [error, setError] = useState('')
   const [showShareModal, setShowShareModal] = useState(false)
+  const [hasRSVPed, setHasRSVPed] = useState(false)
 
-  useEffect(() => {
-    fetchWebinar()
-  }, [slug])
-
-  const fetchWebinar = async () => {
-    try {
-      const response = await fetch(`/api/webinars/${slug}`)
-      if (response.ok) {
-        const data = await response.json()
-        setWebinar(data)
-      } else {
-        setError('Webinar not found')
-      }
-    } catch (error) {
-      setError('Failed to load webinar')
-    } finally {
-      setLoading(false)
+  // Function to convert timezone to user-friendly format
+  const getTimezoneDisplay = (timezone: string) => {
+    const timezoneMap: { [key: string]: string } = {
+      'America/Los_Angeles': 'Pacific',
+      'America/Denver': 'Mountain',
+      'America/Chicago': 'Central',
+      'America/New_York': 'Eastern',
+      'America/Phoenix': 'Arizona',
+      'America/Anchorage': 'Alaska',
+      'Pacific/Honolulu': 'Hawaii'
     }
+    
+    const baseTimezone = timezoneMap[timezone] || timezone
+    const now = new Date()
+    const dateInTimezone = new Date(now.toLocaleString("en-US", {timeZone: timezone}))
+    const utcDate = new Date(now.toLocaleString("en-US", {timeZone: "UTC"}))
+    const offset = (dateInTimezone.getTime() - utcDate.getTime()) / (1000 * 60 * 60)
+    
+    let suffix = ''
+    if (baseTimezone === 'Pacific') {
+      suffix = offset === -7 ? 'PDT' : 'PST'
+    } else if (baseTimezone === 'Mountain') {
+      suffix = offset === -6 ? 'MDT' : 'MST'
+    } else if (baseTimezone === 'Central') {
+      suffix = offset === -5 ? 'CDT' : 'CST'
+    } else if (baseTimezone === 'Eastern') {
+      suffix = offset === -4 ? 'EDT' : 'EST'
+    }
+    
+    return suffix ? `${baseTimezone} / ${suffix}` : baseTimezone
   }
 
   const handleRSVP = async () => {
     if (!session) {
       // Redirect to login with return URL
-      const returnUrl = encodeURIComponent(`/webinar/${slug}`)
+      const returnUrl = encodeURIComponent(`/webinar/${webinar.slug || webinar.uniqueSlug}`)
       router.push(`/auth/login?callbackUrl=${returnUrl}`)
       return
     }
 
     setRsvpLoading(true)
     try {
-      const response = await fetch(`/api/webinars/${slug}/rsvp`, {
+      const response = await fetch(`/api/webinars/${webinar.slug || webinar.uniqueSlug}/rsvp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -90,9 +99,7 @@ export default function WebinarPage() {
       })
 
       if (response.ok) {
-        // Refresh webinar data to update RSVP status
-        fetchWebinar()
-        // Show success message
+        setHasRSVPed(true)
         alert("You're registered! Check your email for details.")
       } else {
         const errorData = await response.json()
@@ -109,6 +116,7 @@ export default function WebinarPage() {
     setShowShareModal(true)
   }
 
+
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href)
@@ -119,8 +127,6 @@ export default function WebinarPage() {
   }
 
   const generateCalendarUrl = (type: 'google' | 'outlook' | 'yahoo' | 'ics') => {
-    if (!webinar) return '#'
-    
     const startDate = new Date(webinar.scheduledDate)
     const endDate = new Date(startDate.getTime() + webinar.duration * 60 * 1000)
     
@@ -128,41 +134,47 @@ export default function WebinarPage() {
       return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'
     }
     
-    const title = encodeURIComponent(webinar.title)
-    const description = encodeURIComponent(webinar.description)
-    const location = encodeURIComponent(webinar.jitsiRoomUrl || 'Online Event')
+    const title = encodeURIComponent(`${webinar.title} : Bloomwell AI`)
+    const eventUrl = `${window.location.origin}/webinar/${webinar.slug || webinar.uniqueSlug}`
+    const description = encodeURIComponent(`${webinar.description}\n\nHosted by Bloomwell AI\n\nEvent URL: ${eventUrl}`)
+    const location = encodeURIComponent('Online Event - Bloomwell AI')
     
     const start = formatDate(startDate)
     const end = formatDate(endDate)
     
     switch (type) {
       case 'google':
-        return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${start}/${end}&details=${description}&location=${location}`
+        return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${start}/${end}&details=${description}&location=${location}&trp=false&sprop=&sprop=name:`
       case 'outlook':
-        return `https://outlook.live.com/calendar/0/deeplink/compose?subject=${title}&startdt=${start}&enddt=${end}&body=${description}&location=${location}`
+        return `https://outlook.live.com/calendar/0/deeplink/compose?subject=${title}&startdt=${startDate.toISOString()}&enddt=${endDate.toISOString()}&body=${description}&location=${location}&path=/calendar/action/compose&rru=addevent`
       case 'yahoo':
-        return `https://calendar.yahoo.com/?v=60&title=${title}&st=${start}&et=${end}&desc=${description}&in_loc=${location}`
+        return `https://calendar.yahoo.com/?v=60&view=d&type=20&title=${title}&st=${start}&et=${end}&desc=${description}&in_loc=${location}`
       case 'ics':
+        const uid = `webinar-${webinar.id}@bloomwell-ai.com`
         const icsContent = [
           'BEGIN:VCALENDAR',
           'VERSION:2.0',
           'PRODID:-//Bloomwell AI//Webinar//EN',
           'BEGIN:VEVENT',
+          `UID:${uid}`,
           `DTSTART:${start}`,
           `DTEND:${end}`,
-          `SUMMARY:${webinar.title}`,
-          `DESCRIPTION:${webinar.description}`,
-          `LOCATION:${webinar.jitsiRoomUrl || 'Online Event'}`,
-          `URL:${window.location.href}`,
+          `DTSTAMP:${formatDate(new Date())}`,
+          `SUMMARY:${webinar.title} : Bloomwell AI`,
+          `DESCRIPTION:${webinar.description.replace(/\n/g, '\\n')}\\n\\nHosted by Bloomwell AI\\n\\nEvent URL: ${eventUrl}`,
+          `LOCATION:Online Event - Bloomwell AI`,
+          `URL:${eventUrl}`,
+          'STATUS:CONFIRMED',
+          'TRANSP:OPAQUE',
           'END:VEVENT',
           'END:VCALENDAR'
         ].join('\r\n')
         
-        const blob = new Blob([icsContent], { type: 'text/calendar' })
+        const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' })
         const url = URL.createObjectURL(blob)
         const link = document.createElement('a')
         link.href = url
-        link.download = `${webinar.slug}.ics`
+        link.download = `${webinar.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_bloomwell_ai.ics`
         link.click()
         URL.revokeObjectURL(url)
         return '#'
@@ -173,51 +185,10 @@ export default function WebinarPage() {
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
-      weekday: 'long',
       year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+      month: 'short',
+      day: 'numeric'
     })
-  }
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'draft': return 'bg-gray-100 text-gray-800'
-      case 'published': return 'bg-blue-100 text-blue-800'
-      case 'live': return 'bg-green-100 text-green-800'
-      case 'completed': return 'bg-purple-100 text-purple-800'
-      default: return 'bg-gray-100 text-gray-800'
-    }
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading webinar...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (error || !webinar) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Webinar Not Found</h1>
-          <p className="text-gray-600 mb-8">{error || 'The webinar you are looking for does not exist.'}</p>
-          <a
-            href="/"
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-          >
-            Go Home
-          </a>
-        </div>
-      </div>
-    )
   }
 
   return (
@@ -266,7 +237,7 @@ export default function WebinarPage() {
             {/* Main Content - Left Column (60%) */}
             <div className="lg:col-span-2">
               {/* Event Image */}
-              <div className="mb-8">
+              <div className="mb-8 relative">
                 {webinar.thumbnailUrl ? (
                   <img
                     className="w-full h-64 lg:h-80 object-cover rounded-lg"
@@ -323,7 +294,7 @@ export default function WebinarPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <span className="text-gray-700">
-                      {format(new Date(webinar.scheduledDate), 'EEEE, MMMM d, yyyy • h:mm a')} ({webinar.timezone})
+                      {format(new Date(webinar.scheduledDate), 'EEEE, MMMM d, yyyy • h:mm a')} ({getTimezoneDisplay(webinar.timezone)})
                     </span>
                   </div>
                   <div className="flex items-center">
@@ -351,15 +322,17 @@ export default function WebinarPage() {
                       <div key={index} className="flex items-start space-x-4 p-4 bg-white rounded-lg border">
                         <div className="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center text-lg font-semibold text-gray-600">
                           {speaker.image ? (
-                            <img src={speaker.image} alt={speaker.name} className="w-16 h-16 rounded-full object-cover" />
+                            <img src={speaker.image} alt={`${speaker.firstName} ${speaker.lastName}`} className="w-16 h-16 rounded-full object-cover" />
                           ) : (
-                            speaker.name.charAt(0).toUpperCase()
+                            `${speaker.firstName} ${speaker.lastName}`.charAt(0).toUpperCase()
                           )}
                         </div>
                         <div className="flex-1">
-                          <h4 className="font-semibold text-gray-900">{speaker.name}</h4>
+                          <h4 className="font-semibold text-gray-900">
+                            {speaker.honorific ? `${speaker.honorific} ` : ''}{speaker.firstName} {speaker.lastName}
+                          </h4>
                           <p className="text-gray-600">{speaker.title}</p>
-                          <p className="text-sm text-gray-500">{speaker.company}</p>
+                          <p className="text-sm text-gray-500">{speaker.institution}</p>
                           {speaker.bio && (
                             <p className="text-sm text-gray-700 mt-2">{speaker.bio}</p>
                           )}
@@ -415,7 +388,7 @@ export default function WebinarPage() {
                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <span>{format(new Date(webinar.scheduledDate), 'h:mm a')} ({webinar.timezone})</span>
+                    <span>{format(new Date(webinar.scheduledDate), 'h:mm a')} ({getTimezoneDisplay(webinar.timezone)})</span>
                   </div>
                   <div className="flex items-center text-sm text-gray-600 mb-4">
                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -446,7 +419,7 @@ export default function WebinarPage() {
 
                 {/* RSVP Button */}
                 <div className="mb-6">
-                  {webinar.hasRSVPed ? (
+                  {hasRSVPed ? (
                     <button
                       disabled
                       className="w-full bg-gray-500 text-white font-semibold py-3 px-6 rounded-lg cursor-not-allowed"
@@ -482,10 +455,10 @@ export default function WebinarPage() {
                 {/* Attendee Count */}
                 <div className="border-t pt-4">
                   <p className="text-sm text-gray-600 mb-3">
-                    Attendees ({webinar.rsvpCount})
+                    Attendees ({webinar._count.rsvps})
                   </p>
                   <div className="flex -space-x-2">
-                    {Array.from({ length: Math.min(webinar.rsvpCount, 6) }, (_, i) => (
+                    {Array.from({ length: Math.min(webinar._count.rsvps, 6) }, (_, i) => (
                       <div
                         key={i}
                         className="w-8 h-8 bg-gray-300 rounded-full border-2 border-white flex items-center justify-center text-xs font-medium text-gray-600"
@@ -493,9 +466,9 @@ export default function WebinarPage() {
                         {String.fromCharCode(65 + i)}
                       </div>
                     ))}
-                    {webinar.rsvpCount > 6 && (
+                    {webinar._count.rsvps > 6 && (
                       <div className="w-8 h-8 bg-gray-200 rounded-full border-2 border-white flex items-center justify-center text-xs font-medium text-gray-600">
-                        +{webinar.rsvpCount - 6}
+                        +{webinar._count.rsvps - 6}
                       </div>
                     )}
                   </div>

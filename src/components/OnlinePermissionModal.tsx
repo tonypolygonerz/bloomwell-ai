@@ -44,7 +44,7 @@ export default function OnlinePermissionModal({
           </p>
           <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
             <p className="text-sm text-blue-800">
-              <strong>Privacy Note:</strong> Your nonprofit-specific conversations remain completely local and private. Only general information queries (like weather, news, or current events) would access online sources.
+              <strong>Privacy Note:</strong> Your nonprofit-specific conversations with Bloomwell AI remain completely local and private. Only general information queries (like weather, news, or current events) would access online sources.
             </p>
           </div>
         </div>

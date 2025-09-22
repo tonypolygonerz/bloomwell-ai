@@ -56,7 +56,7 @@ export default function LoginPageNew() {
             Welcome Back
           </h1>
           <p className="text-gray-600">
-            Sign in to your Nonprofit AI Assistant account
+            Sign in to your Bloomwell AI account
           </p>
           <span className="inline-block px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full mt-2">
             🌱 Green Theme Active

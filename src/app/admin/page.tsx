@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import AdminBreadcrumb from '@/components/AdminBreadcrumb'
 
 interface Webinar {
   id: string
@@ -52,7 +50,7 @@ export default function AdminDashboard() {
     totalAwardAmount: 0
   })
   const [loading, setLoading] = useState(true)
-  const [adminUser, setAdminUser] = useState<any>(null)
+  const [adminUser, setAdminUser] = useState<{id: string, username: string, role: string} | null>(null)
   const [selectedWebinars, setSelectedWebinars] = useState<Set<string>>(new Set())
   const [showBulkActions, setShowBulkActions] = useState(false)
 
@@ -60,6 +58,7 @@ export default function AdminDashboard() {
     // Check for admin session
     const adminSession = localStorage.getItem('adminSession')
     if (!adminSession) {
+      setLoading(false)
       router.push('/admin/login')
       return
     }
@@ -71,6 +70,7 @@ export default function AdminDashboard() {
       fetchStats(sessionData.token)
     } catch (error) {
       localStorage.removeItem('adminSession')
+      setLoading(false)
       router.push('/admin/login')
     }
   }, [router])
@@ -325,7 +325,7 @@ export default function AdminDashboard() {
       {/* Dashboard Content */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
-        <p className="text-gray-600">Welcome, {adminUser.username} ({adminUser.role}) - Manage webinars and system administration</p>
+        <p className="text-gray-600">Welcome, {adminUser.username} ({adminUser.role}) - Manage webinars and system administration for Bloomwell AI</p>
       </div>
 
         {/* Stats Cards */}
@@ -414,9 +414,9 @@ export default function AdminDashboard() {
       {/* Content Placeholder */}
       <div className="bg-white rounded-lg shadow-sm border-2 border-dashed border-gray-300">
         <div className="px-6 py-12 text-center">
-          <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
+                </svg>
           <h3 className="mt-2 text-sm font-medium text-gray-900">Dashboard Content</h3>
           <p className="mt-1 text-sm text-gray-500">Your dashboard content will appear here.</p>
         </div>

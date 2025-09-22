@@ -31,6 +31,7 @@ async function main() {
       duration: 90,
       thumbnailUrl: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=300&fit=crop',
       uniqueSlug: 'grant-writing-fundamentals-' + Date.now(),
+      slug: 'grant-writing-fundamentals',
       status: 'published',
       createdBy: adminUser.id
     },
@@ -42,6 +43,7 @@ async function main() {
       duration: 75,
       thumbnailUrl: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=400&h=300&fit=crop',
       uniqueSlug: 'board-governance-best-practices-' + Date.now(),
+      slug: 'board-governance-best-practices',
       status: 'published',
       createdBy: adminUser.id
     },
@@ -53,6 +55,7 @@ async function main() {
       duration: 60,
       thumbnailUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop',
       uniqueSlug: 'digital-marketing-nonprofits-' + Date.now(),
+      slug: 'digital-marketing-nonprofits',
       status: 'draft',
       createdBy: adminUser.id
     }

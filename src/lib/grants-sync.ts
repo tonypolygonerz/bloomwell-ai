@@ -44,7 +44,7 @@ export async function fetchGrantsPage(): Promise<string> {
   try {
     const response = await fetch('https://www.grants.gov/xml-extract', {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; NonprofitAI/1.0)',
+        'User-Agent': 'Mozilla/5.0 (compatible; BloomwellAI/1.0)',
       },
       signal: AbortSignal.timeout(30000), // 30 second timeout
     })

@@ -8,14 +8,15 @@ interface Webinar {
   id: string
   title: string
   description: string
-  date: string
-  time: string
+  scheduledDate: string
+  timezone: string
   duration: number
   maxAttendees: number
-  currentAttendees: number
-  status: 'upcoming' | 'live' | 'completed' | 'cancelled'
+  rsvpCount: number
+  status: 'draft' | 'published' | 'live' | 'completed' | 'cancelled'
   createdAt: string
-  updatedAt: string
+  uniqueSlug: string
+  thumbnailUrl?: string
 }
 
 interface WebinarStats {
@@ -67,14 +68,24 @@ export default function AdminWebinarsPage() {
 
       if (response.ok) {
         const data = await response.json()
-        setWebinars(data.webinars || [])
-        setStats(data.stats || {
-          totalWebinars: 0,
-          upcomingWebinars: 0,
-          liveWebinars: 0,
-          completedWebinars: 0,
-          totalAttendees: 0,
-          averageAttendance: 0
+        // API returns array directly, not wrapped in webinars property
+        const webinarsData = Array.isArray(data) ? data : data.webinars || []
+        setWebinars(webinarsData)
+        
+        // Calculate stats from the webinars data
+        const totalWebinars = webinarsData.length
+        const publishedWebinars = webinarsData.filter(w => w.status === 'published').length
+        const draftWebinars = webinarsData.filter(w => w.status === 'draft').length
+        const totalAttendees = webinarsData.reduce((sum, w) => sum + (w.rsvpCount || 0), 0)
+        const averageAttendance = totalWebinars > 0 ? Math.round(totalAttendees / totalWebinars) : 0
+        
+        setStats({
+          totalWebinars,
+          upcomingWebinars: publishedWebinars, // Treat published as upcoming
+          liveWebinars: 0, // No live webinars currently
+          completedWebinars: 0, // No completed webinars currently
+          totalAttendees,
+          averageAttendance
         })
       } else if (response.status === 401) {
         localStorage.removeItem('adminSession')
@@ -92,8 +103,9 @@ export default function AdminWebinarsPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'upcoming': return 'bg-blue-100 text-blue-800'
-      case 'live': return 'bg-green-100 text-green-800'
+      case 'published': return 'bg-green-100 text-green-800'
+      case 'draft': return 'bg-yellow-100 text-yellow-800'
+      case 'live': return 'bg-blue-100 text-blue-800'
       case 'completed': return 'bg-gray-100 text-gray-800'
       case 'cancelled': return 'bg-red-100 text-red-800'
       default: return 'bg-gray-100 text-gray-800'
@@ -292,21 +304,28 @@ export default function AdminWebinarsPage() {
                               </span>
                             </div>
                             <div className="mt-1 flex items-center text-sm text-gray-500">
-                              <p>{formatDate(webinar.date)} at {webinar.time}</p>
+                              <p>{formatDate(webinar.scheduledDate)}</p>
                               <span className="mx-2">•</span>
                               <p>{webinar.duration} minutes</p>
                               <span className="mx-2">•</span>
-                              <p>{webinar.currentAttendees}/{webinar.maxAttendees} attendees</p>
+                              <p>{webinar.rsvpCount}/{webinar.maxAttendees} RSVPs</p>
                             </div>
                           </div>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <button className="text-indigo-600 hover:text-indigo-900 text-sm font-medium">
+                          <Link 
+                            href={`/admin/webinars/${webinar.id}/edit`}
+                            className="text-indigo-600 hover:text-indigo-900 text-sm font-medium"
+                          >
                             Edit
-                          </button>
-                          <button className="text-gray-600 hover:text-gray-900 text-sm font-medium">
+                          </Link>
+                          <Link 
+                            href={`/webinar/${webinar.uniqueSlug}`}
+                            target="_blank"
+                            className="text-gray-600 hover:text-gray-900 text-sm font-medium"
+                          >
                             View
-                          </button>
+                          </Link>
                         </div>
                       </div>
                     </div>

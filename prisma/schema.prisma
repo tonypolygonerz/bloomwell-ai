@@ -107,6 +107,17 @@ model Webinar {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   
+  // New fields for public webinar system
+  slug             String   @unique
+  metaDescription  String?
+  socialImageUrl   String?
+  maxAttendees     Int      @default(100)
+  isPublished      Boolean  @default(false)
+  categories       Json?    // Array of category strings
+  guestSpeakers    Json?    // Array of speaker objects
+  materials        Json?    // Array of material objects
+  jitsiRoomUrl     String?
+  
   adminUser AdminUser     @relation(fields: [createdBy], references: [id])
   rsvps    WebinarRSVP[]
   notifications WebinarNotification[] // Automated webinar notifications
@@ -114,11 +125,12 @@ model Webinar {
 }
 
 model WebinarRSVP {
-  id        String   @id @default(cuid())
-  webinarId String
-  userId    String
-  rsvpDate  DateTime @default(now())
-  attended  Boolean  @default(false)
+  id           String   @id @default(cuid())
+  webinarId    String
+  userId       String
+  rsvpDate     DateTime @default(now())
+  attended     Boolean  @default(false)
+  reminderSent Boolean  @default(false)
   
   webinar Webinar @relation(fields: [webinarId], references: [id], onDelete: Cascade)
   user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)

@@ -60,7 +60,7 @@ export function AdminLoginForm() {
             </svg>
           </div>
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">Admin Access</h2>
-          <p className="mt-2 text-sm text-gray-600">Super Administrator Dashboard</p>
+          <p className="mt-2 text-sm text-gray-600">Bloomwell AI Administrator Dashboard</p>
         </div>
         
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>

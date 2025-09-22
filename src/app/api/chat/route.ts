@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
 async function generateOllamaResponse(message: string, conversationHistory: any[]): Promise<string> {
   try {
     // Build conversation context for Ollama
-    let conversationContext = `You are a helpful AI assistant specializing in nonprofit organization management. You provide expert guidance on topics like grant writing, fundraising, board governance, volunteer management, strategic planning, and nonprofit operations. Be concise but comprehensive in your responses.
+    let conversationContext = `You are Bloomwell AI, a helpful AI assistant specializing in nonprofit organization management. You provide expert guidance on topics like grant writing, fundraising, board governance, volunteer management, strategic planning, and nonprofit operations. Be concise but comprehensive in your responses.
 
 Previous conversation context:
 ${conversationHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n')}

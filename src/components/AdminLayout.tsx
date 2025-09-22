@@ -18,6 +18,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     // Check for admin session
     const adminSession = localStorage.getItem('adminSession')
     if (!adminSession) {
+      setLoading(false)
       router.push('/admin/login')
       return
     }
@@ -66,7 +67,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             <div className="flex justify-between items-center py-4">
               <div className="flex items-center space-x-4">
                 <Link href="/admin" className="text-xl font-bold text-gray-900">
-                  Admin Panel
+                  Bloomwell AI Admin
                 </Link>
               </div>
               <div className="flex items-center space-x-4">

@@ -38,24 +38,44 @@ export function Navigation() {
 
   if (status === 'unauthenticated') {
     return (
-      <nav className="bg-white shadow-sm border-b border-gray-200">
+      <nav className="bg-green-600 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <Link href="/" className="text-xl font-bold text-gray-900">
-                Nonprofit AI Assistant
+            <div className="flex items-center space-x-8">
+              <Link href="/" className="text-xl font-bold text-white">
+                Bloomwell AI
               </Link>
+              <div className="hidden md:flex space-x-4">
+                <Link 
+                  href="/#features" 
+                  className="text-white hover:text-green-100 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Features
+                </Link>
+                <Link 
+                  href="/pricing" 
+                  className="text-white hover:text-green-100 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Pricing
+                </Link>
+                <Link 
+                  href="/webinars" 
+                  className="text-white hover:text-green-100 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Webinars
+                </Link>
+              </div>
             </div>
             <div className="flex items-center space-x-4">
               <Link 
                 href="/auth/login" 
-                className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                className="text-white hover:text-green-100 px-3 py-2 rounded-md text-sm font-medium"
               >
                 Sign In
               </Link>
               <Link 
                 href="/auth/register" 
-                className="bg-green-600 text-white hover:bg-green-700 px-3 py-2 rounded-md text-sm font-medium"
+                className="bg-white text-green-600 hover:bg-green-50 px-3 py-2 rounded-md text-sm font-medium"
               >
                 Sign Up
               </Link>
@@ -67,35 +87,35 @@ export function Navigation() {
   }
 
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-200">
+    <nav className="bg-green-600 shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center space-x-8">
-            <Link href="/dashboard" className="text-xl font-bold text-gray-900">
-              Nonprofit AI Assistant
+            <Link href="/dashboard" className="text-xl font-bold text-white">
+              Bloomwell AI
             </Link>
             <div className="hidden md:flex space-x-4">
               <Link 
                 href="/dashboard" 
-                className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                className="text-white hover:text-green-100 px-3 py-2 rounded-md text-sm font-medium"
               >
                 Dashboard
               </Link>
               <Link 
                 href="/chat" 
-                className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                className="text-white hover:text-green-100 px-3 py-2 rounded-md text-sm font-medium"
               >
                 AI Chat
               </Link>
               <Link 
                 href="/profile" 
-                className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                className="text-white hover:text-green-100 px-3 py-2 rounded-md text-sm font-medium"
               >
                 Profile
               </Link>
               <Link 
                 href="/notifications" 
-                className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                className="text-white hover:text-green-100 px-3 py-2 rounded-md text-sm font-medium"
               >
                 Notifications
               </Link>
@@ -103,7 +123,7 @@ export function Navigation() {
           </div>
           <div className="flex items-center space-x-4">
             <NotificationBell />
-            <span className="text-sm text-gray-700">
+            <span className="text-sm text-white">
               Welcome, {session?.user?.name || session?.user?.email}
             </span>
             <LogoutButton />

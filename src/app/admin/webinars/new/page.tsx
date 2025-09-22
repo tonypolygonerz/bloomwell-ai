@@ -6,9 +6,13 @@ import Link from 'next/link'
 import AdminBreadcrumb from '@/components/AdminBreadcrumb'
 
 interface Guest {
+  honorific: string
   firstName: string
   lastName: string
   title: string
+  institution: string
+  email: string
+  bio: string
 }
 
 interface Material {
@@ -28,6 +32,7 @@ export default function CreateWebinar() {
     description: '',
     date: '',
     time: '',
+    timezone: 'America/Los_Angeles',
     duration: 60,
     maxAttendees: 100,
     status: 'draft',
@@ -42,7 +47,7 @@ export default function CreateWebinar() {
   const [selectedThumbnail, setSelectedThumbnail] = useState<File | null>(null)
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null)
   const [materials, setMaterials] = useState<Material[]>([])
-  const [guests, setGuests] = useState<Guest[]>([{ firstName: '', lastName: '', title: '' }])
+  const [guests, setGuests] = useState<Guest[]>([{ honorific: '', firstName: '', lastName: '', title: '', institution: '', email: '', bio: '' }])
 
   // Auto-generated values
   const [urlPreview, setUrlPreview] = useState('bloomwell.ai/webinar/your-webinar-slug')
@@ -78,7 +83,7 @@ export default function CreateWebinar() {
   }
 
   const addGuest = () => {
-    setGuests([...guests, { firstName: '', lastName: '', title: '' }])
+    setGuests([...guests, { honorific: '', firstName: '', lastName: '', title: '', institution: '', email: '', bio: '' }])
   }
 
   const removeGuest = (index: number) => {
@@ -157,6 +162,13 @@ export default function CreateWebinar() {
     setError('')
 
     try {
+      // Validate required fields
+      if (!formData.title || !formData.description || !formData.date || !formData.time) {
+        setError('Please fill in all required fields')
+        setLoading(false)
+        return
+      }
+
       const adminSession = localStorage.getItem('adminSession')
       if (!adminSession) {
         router.push('/admin/login')
@@ -164,30 +176,47 @@ export default function CreateWebinar() {
       }
 
       const sessionData = JSON.parse(adminSession)
+      console.log('Form using admin session:', sessionData)
       
       // Combine date and time for scheduledDate
       const scheduledDate = new Date(`${formData.date}T${formData.time}`)
       
+      // Format guest speakers properly
+      const formattedGuests = guests
+        .filter(g => g.firstName && g.lastName)
+        .map(guest => ({
+          name: `${guest.honorific ? guest.honorific + ' ' : ''}${guest.firstName} ${guest.lastName}`,
+          title: guest.title,
+          company: guest.institution,
+          email: guest.email,
+          bio: guest.bio
+        }))
+      
+      const requestData = {
+        title: formData.title,
+        description: formData.description,
+        scheduledDate: scheduledDate.toISOString(),
+        timezone: formData.timezone,
+        duration: formData.duration,
+        status: formData.status,
+        guestSpeakers: formattedGuests,
+        materials: materials.map(m => ({ name: m.name, url: '', type: 'PDF' })),
+        metaDescription: formData.metaDescription,
+        categories: formData.tags.split(',').map(t => t.trim()).filter(t => t),
+        maxAttendees: formData.maxAttendees,
+        registrationRequired: formData.registrationRequired === 'true',
+        sendReminders: formData.sendReminders === 'true'
+      }
+
+      console.log('Submitting webinar data:', requestData)
+
       const response = await fetch('/api/admin/webinars', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${sessionData.token}`
         },
-        body: JSON.stringify({
-          title: formData.title,
-          description: formData.description,
-          scheduledDate: scheduledDate.toISOString(),
-          duration: formData.duration,
-          status: formData.status,
-          guests: guests.filter(g => g.firstName && g.lastName),
-          materials: materials.map(m => m.name),
-          metaDescription: formData.metaDescription,
-          tags: formData.tags.split(',').map(t => t.trim()).filter(t => t),
-          maxAttendees: formData.maxAttendees,
-          registrationRequired: formData.registrationRequired === 'true',
-          sendReminders: formData.sendReminders === 'true'
-        }),
+        body: JSON.stringify(requestData),
       })
 
       if (response.ok) {
@@ -197,10 +226,12 @@ export default function CreateWebinar() {
         }, 2000)
       } else {
         const errorData = await response.json()
+        console.error('Webinar creation failed:', errorData)
         setError(errorData.error || 'Failed to create webinar')
       }
     } catch (error) {
-      setError('An error occurred while creating the webinar')
+      console.error('Webinar creation error:', error)
+      setError('An error occurred while creating the webinar: ' + error.message)
     } finally {
       setLoading(false)
     }
@@ -298,7 +329,7 @@ export default function CreateWebinar() {
                     />
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                       <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-2">
                         Date *
@@ -315,7 +346,7 @@ export default function CreateWebinar() {
                     </div>
                     <div>
                       <label htmlFor="time" className="block text-sm font-medium text-gray-700 mb-2">
-                        Time (Pacific) *
+                        Time *
                       </label>
                       <input
                         type="time"
@@ -326,6 +357,25 @@ export default function CreateWebinar() {
                         onChange={handleChange}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                       />
+                    </div>
+                    <div>
+                      <label htmlFor="timezone" className="block text-sm font-medium text-gray-700 mb-2">
+                        Timezone *
+                      </label>
+                      <select
+                        id="timezone"
+                        name="timezone"
+                        required
+                        value={formData.timezone}
+                        onChange={handleChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      >
+                        <option value="America/Los_Angeles">Pacific Time (PT)</option>
+                        <option value="America/Denver">Mountain Time (MT)</option>
+                        <option value="America/Chicago">Central Time (CT)</option>
+                        <option value="America/New_York">Eastern Time (ET)</option>
+                        <option value="UTC">UTC</option>
+                      </select>
                     </div>
                   </div>
                   
@@ -396,37 +446,101 @@ export default function CreateWebinar() {
                   </button>
                 </div>
                 
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {guests.map((guest, index) => (
-                    <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-3 p-3 bg-gray-50 rounded-md">
-                      <input
-                        type="text"
-                        placeholder="First Name"
-                        value={guest.firstName}
-                        onChange={(e) => updateGuest(index, 'firstName', e.target.value)}
-                        className="px-3 py-2 border border-gray-300 rounded text-sm focus:ring-indigo-500 focus:border-indigo-500"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Last Name"
-                        value={guest.lastName}
-                        onChange={(e) => updateGuest(index, 'lastName', e.target.value)}
-                        className="px-3 py-2 border border-gray-300 rounded text-sm focus:ring-indigo-500 focus:border-indigo-500"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Title & Company"
-                        value={guest.title}
-                        onChange={(e) => updateGuest(index, 'title', e.target.value)}
-                        className="px-3 py-2 border border-gray-300 rounded text-sm focus:ring-indigo-500 focus:border-indigo-500"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeGuest(index)}
-                        className="bg-red-500 text-white px-3 py-2 rounded text-sm font-medium hover:bg-red-600"
-                      >
-                        Remove
-                      </button>
+                    <div key={index} className="p-4 bg-gray-50 rounded-lg border">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">Honorific</label>
+                          <select
+                            value={guest.honorific}
+                            onChange={(e) => updateGuest(index, 'honorific', e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-indigo-500 focus:border-indigo-500"
+                          >
+                            <option value="">Select</option>
+                            <option value="Dr.">Dr.</option>
+                            <option value="Mr.">Mr.</option>
+                            <option value="Ms.">Ms.</option>
+                            <option value="Mrs.">Mrs.</option>
+                            <option value="Prof.">Prof.</option>
+                            <option value="Rev.">Rev.</option>
+                            <option value="Hon.">Hon.</option>
+                            <option value="Sen.">Sen.</option>
+                            <option value="Rep.">Rep.</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">First Name</label>
+                          <input
+                            type="text"
+                            placeholder="First Name"
+                            value={guest.firstName}
+                            onChange={(e) => updateGuest(index, 'firstName', e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-indigo-500 focus:border-indigo-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">Last Name</label>
+                          <input
+                            type="text"
+                            placeholder="Last Name"
+                            value={guest.lastName}
+                            onChange={(e) => updateGuest(index, 'lastName', e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-indigo-500 focus:border-indigo-500"
+                          />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">Title</label>
+                          <input
+                            type="text"
+                            placeholder="Job Title or Position"
+                            value={guest.title}
+                            onChange={(e) => updateGuest(index, 'title', e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-indigo-500 focus:border-indigo-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">Institution</label>
+                          <input
+                            type="text"
+                            placeholder="Organization or Company"
+                            value={guest.institution}
+                            onChange={(e) => updateGuest(index, 'institution', e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-indigo-500 focus:border-indigo-500"
+                          />
+                        </div>
+                      </div>
+                      <div className="mb-3">
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Email</label>
+                        <input
+                          type="email"
+                          placeholder="speaker@example.com"
+                          value={guest.email}
+                          onChange={(e) => updateGuest(index, 'email', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-indigo-500 focus:border-indigo-500"
+                        />
+                      </div>
+                      <div className="mb-3">
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Bio</label>
+                        <textarea
+                          rows={2}
+                          placeholder="Brief biography or background"
+                          value={guest.bio}
+                          onChange={(e) => updateGuest(index, 'bio', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-indigo-500 focus:border-indigo-500"
+                        />
+                      </div>
+                      <div className="flex justify-end">
+                        <button
+                          type="button"
+                          onClick={() => removeGuest(index)}
+                          className="bg-red-500 text-white px-3 py-1 rounded text-sm font-medium hover:bg-red-600"
+                        >
+                          Remove Speaker
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -589,6 +703,56 @@ export default function CreateWebinar() {
                     </div>
                   </div>
                 </div>
+              </div>
+
+              {/* Social Media Preview Card */}
+              <div className="bg-white shadow rounded-lg p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-6 pb-2 border-b border-gray-200">
+                  Social Media Preview
+                </h3>
+                
+                <div className="bg-white border border-gray-300 rounded-lg p-4 shadow-sm max-w-md">
+                  {/* Thumbnail Preview */}
+                  <div className="mb-3">
+                    {thumbnailPreview ? (
+                      <img
+                        src={thumbnailPreview}
+                        alt="Webinar thumbnail"
+                        className="w-full h-48 object-cover rounded-lg"
+                      />
+                    ) : (
+                      <div className="w-full h-48 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center">
+                        <div className="text-center text-white">
+                          <svg className="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                          <p className="text-sm font-medium">Webinar Thumbnail</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Preview Content */}
+                  <div className="space-y-2">
+                    <div className="font-semibold text-gray-900 text-sm leading-tight">
+                      {formData.title || 'Your Webinar Title'}
+                    </div>
+                    <div className="text-xs text-gray-600">
+                      {formData.metaDescription || 'Meta description will appear here'}
+                    </div>
+                    <div className="flex items-center space-x-2 text-xs text-gray-500">
+                      <span className="font-medium text-green-600">bloomwell.ai</span>
+                      <span>•</span>
+                      <span>{formData.date ? new Date(formData.date).toLocaleDateString() : 'Date'}</span>
+                      <span>•</span>
+                      <span>{formData.time || 'Time'}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <p className="mt-3 text-sm text-gray-600">
+                  This preview shows how your webinar will appear when shared on social media platforms.
+                </p>
               </div>
 
               {/* Form Actions */}

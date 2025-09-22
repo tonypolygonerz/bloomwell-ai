@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import "./animations.css";
 import { Providers } from "@/components/Providers";
 import { Navigation } from "@/components/Navigation";
 
@@ -15,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Nonprofit AI Assistant",
-  description: "Empowering nonprofits with AI-driven grant discovery and management tools",
+  title: "Bloomwell AI",
+  description: "Empowering nonprofits with AI-driven grant discovery and management tools by Polygonerz LLC",
 };
 
 export default function RootLayout({

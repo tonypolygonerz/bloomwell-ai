@@ -1,5 +1,6 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
+import UpcomingEventsWidget from "@/components/UpcomingEventsWidget";
 
 export default async function Dashboard() {
   const session = await getServerSession();
@@ -16,7 +17,7 @@ export default async function Dashboard() {
             Welcome back, {session.user?.name || 'User'}!
           </h1>
           <p className="mt-2 text-gray-600">
-            Your nonprofit management dashboard
+            Your Bloomwell AI nonprofit management dashboard
           </p>
         </div>
         
@@ -52,11 +53,8 @@ export default async function Dashboard() {
             </div>
           </div>
           
-          {/* Recent Activity */}
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
-            <p className="text-gray-500">No recent activity yet</p>
-          </div>
+          {/* Upcoming Events */}
+          <UpcomingEventsWidget userId={session.user?.id || ''} />
           
           {/* Organization Profile */}
           <div className="bg-white p-6 rounded-lg shadow">
@@ -73,6 +71,34 @@ export default async function Dashboard() {
             >
               Admin Dashboard
             </a>
+          </div>
+        </div>
+
+        {/* Additional Row */}
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Recent Activity */}
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
+            <p className="text-gray-500">No recent activity yet</p>
+          </div>
+          
+          {/* Webinar Resources */}
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h3 className="text-lg font-semibold mb-4">Webinar Resources</h3>
+            <div className="space-y-2">
+              <a 
+                href="/webinars" 
+                className="block w-full text-left p-3 border rounded hover:bg-gray-50 transition-colors"
+              >
+                📅 Browse All Webinars
+              </a>
+              <a 
+                href="/notifications" 
+                className="block w-full text-left p-3 border rounded hover:bg-gray-50 transition-colors"
+              >
+                🔔 Notification Center
+              </a>
+            </div>
           </div>
         </div>
       </div>

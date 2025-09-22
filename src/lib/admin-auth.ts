@@ -1,7 +1,13 @@
-const jwt = require('jsonwebtoken')
+import jwt from 'jsonwebtoken'
 
 export interface AdminUser {
   id: string
+  username: string
+  role: string
+}
+
+interface JwtPayload {
+  adminId: string
   username: string
   role: string
 }
@@ -14,7 +20,7 @@ export function verifyAdminToken(token: string): AdminUser | null {
       return null
     }
     
-    const decoded = jwt.verify(token, secret) as any
+    const decoded = jwt.verify(token, secret) as JwtPayload
     return {
       id: decoded.adminId,
       username: decoded.username,

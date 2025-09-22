@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { PrismaClient } from '@prisma/client'
+import { EmailService } from '@/lib/email-service'
 
 const prisma = new PrismaClient()
 
@@ -17,9 +18,12 @@ export async function POST(
     }
 
     // Find the webinar
-    const webinar = await prisma.webinar.findUnique({
+    const webinar = await prisma.webinar.findFirst({
       where: {
-        uniqueSlug: slug,
+        OR: [
+          { slug: slug },
+          { uniqueSlug: slug } // Fallback for existing webinars
+        ],
         status: {
           in: ['published', 'live'] // Only allow RSVPs for published/live webinars
         }
@@ -51,6 +55,30 @@ export async function POST(
         userId: session.user.id
       }
     })
+
+    // Get user details for email
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id }
+    })
+
+    if (user) {
+      // Send confirmation email
+      const calendarInvite = EmailService.generateCalendarInvite({
+        title: webinar.title,
+        description: webinar.description,
+        scheduledDate: webinar.scheduledDate.toISOString(),
+        duration: webinar.duration,
+        jitsiRoomUrl: webinar.jitsiRoomUrl
+      })
+
+      await EmailService.sendRSVPConfirmation({
+        userName: user.name || user.email,
+        webinarTitle: webinar.title,
+        webinarDate: webinar.scheduledDate.toISOString(),
+        joinUrl: `${process.env.NEXTAUTH_URL}/webinar/${webinar.slug || webinar.uniqueSlug}`,
+        calendarInvite
+      })
+    }
 
     return NextResponse.json({ message: 'Successfully RSVPed for webinar', rsvp }, { status: 201 })
   } catch (error) {

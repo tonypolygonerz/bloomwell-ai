@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import AdminBreadcrumb from '@/components/AdminBreadcrumb'
 
 interface GrantSync {
   id: string
@@ -26,7 +24,7 @@ export default function AdminGrantsPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [syncing, setSyncing] = useState(false)
-  const [adminUser, setAdminUser] = useState<any>(null)
+  const [adminUser, setAdminUser] = useState<{id: string, username: string, role: string} | null>(null)
   const [syncHistory, setSyncHistory] = useState<GrantSync[]>([])
   const [statistics, setStatistics] = useState<GrantsStatistics>({
     activeGrants: 0
@@ -44,7 +42,7 @@ export default function AdminGrantsPage() {
       const sessionData = JSON.parse(adminSession)
       setAdminUser(sessionData.admin)
       fetchGrantsData(sessionData.token)
-    } catch (error) {
+    } catch {
       localStorage.removeItem('adminSession')
       router.push('/admin/login')
     }

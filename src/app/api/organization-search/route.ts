@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
 
     const response = await fetch(apiUrl, {
       headers: {
-        'User-Agent': 'Nonprofit-AI-Assistant/1.0 (https://github.com/tonypolygonerz/nonprofit-ai-assistant)',
+        'User-Agent': 'Bloomwell-AI/1.0 (https://bloomwell-ai.com)',
         'Accept': 'application/json',
       },
     })
