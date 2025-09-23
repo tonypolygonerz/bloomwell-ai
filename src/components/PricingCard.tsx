@@ -2,8 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+import UpgradeButton from './UpgradeButton';
 
 export default function PricingCard() {
+  const { data: session, status } = useSession();
   const [isAnnual, setIsAnnual] = useState(false);
 
   useEffect(() => {
@@ -21,6 +24,14 @@ export default function PricingCard() {
   const monthlyPrice = 24.99;
   const annualPrice = 20.99;
   const annualTotal = 251.88;
+
+  // Get Stripe price IDs from environment variables
+  const monthlyPriceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_MONTHLY;
+  const annualPriceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_ANNUAL;
+  
+  // Debug logging to verify environment variables
+  console.log('PricingCard - Monthly Price ID:', monthlyPriceId);
+  console.log('PricingCard - Annual Price ID:', annualPriceId);
 
   return (
     <div className="flex justify-center">
@@ -51,15 +62,26 @@ export default function PricingCard() {
           )}
 
           {/* CTA Button */}
-          <Link
-            href="/auth/register"
-            className="block w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg"
-          >
-            Start 14-Day Free Trial
-          </Link>
+          {status === 'authenticated' ? (
+            // Show upgrade button for logged-in users
+            <UpgradeButton
+              priceId={isAnnual ? annualPriceId : monthlyPriceId}
+              planType={isAnnual ? 'annual' : 'monthly'}
+              label={`Upgrade to ${isAnnual ? 'Annual' : 'Monthly'} Plan`}
+              className="w-full py-4 px-6 rounded-xl font-semibold"
+            />
+          ) : (
+            // Show trial signup for new users
+            <Link
+              href="/auth/register"
+              className="block w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg"
+            >
+              Start 14-Day Free Trial
+            </Link>
+          )}
           
           <p className="text-sm text-gray-500 mt-3">
-            No credit card required
+            {status === 'authenticated' ? 'Secure checkout with Stripe' : 'No credit card required'}
           </p>
         </div>
 

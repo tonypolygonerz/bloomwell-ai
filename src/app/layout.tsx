@@ -4,6 +4,7 @@ import "./globals.css";
 import "./animations.css";
 import { Providers } from "@/components/Providers";
 import { Navigation } from "@/components/Navigation";
+import TrialBanner from "@/components/TrialBanner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,6 +33,7 @@ export default function RootLayout({
       >
         <Providers>
           <Navigation />
+          <TrialBanner />
           {children}
         </Providers>
       </body>

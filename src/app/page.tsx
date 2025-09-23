@@ -22,7 +22,7 @@ export default function Home() {
               <Link href="#features" className="text-white hover:text-green-100 transition-colors">
                 Features
               </Link>
-              <Link href="#pricing" className="text-white hover:text-green-100 transition-colors">
+              <Link href="/pricing" className="text-white hover:text-green-100 transition-colors">
                 Pricing
               </Link>
               <Link href="/webinars" className="text-white hover:text-green-100 transition-colors">

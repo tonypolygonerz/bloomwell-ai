@@ -8,20 +8,28 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String?  // Made optional for OAuth users
-  name      String?
-  image     String?  // Profile image from OAuth providers
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                String    @id @default(cuid())
+  email             String    @unique
+  password          String?   // Made optional for OAuth users
+  name              String?
+  image             String?   // Profile image from OAuth providers
+  organizationId    String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
   
-  organizationId String?
-  organization   Organization? @relation(fields: [organizationId], references: [id])
-  conversations Conversation[]
-  accounts      Account[]      // OAuth accounts
-  webinarRSVPs  WebinarRSVP[]  // Webinar RSVPs
-  notifications UserNotification[] // User notifications
+  // NEW TRIAL MANAGEMENT FIELDS
+  trialStartDate    DateTime? @default(now())
+  trialEndDate      DateTime?
+  subscriptionStatus String   @default("TRIAL") // TRIAL, ACTIVE, EXPIRED, CANCELLED
+  subscriptionType  String?   // MONTHLY, ANNUAL
+  lastActiveDate    DateTime? @default(now())
+  
+  organization      Organization? @relation(fields: [organizationId], references: [id])
+  conversations     Conversation[]
+  accounts          Account[]      // OAuth accounts
+  sessions          Session[]
+  rsvps            WebinarRSVP[]  // Webinar RSVPs
+  notifications    UserNotification[] // User notifications
 }
 
 model Organization {
@@ -79,6 +87,15 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model AdminUser {
