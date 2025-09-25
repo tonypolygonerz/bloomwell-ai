@@ -66,6 +66,14 @@ model Message {
   role      String
   createdAt DateTime @default(now())
   
+  // Cloud AI tracking fields
+  aiModel          String?   // Track which cloud model was used
+  modelTier        String?   // "enterprise", "professional", "standard"  
+  processingTime   Int?      // Response time in milliseconds
+  tokenEstimate    Int?      // Estimated token usage
+  queryType        String?   // "strategic", "grants", "documents", "general"
+  contextLength    Int?      // Context length used for this request
+  
   conversationId String
   conversation   Conversation @relation(fields: [conversationId], references: [id])
 }
