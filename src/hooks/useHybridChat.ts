@@ -5,6 +5,13 @@ interface HybridChatResponse {
   responseType: 'local' | 'online' | 'suggestion'
   suggestOnline: boolean
   timestamp: string
+  // Cloud AI tracking fields
+  aiModel?: string
+  modelTier?: string
+  processingTime?: number
+  tokenEstimate?: number
+  queryType?: string
+  contextLength?: number
 }
 
 interface UseHybridChatReturn {
@@ -23,7 +30,7 @@ export function useHybridChat(): UseHybridChatReturn {
     useOnline: boolean = false
   ): Promise<HybridChatResponse> => {
     try {
-      const response = await fetch('/api/chat-hybrid', {
+      const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useHybridChat } from '../../hooks/useHybridChat'
 import OnlinePermissionModal from '../../components/OnlinePermissionModal'
+import AIModelBadge from '../../components/AIModelBadge'
 
 interface Message {
   id: string
@@ -12,6 +13,13 @@ interface Message {
   content: string
   timestamp?: Date | string
   createdAt?: Date | string
+  // Cloud AI tracking fields
+  aiModel?: string
+  modelTier?: string
+  processingTime?: number
+  tokenEstimate?: number
+  queryType?: string
+  contextLength?: number
 }
 
 interface Conversation {
@@ -237,7 +245,13 @@ export default function ChatPage() {
         id: generateMessageId(),
         role: 'assistant',
         content: data.response,
-        timestamp: new Date()
+        timestamp: new Date(),
+        aiModel: data.aiModel,
+        modelTier: data.modelTier,
+        processingTime: data.processingTime,
+        tokenEstimate: data.tokenEstimate,
+        queryType: data.queryType,
+        contextLength: data.contextLength
       }
 
       setMessages(prev => [...prev, assistantMessage])
@@ -489,13 +503,24 @@ export default function ChatPage() {
                   }`}
                 >
                   <div className="whitespace-pre-wrap">{message.content}</div>
-                  <div
-                    className={`text-xs mt-2 ${
-                      message.role === 'user' ? 'text-indigo-100' : 'text-gray-500'
-                    }`}
-                    suppressHydrationWarning={true}
-                  >
-                    {(message.timestamp || message.createdAt) ? formatTime(new Date(message.timestamp || message.createdAt!)) : 'Just now'}
+                  <div className="flex items-center justify-between mt-2">
+                    <div
+                      className={`text-xs ${
+                        message.role === 'user' ? 'text-indigo-100' : 'text-gray-500'
+                      }`}
+                      suppressHydrationWarning={true}
+                    >
+                      {(message.timestamp || message.createdAt) ? formatTime(new Date(message.timestamp || message.createdAt!)) : 'Just now'}
+                    </div>
+                    {message.role === 'assistant' && (
+                      <AIModelBadge
+                        modelTier={message.modelTier}
+                        modelDescription={message.aiModel}
+                        processingTime={message.processingTime}
+                        contextLength={message.contextLength}
+                        queryType={message.queryType}
+                      />
+                    )}
                   </div>
                 </div>
               </div>
@@ -506,11 +531,11 @@ export default function ChatPage() {
                 <div className="bg-white border border-gray-200 px-4 py-3 rounded-lg">
                   <div className="flex items-center space-x-2">
                     <div className="animate-pulse flex space-x-1">
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                      <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                      <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                     </div>
-                    <span className="text-gray-500 text-sm">AI is thinking...</span>
+                    <span className="text-gray-500 text-sm">Connecting to Ollama Cloud AI...</span>
                   </div>
                 </div>
               </div>
