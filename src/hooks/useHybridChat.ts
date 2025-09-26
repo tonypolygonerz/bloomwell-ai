@@ -1,67 +1,75 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback } from 'react';
 
 interface HybridChatResponse {
-  response: string
-  responseType: 'local' | 'online' | 'suggestion'
-  suggestOnline: boolean
-  timestamp: string
+  response: string;
+  responseType: 'local' | 'online' | 'suggestion';
+  suggestOnline: boolean;
+  timestamp: string;
   // Cloud AI tracking fields
-  aiModel?: string
-  modelTier?: string
-  processingTime?: number
-  tokenEstimate?: number
-  queryType?: string
-  contextLength?: number
+  aiModel?: string;
+  modelTier?: string;
+  processingTime?: number;
+  tokenEstimate?: number;
+  queryType?: string;
+  contextLength?: number;
 }
 
 interface UseHybridChatReturn {
-  sendMessage: (message: string, conversationId: string, conversationHistory: any[], useOnline?: boolean) => Promise<HybridChatResponse>
-  isOnlineRequested: boolean
-  setOnlineRequested: (requested: boolean) => void
+  sendMessage: (
+    message: string,
+    conversationId: string,
+    conversationHistory: any[],
+    useOnline?: boolean
+  ) => Promise<HybridChatResponse>;
+  isOnlineRequested: boolean;
+  setOnlineRequested: (requested: boolean) => void;
 }
 
 export function useHybridChat(): UseHybridChatReturn {
-  const [isOnlineRequested, setIsOnlineRequested] = useState(false)
+  const [isOnlineRequested, setIsOnlineRequested] = useState(false);
 
-  const sendMessage = useCallback(async (
-    message: string, 
-    conversationId: string, 
-    conversationHistory: any[], 
-    useOnline: boolean = false
-  ): Promise<HybridChatResponse> => {
-    try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message,
-          conversationHistory,
-          conversationId,
-          useOnline
-        })
-      })
+  const sendMessage = useCallback(
+    async (
+      message: string,
+      conversationId: string,
+      conversationHistory: any[],
+      useOnline: boolean = false
+    ): Promise<HybridChatResponse> => {
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message,
+            conversationHistory,
+            conversationId,
+            useOnline,
+          }),
+        });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error('Error sending message:', error);
+        throw error;
       }
-
-      const data = await response.json()
-      return data
-    } catch (error) {
-      console.error('Error sending message:', error)
-      throw error
-    }
-  }, [])
+    },
+    []
+  );
 
   const setOnlineRequested = useCallback((requested: boolean) => {
-    setIsOnlineRequested(requested)
-  }, [])
+    setIsOnlineRequested(requested);
+  }, []);
 
   return {
     sendMessage,
     isOnlineRequested,
-    setOnlineRequested
-  }
+    setOnlineRequested,
+  };
 }

@@ -1,20 +1,23 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { PrismaClient } from '@prisma/client'
-import { EmailService } from '@/lib/email-service'
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { PrismaClient } from '@prisma/client';
+import { EmailService } from '@/lib/email-service';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 export async function POST(
   request: NextRequest,
   { params }: { params: { slug: string } }
 ) {
   try {
-    const { slug } = params
-    const session = await getServerSession()
+    const { slug } = params;
+    const session = await getServerSession();
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      );
     }
 
     // Find the webinar
@@ -22,16 +25,19 @@ export async function POST(
       where: {
         OR: [
           { slug: slug },
-          { uniqueSlug: slug } // Fallback for existing webinars
+          { uniqueSlug: slug }, // Fallback for existing webinars
         ],
         status: {
-          in: ['published', 'live'] // Only allow RSVPs for published/live webinars
-        }
-      }
-    })
+          in: ['published', 'live'], // Only allow RSVPs for published/live webinars
+        },
+      },
+    });
 
     if (!webinar) {
-      return NextResponse.json({ error: 'Webinar not found or not available for RSVP' }, { status: 404 })
+      return NextResponse.json(
+        { error: 'Webinar not found or not available for RSVP' },
+        { status: 404 }
+      );
     }
 
     // Check if user already RSVPed
@@ -39,27 +45,30 @@ export async function POST(
       where: {
         webinarId_userId: {
           webinarId: webinar.id,
-          userId: session.user.id
-        }
-      }
-    })
+          userId: session.user.id,
+        },
+      },
+    });
 
     if (existingRSVP) {
-      return NextResponse.json({ error: 'You have already RSVPed for this webinar' }, { status: 400 })
+      return NextResponse.json(
+        { error: 'You have already RSVPed for this webinar' },
+        { status: 400 }
+      );
     }
 
     // Create RSVP
     const rsvp = await prisma.webinarRSVP.create({
       data: {
         webinarId: webinar.id,
-        userId: session.user.id
-      }
-    })
+        userId: session.user.id,
+      },
+    });
 
     // Get user details for email
     const user = await prisma.user.findUnique({
-      where: { id: session.user.id }
-    })
+      where: { id: session.user.id },
+    });
 
     if (user) {
       // Send confirmation email
@@ -68,22 +77,27 @@ export async function POST(
         description: webinar.description,
         scheduledDate: webinar.scheduledDate.toISOString(),
         duration: webinar.duration,
-        jitsiRoomUrl: webinar.jitsiRoomUrl
-      })
+        jitsiRoomUrl: webinar.jitsiRoomUrl,
+      });
 
       await EmailService.sendRSVPConfirmation({
         userName: user.name || user.email,
         webinarTitle: webinar.title,
         webinarDate: webinar.scheduledDate.toISOString(),
         joinUrl: `${process.env.NEXTAUTH_URL}/webinar/${webinar.slug || webinar.uniqueSlug}`,
-        calendarInvite
-      })
+        calendarInvite,
+      });
     }
 
-    return NextResponse.json({ message: 'Successfully RSVPed for webinar', rsvp }, { status: 201 })
+    return NextResponse.json(
+      { message: 'Successfully RSVPed for webinar', rsvp },
+      { status: 201 }
+    );
   } catch (error) {
-    console.error('Error creating RSVP:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error('Error creating RSVP:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
-

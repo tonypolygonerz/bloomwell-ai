@@ -1,43 +1,43 @@
-import jwt from 'jsonwebtoken'
+import jwt from 'jsonwebtoken';
 
 export interface AdminUser {
-  id: string
-  username: string
-  role: string
+  id: string;
+  username: string;
+  role: string;
 }
 
 interface JwtPayload {
-  adminId: string
-  username: string
-  role: string
+  adminId: string;
+  username: string;
+  role: string;
 }
 
 export function verifyAdminToken(token: string): AdminUser | null {
   try {
-    const secret = process.env.NEXTAUTH_SECRET
+    const secret = process.env.NEXTAUTH_SECRET;
     if (!secret) {
-      console.error('NEXTAUTH_SECRET not found')
-      return null
+      console.error('NEXTAUTH_SECRET not found');
+      return null;
     }
-    
-    const decoded = jwt.verify(token, secret) as JwtPayload
+
+    const decoded = jwt.verify(token, secret) as JwtPayload;
     return {
       id: decoded.adminId,
       username: decoded.username,
-      role: decoded.role
-    }
+      role: decoded.role,
+    };
   } catch (error) {
-    console.error('Token verification error:', error)
-    return null
+    console.error('Token verification error:', error);
+    return null;
   }
 }
 
 export function getAdminFromRequest(request: Request): AdminUser | null {
-  const authHeader = request.headers.get('authorization')
+  const authHeader = request.headers.get('authorization');
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return null
+    return null;
   }
-  
-  const token = authHeader.substring(7)
-  return verifyAdminToken(token)
+
+  const token = authHeader.substring(7);
+  return verifyAdminToken(token);
 }

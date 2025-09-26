@@ -1,51 +1,51 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { PrismaClient } from '@prisma/client'
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { slug: string } }
 ) {
   try {
-    const { slug } = await params
-    const session = await getServerSession()
+    const { slug } = await params;
+    const session = await getServerSession();
 
     const webinar = await prisma.webinar.findFirst({
       where: {
         OR: [
           { slug: slug },
-          { uniqueSlug: slug } // Fallback for existing webinars
+          { uniqueSlug: slug }, // Fallback for existing webinars
         ],
         status: {
-          in: ['published', 'live', 'completed'] // Only show published webinars publicly
-        }
+          in: ['published', 'live', 'completed'], // Only show published webinars publicly
+        },
       },
       include: {
         _count: {
           select: {
-            rsvps: true
-          }
-        }
-      }
-    })
+            rsvps: true,
+          },
+        },
+      },
+    });
 
     if (!webinar) {
-      return NextResponse.json({ error: 'Webinar not found' }, { status: 404 })
+      return NextResponse.json({ error: 'Webinar not found' }, { status: 404 });
     }
 
-    let hasRSVPed = false
+    let hasRSVPed = false;
     if (session?.user?.id) {
       const rsvp = await prisma.webinarRSVP.findUnique({
         where: {
           webinarId_userId: {
             webinarId: webinar.id,
-            userId: session.user.id
-          }
-        }
-      })
-      hasRSVPed = !!rsvp
+            userId: session.user.id,
+          },
+        },
+      });
+      hasRSVPed = !!rsvp;
     }
 
     const formattedWebinar = {
@@ -67,13 +67,15 @@ export async function GET(
       materials: webinar.materials || [],
       jitsiRoomUrl: webinar.jitsiRoomUrl,
       metaDescription: webinar.metaDescription,
-      socialImageUrl: webinar.socialImageUrl
-    }
+      socialImageUrl: webinar.socialImageUrl,
+    };
 
-    return NextResponse.json(formattedWebinar)
+    return NextResponse.json(formattedWebinar);
   } catch (error) {
-    console.error('Error fetching webinar:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error('Error fetching webinar:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
-

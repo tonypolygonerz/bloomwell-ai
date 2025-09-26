@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-import { getAdminFromRequest } from '@/lib/admin-auth'
+import { NextRequest, NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
+import { getAdminFromRequest } from '@/lib/admin-auth';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 export async function GET(
   request: NextRequest,
@@ -10,12 +10,12 @@ export async function GET(
 ) {
   try {
     // Verify admin authentication
-    const admin = getAdminFromRequest(request)
+    const admin = getAdminFromRequest(request);
     if (!admin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id: userId } = await params
+    const { id: userId } = await params;
 
     // Get user with related data
     const user = await prisma.user.findUnique({
@@ -25,8 +25,8 @@ export async function GET(
         accounts: {
           select: {
             provider: true,
-            type: true
-          }
+            type: true,
+          },
         },
         conversations: {
           select: {
@@ -35,14 +35,14 @@ export async function GET(
             createdAt: true,
             _count: {
               select: {
-                messages: true
-              }
-            }
+                messages: true,
+              },
+            },
           },
           orderBy: {
-            createdAt: 'desc'
+            createdAt: 'desc',
           },
-          take: 10
+          take: 10,
         },
         webinarRSVPs: {
           include: {
@@ -51,26 +51,26 @@ export async function GET(
                 id: true,
                 title: true,
                 scheduledDate: true,
-                status: true
-              }
-            }
+                status: true,
+              },
+            },
           },
           orderBy: {
-            rsvpDate: 'desc'
+            rsvpDate: 'desc',
           },
-          take: 10
+          take: 10,
         },
         _count: {
           select: {
             conversations: true,
-            webinarRSVPs: true
-          }
-        }
-      }
-    })
+            webinarRSVPs: true,
+          },
+        },
+      },
+    });
 
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     // Transform data for frontend
@@ -79,52 +79,57 @@ export async function GET(
       name: user.name || 'No name',
       email: user.email,
       image: user.image,
-      organization: user.organization ? {
-        id: user.organization.id,
-        name: user.organization.name,
-        mission: user.organization.mission,
-        budget: user.organization.budget,
-        staffSize: user.organization.staffSize,
-        focusAreas: user.organization.focusAreas
-      } : null,
-      accountType: user.accounts.length > 0 ? user.accounts[0].provider : 'email',
+      organization: user.organization
+        ? {
+            id: user.organization.id,
+            name: user.organization.name,
+            mission: user.organization.mission,
+            budget: user.organization.budget,
+            staffSize: user.organization.staffSize,
+            focusAreas: user.organization.focusAreas,
+          }
+        : null,
+      accountType:
+        user.accounts.length > 0 ? user.accounts[0].provider : 'email',
       lastLogin: user.updatedAt, // Using updatedAt as proxy
       createdAt: user.createdAt,
       status: 'active', // All users are active for now
       conversationCount: user._count.conversations,
       rsvpCount: user._count.webinarRSVPs,
       lastConversation: user.conversations[0]?.createdAt || null,
-      lastRSVP: user.webinarRSVPs[0]?.rsvpDate || null
-    }
+      lastRSVP: user.webinarRSVPs[0]?.rsvpDate || null,
+    };
 
     // Transform conversations
     const transformedConversations = user.conversations.map(conv => ({
       id: conv.id,
       title: conv.title,
       createdAt: conv.createdAt,
-      messageCount: conv._count.messages
-    }))
+      messageCount: conv._count.messages,
+    }));
 
     // Transform RSVPs
     const transformedRSVPs = user.webinarRSVPs.map(rsvp => ({
       id: rsvp.id,
       webinar: rsvp.webinar,
       rsvpDate: rsvp.rsvpDate,
-      attended: rsvp.attended
-    }))
+      attended: rsvp.attended,
+    }));
 
     return NextResponse.json({
       user: transformedUser,
       conversations: transformedConversations,
-      rsvps: transformedRSVPs
-    })
-
+      rsvps: transformedRSVPs,
+    });
   } catch (error) {
-    console.error('User detail API error:', error)
-    return NextResponse.json({ 
-      error: 'Failed to fetch user details' 
-    }, { status: 500 })
+    console.error('User detail API error:', error);
+    return NextResponse.json(
+      {
+        error: 'Failed to fetch user details',
+      },
+      { status: 500 }
+    );
   } finally {
-    await prisma.$disconnect()
+    await prisma.$disconnect();
   }
 }

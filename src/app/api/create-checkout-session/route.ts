@@ -17,11 +17,14 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 export async function POST(request: NextRequest) {
   try {
     console.log('=== Stripe Checkout API Called ===');
-    
+
     // Check environment variables
     if (!process.env.STRIPE_SECRET_KEY) {
       console.error('STRIPE_SECRET_KEY is missing');
-      return NextResponse.json({ error: 'Stripe configuration missing' }, { status: 500 });
+      return NextResponse.json(
+        { error: 'Stripe configuration missing' },
+        { status: 500 }
+      );
     }
 
     const session = await getServerSession();
@@ -31,11 +34,18 @@ export async function POST(request: NextRequest) {
     }
 
     const { priceId, planType } = await request.json();
-    console.log('Request data:', { priceId, planType, userEmail: session.user.email });
+    console.log('Request data:', {
+      priceId,
+      planType,
+      userEmail: session.user.email,
+    });
 
     if (!priceId || !planType) {
       console.log('Missing required fields:', { priceId, planType });
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      );
     }
 
     console.log('Creating Stripe checkout session...');
@@ -59,9 +69,11 @@ export async function POST(request: NextRequest) {
 
     console.log('Checkout session created:', checkoutSession.id);
     return NextResponse.json({ url: checkoutSession.url });
-
   } catch (error) {
     console.error('Stripe checkout error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }

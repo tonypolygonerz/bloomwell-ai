@@ -13,25 +13,29 @@ export default function PricingToggle({ onToggle }: PricingToggleProps) {
     const newValue = !isAnnual;
     setIsAnnual(newValue);
     onToggle?.(newValue);
-    
+
     // Dispatch custom event for other components to listen to
-    window.dispatchEvent(new CustomEvent('pricingToggle', {
-      detail: { isAnnual: newValue }
-    }));
+    window.dispatchEvent(
+      new CustomEvent('pricingToggle', {
+        detail: { isAnnual: newValue },
+      })
+    );
   };
 
   return (
-    <div className="flex items-center justify-center space-x-4">
-      <span className={`text-lg font-medium transition-colors ${!isAnnual ? 'text-green-600' : 'text-gray-500'}`}>
+    <div className='flex items-center justify-center space-x-4'>
+      <span
+        className={`text-lg font-medium transition-colors ${!isAnnual ? 'text-green-600' : 'text-gray-500'}`}
+      >
         Monthly
       </span>
-      
+
       <button
         onClick={handleToggle}
-        className="relative inline-flex h-8 w-14 items-center rounded-full bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-        role="switch"
+        className='relative inline-flex h-8 w-14 items-center rounded-full bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2'
+        role='switch'
         aria-checked={isAnnual}
-        aria-label="Toggle between monthly and annual pricing"
+        aria-label='Toggle between monthly and annual pricing'
       >
         <span
           className={`inline-block h-6 w-6 transform rounded-full bg-white shadow-lg transition-transform duration-200 ease-in-out ${
@@ -39,13 +43,15 @@ export default function PricingToggle({ onToggle }: PricingToggleProps) {
           }`}
         />
       </button>
-      
-      <div className="flex items-center space-x-2">
-        <span className={`text-lg font-medium transition-colors ${isAnnual ? 'text-green-600' : 'text-gray-500'}`}>
+
+      <div className='flex items-center space-x-2'>
+        <span
+          className={`text-lg font-medium transition-colors ${isAnnual ? 'text-green-600' : 'text-gray-500'}`}
+        >
           Annual
         </span>
         {isAnnual && (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 animate-fade-in">
+          <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 animate-fade-in'>
             Save 16%
           </span>
         )}

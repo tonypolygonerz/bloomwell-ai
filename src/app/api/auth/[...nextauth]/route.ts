@@ -1,11 +1,11 @@
-import NextAuth from 'next-auth'
-import CredentialsProvider from 'next-auth/providers/credentials'
-import GoogleProvider from 'next-auth/providers/google'
-import AzureADProvider from 'next-auth/providers/azure-ad'
-import { PrismaClient } from '@prisma/client'
-import bcrypt from 'bcryptjs'
+import NextAuth from 'next-auth';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import GoogleProvider from 'next-auth/providers/google';
+import AzureADProvider from 'next-auth/providers/azure-ad';
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 export const authOptions = {
   providers: [
@@ -22,37 +22,37 @@ export const authOptions = {
       name: 'credentials',
       credentials: {
         email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' }
+        password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          return null
+          return null;
         }
 
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email }
-        })
+          where: { email: credentials.email },
+        });
 
         if (!user) {
-          return null
+          return null;
         }
 
         const isPasswordValid = await bcrypt.compare(
           credentials.password,
           user.password
-        )
+        );
 
         if (!isPasswordValid) {
-          return null
+          return null;
         }
 
         return {
           id: user.id,
           email: user.email,
           name: user.name,
-        }
-      }
-    })
+        };
+      },
+    }),
   ],
   session: { strategy: 'jwt' },
   pages: {
@@ -64,8 +64,8 @@ export const authOptions = {
         try {
           // Check if user already exists
           const existingUser = await prisma.user.findUnique({
-            where: { email: user.email! }
-          })
+            where: { email: user.email! },
+          });
 
           if (!existingUser) {
             // Create new user for OAuth
@@ -75,39 +75,39 @@ export const authOptions = {
                 name: user.name,
                 image: user.image,
                 // No password for OAuth users
-              }
-            })
+              },
+            });
           }
 
-          return true
+          return true;
         } catch (error) {
-          console.error('Error in signIn callback:', error)
-          return false
+          console.error('Error in signIn callback:', error);
+          return false;
         }
       }
-      return true
+      return true;
     },
     async jwt({ token, user, account }) {
       if (user) {
-        token.id = user.id
-        token.email = user.email
-        token.name = user.name
-        token.image = user.image
+        token.id = user.id;
+        token.email = user.email;
+        token.name = user.name;
+        token.image = user.image;
       }
-      return token
+      return token;
     },
     async session({ session, token }) {
       if (token) {
-        session.user.id = token.id as string
-        session.user.email = token.email as string
-        session.user.name = token.name as string
-        session.user.image = token.image as string
+        session.user.id = token.id as string;
+        session.user.email = token.email as string;
+        session.user.name = token.name as string;
+        session.user.image = token.image as string;
       }
-      return session
-    }
-  }
-}
+      return session;
+    },
+  },
+};
 
-const handler = NextAuth(authOptions)
+const handler = NextAuth(authOptions);
 
-export { handler as GET, handler as POST }
+export { handler as GET, handler as POST };

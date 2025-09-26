@@ -29,6 +29,7 @@ This document outlines the complete implementation of Ollama Cloud integration f
 ## 📁 Files Created/Modified
 
 ### New Files
+
 - `src/app/api/chat/cloud/route.ts` - Cloud-only chat API
 - `src/app/admin/ai-models/page.tsx` - Admin dashboard
 - `src/app/api/admin/ai-models/route.ts` - Admin API
@@ -37,6 +38,7 @@ This document outlines the complete implementation of Ollama Cloud integration f
 - `scripts/test-ollama-cloud.js` - Integration test script
 
 ### Modified Files
+
 - `prisma/schema.prisma` - Added cloud tracking fields
 - `src/app/api/chat/route.ts` - Redirects to cloud API
 - `src/app/chat/page.tsx` - Updated with cloud features
@@ -87,8 +89,10 @@ npx prisma db push
 ## 🎯 Model Selection Logic
 
 ### Enterprise AI (128K Context)
+
 **Model**: `deepseek-v3.1:671b-cloud`
 **Triggers**:
+
 - Strategic planning keywords
 - Multi-year planning requests
 - Comprehensive analysis needs
@@ -96,48 +100,58 @@ npx prisma db push
 - Context length > 50,000 characters
 
 **Use Cases**:
+
 - Strategic plan development
 - Board governance consulting
 - Organizational development
 - Comprehensive program analysis
 
 ### Professional Document Analysis
+
 **Model**: `qwen3-coder:480b-cloud`
 **Triggers**:
+
 - Document analysis keywords
 - 990 form reviews
 - Financial statement analysis
 - Compliance reviews
 
 **Use Cases**:
+
 - 990 form analysis
 - Financial document review
 - Policy compliance checking
 - Audit preparation
 
 ### Professional Grant Writing
+
 **Model**: `gpt-oss:120b-cloud`
 **Triggers**:
+
 - Grant writing keywords
 - Proposal development
 - Funding strategy requests
 - RFP analysis
 
 **Use Cases**:
+
 - Grant proposal writing
 - Funding strategy development
 - RFP analysis and response
 - Foundation relationship building
 
 ### Standard AI Assistant
+
 **Model**: `gpt-oss:20b-cloud`
 **Triggers**:
+
 - General questions
 - Basic nonprofit guidance
 - Simple queries
 - Default fallback
 
 **Use Cases**:
+
 - General nonprofit questions
 - Basic guidance and information
 - Quick responses
@@ -146,18 +160,21 @@ npx prisma db push
 ## 🛠️ Admin Dashboard Features
 
 ### Real-time Model Management
+
 - Toggle models on/off
 - Override automatic selection
 - Set daily usage limits
 - Monitor real-time usage
 
 ### Analytics Dashboard
+
 - Total requests today
 - Cost tracking
 - Model performance metrics
 - Popular queries analysis
 
 ### Emergency Controls
+
 - Force specific model usage
 - Disable automatic routing
 - Set emergency fallback model
@@ -176,6 +193,7 @@ node scripts/test-ollama-cloud.js
 ```
 
 ### Test Cases Covered
+
 1. **Model Availability**: Tests all cloud models
 2. **128K Context**: Large document processing
 3. **Model Selection**: Query routing logic
@@ -184,16 +202,19 @@ node scripts/test-ollama-cloud.js
 ### Manual Testing
 
 1. **Enterprise Analysis**:
+
    ```
    "Help me create a comprehensive 3-year strategic plan for our food bank"
    ```
 
 2. **Document Analysis**:
+
    ```
    "Analyze our complete 990 form for compliance issues"
    ```
 
 3. **Grant Writing**:
+
    ```
    "Review this detailed grant application for improvements"
    ```
@@ -206,35 +227,41 @@ node scripts/test-ollama-cloud.js
 ## 🔄 API Endpoints
 
 ### Chat API
+
 - `POST /api/chat` - Main chat endpoint (redirects to cloud)
 - `POST /api/chat/cloud` - Direct cloud API access
 
 ### Admin API
+
 - `GET /api/admin/ai-models` - Get model controls and analytics
 - `PATCH /api/admin/ai-models` - Update model settings
 
 ## 🎨 UI Components
 
 ### AIModelBadge
+
 Displays the AI model tier being used with visual indicators:
+
 - 🏢 Enterprise AI (Purple)
-- 💼 Professional AI (Blue)  
+- 💼 Professional AI (Blue)
 - 🤖 Smart AI (Green)
 
 ### Loading States
+
 - "Connecting to Ollama Cloud AI..." for cloud processing
 - Purple loading indicators for cloud branding
 
 ## 📊 Database Schema
 
 ### New Message Fields
+
 ```prisma
 model Message {
   // ... existing fields
-  
+
   // Cloud AI tracking fields
   aiModel          String?   // Track which cloud model was used
-  modelTier        String?   // "enterprise", "professional", "standard"  
+  modelTier        String?   // "enterprise", "professional", "standard"
   processingTime   Int?      // Response time in milliseconds
   tokenEstimate    Int?      // Estimated token usage
   queryType        String?   // "strategic", "grants", "documents", "general"
@@ -245,6 +272,7 @@ model Message {
 ## 🚨 Error Handling
 
 ### Cloud Error Types
+
 - `AUTH_ERROR`: Invalid API key
 - `RATE_LIMIT`: Too many requests
 - `SERVICE_UNAVAILABLE`: Ollama Cloud down
@@ -252,6 +280,7 @@ model Message {
 - `INVALID_MODEL`: Unknown model
 
 ### Fallback Strategy
+
 1. Try primary model
 2. Fall back to professional model
 3. Fall back to standard model
@@ -260,12 +289,14 @@ model Message {
 ## 💰 Cost Optimization
 
 ### Free Tier Maximization
+
 - Prioritize `gpt-oss:20b-cloud` for simple queries
 - Use enterprise models only for complex analyses
 - Implement daily limits per model tier
 - Track usage and costs in real-time
 
 ### Cost Tracking
+
 - Real-time cost monitoring in admin dashboard
 - Daily/hourly usage limits
 - Automatic downgrading when approaching limits
@@ -274,12 +305,14 @@ model Message {
 ## 🔒 Security
 
 ### API Key Management
+
 - Secure storage in environment variables
 - No hardcoded keys in source code
 - Key rotation capability
 - Access logging
 
 ### Rate Limiting
+
 - Per-model rate limiting
 - User-based request tracking
 - Automatic throttling
@@ -288,11 +321,13 @@ model Message {
 ## 📈 Performance
 
 ### Response Times
+
 - Enterprise AI: < 10 seconds for 128K context
 - Professional AI: < 5 seconds for 32K context
 - Standard AI: < 3 seconds for 8K context
 
 ### Optimization
+
 - Intelligent model selection
 - Context length optimization
 - Caching for repeated queries
@@ -301,12 +336,14 @@ model Message {
 ## 🚀 Deployment
 
 ### Prerequisites
+
 1. Ollama Cloud account with API key
 2. Updated environment variables
 3. Database migration completed
 4. All dependencies installed
 
 ### Deployment Steps
+
 1. Update environment variables
 2. Run database migration
 3. Deploy code changes
@@ -314,6 +351,7 @@ model Message {
 5. Monitor admin dashboard
 
 ### Monitoring
+
 - Check admin dashboard for model status
 - Monitor error rates and response times
 - Track usage patterns and costs
@@ -322,6 +360,7 @@ model Message {
 ## 🎯 Success Metrics
 
 ### Technical KPIs
+
 - ✅ Cloud model selection accuracy: >90%
 - ✅ 128K context utilization: Successful
 - ✅ Service reliability: <1% failed requests
@@ -329,6 +368,7 @@ model Message {
 - ✅ Cost efficiency: <$50/month for 200+ users
 
 ### Business KPIs
+
 - 📈 Increased user engagement with superior AI
 - 📈 Higher feature adoption rates
 - 📈 Improved trial-to-paid conversion
@@ -337,12 +377,14 @@ model Message {
 ## 🔮 Future Enhancements
 
 ### Short-term (Month 1)
+
 - A/B testing for model selection
 - User preferences for AI tiers
 - Advanced caching strategies
 - Batch processing capabilities
 
 ### Long-term (Months 2-3)
+
 - Ollama partnership for volume discounts
 - Advanced analytics and insights
 - Custom model fine-tuning
@@ -351,12 +393,14 @@ model Message {
 ## 📞 Support
 
 ### Troubleshooting
+
 1. Check API key configuration
 2. Verify model availability
 3. Review error logs
 4. Test with admin dashboard
 
 ### Common Issues
+
 - **Authentication errors**: Check API key
 - **Rate limiting**: Wait and retry
 - **Model unavailable**: Check Ollama Cloud status
@@ -367,6 +411,7 @@ model Message {
 ## 🎉 Implementation Complete!
 
 The Ollama Cloud integration is now fully implemented with:
+
 - ✅ Enterprise-grade AI capabilities
 - ✅ 128K context support
 - ✅ Intelligent model selection

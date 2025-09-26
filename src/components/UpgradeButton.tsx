@@ -10,7 +10,12 @@ interface UpgradeButtonProps {
   className?: string;
 }
 
-export default function UpgradeButton({ priceId, planType, label, className = '' }: UpgradeButtonProps) {
+export default function UpgradeButton({
+  priceId,
+  planType,
+  label,
+  className = '',
+}: UpgradeButtonProps) {
   const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
 
@@ -31,11 +36,14 @@ export default function UpgradeButton({ priceId, planType, label, className = ''
       });
 
       const data = await response.json();
-      
+
       if (response.ok && data.url) {
         window.location.href = data.url; // Redirect to Stripe Checkout
       } else {
-        console.error('Checkout error:', data.error || 'No checkout URL returned');
+        console.error(
+          'Checkout error:',
+          data.error || 'No checkout URL returned'
+        );
         alert('Error creating checkout session. Please try again.');
         setLoading(false);
       }

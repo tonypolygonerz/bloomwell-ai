@@ -1,85 +1,85 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-import { getAdminFromRequest } from '@/lib/admin-auth'
+import { NextRequest, NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
+import { getAdminFromRequest } from '@/lib/admin-auth';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 export async function GET(request: NextRequest) {
   try {
     // Verify admin authentication
-    const admin = getAdminFromRequest(request)
+    const admin = getAdminFromRequest(request);
     if (!admin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { searchParams } = new URL(request.url)
-    const search = searchParams.get('search') || ''
-    const accountType = searchParams.get('accountType') || ''
-    const activityFilter = searchParams.get('activity') || ''
+    const { searchParams } = new URL(request.url);
+    const search = searchParams.get('search') || '';
+    const accountType = searchParams.get('accountType') || '';
+    const activityFilter = searchParams.get('activity') || '';
 
     // Build search conditions (same as users API)
-    let whereConditions: any = {}
-    
+    const whereConditions: any = {};
+
     if (search) {
       whereConditions.OR = [
         { name: { contains: search } },
         { email: { contains: search } },
-        { organization: { name: { contains: search } } }
-      ]
+        { organization: { name: { contains: search } } },
+      ];
     }
 
     if (accountType) {
       if (accountType === 'oauth') {
-        whereConditions.accounts = { some: {} }
+        whereConditions.accounts = { some: {} };
       } else if (accountType === 'email') {
-        whereConditions.accounts = { none: {} }
+        whereConditions.accounts = { none: {} };
       }
     }
 
     if (activityFilter) {
-      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-      
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
       switch (activityFilter) {
         case 'active':
           whereConditions.OR = [
             {
               conversations: {
                 some: {
-                  createdAt: { gte: thirtyDaysAgo }
-                }
-              }
+                  createdAt: { gte: thirtyDaysAgo },
+                },
+              },
             },
             {
               webinarRSVPs: {
                 some: {
-                  rsvpDate: { gte: thirtyDaysAgo }
-                }
-              }
-            }
-          ]
-          break
+                  rsvpDate: { gte: thirtyDaysAgo },
+                },
+              },
+            },
+          ];
+          break;
         case 'inactive':
           whereConditions.AND = [
             {
               conversations: {
                 none: {
-                  createdAt: { gte: thirtyDaysAgo }
-                }
-              }
+                  createdAt: { gte: thirtyDaysAgo },
+                },
+              },
             },
             {
               webinarRSVPs: {
                 none: {
-                  rsvpDate: { gte: thirtyDaysAgo }
-                }
-              }
-            }
-          ]
-          break
+                  rsvpDate: { gte: thirtyDaysAgo },
+                },
+              },
+            },
+          ];
+          break;
         case 'never_logged_in':
-          whereConditions.conversations = { none: {} }
-          whereConditions.webinarRSVPs = { none: {} }
-          break
+          whereConditions.conversations = { none: {} };
+          whereConditions.webinarRSVPs = { none: {} };
+          break;
       }
     }
 
@@ -92,26 +92,26 @@ export async function GET(request: NextRequest) {
             name: true,
             mission: true,
             budget: true,
-            staffSize: true
-          }
+            staffSize: true,
+          },
         },
         accounts: {
           select: {
             provider: true,
-            type: true
-          }
+            type: true,
+          },
         },
         _count: {
           select: {
             conversations: true,
-            webinarRSVPs: true
-          }
-        }
+            webinarRSVPs: true,
+          },
+        },
       },
       orderBy: {
-        createdAt: 'desc'
-      }
-    })
+        createdAt: 'desc',
+      },
+    });
 
     // Generate CSV content
     const csvHeaders = [
@@ -123,8 +123,8 @@ export async function GET(request: NextRequest) {
       'Last Activity',
       'Total Conversations',
       'Total RSVPs',
-      'Status'
-    ]
+      'Status',
+    ];
 
     const csvRows = users.map(user => [
       user.name || '',
@@ -135,28 +135,30 @@ export async function GET(request: NextRequest) {
       user.updatedAt.toISOString().split('T')[0],
       user._count.conversations.toString(),
       user._count.webinarRSVPs.toString(),
-      'active'
-    ])
+      'active',
+    ]);
 
     const csvContent = [
       csvHeaders.join(','),
-      ...csvRows.map(row => row.map(field => `"${field}"`).join(','))
-    ].join('\n')
+      ...csvRows.map(row => row.map(field => `"${field}"`).join(',')),
+    ].join('\n');
 
     // Return CSV file
     return new NextResponse(csvContent, {
       headers: {
         'Content-Type': 'text/csv',
-        'Content-Disposition': `attachment; filename="users-export-${new Date().toISOString().split('T')[0]}.csv"`
-      }
-    })
-
+        'Content-Disposition': `attachment; filename="users-export-${new Date().toISOString().split('T')[0]}.csv"`,
+      },
+    });
   } catch (error) {
-    console.error('User export API error:', error)
-    return NextResponse.json({ 
-      error: 'Failed to export users' 
-    }, { status: 500 })
+    console.error('User export API error:', error);
+    return NextResponse.json(
+      {
+        error: 'Failed to export users',
+      },
+      { status: 500 }
+    );
   } finally {
-    await prisma.$disconnect()
+    await prisma.$disconnect();
   }
 }

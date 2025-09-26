@@ -1,27 +1,27 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
+import { NextRequest, NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
-    const category = searchParams.get('category')
-    const search = searchParams.get('search')
-    const limit = parseInt(searchParams.get('limit') || '50')
-    const offset = parseInt(searchParams.get('offset') || '0')
+    const { searchParams } = new URL(request.url);
+    const category = searchParams.get('category');
+    const search = searchParams.get('search');
+    const limit = parseInt(searchParams.get('limit') || '50');
+    const offset = parseInt(searchParams.get('offset') || '0');
 
     // Build where clause
     const where: any = {
       status: 'published',
-      isPublished: true
-    }
+      isPublished: true,
+    };
 
     // Add category filter if provided
     if (category && category !== 'All') {
       where.categories = {
-        contains: category
-      }
+        contains: category,
+      };
     }
 
     // Add search filter if provided
@@ -30,16 +30,16 @@ export async function GET(request: NextRequest) {
         {
           title: {
             contains: search,
-            mode: 'insensitive'
-          }
+            mode: 'insensitive',
+          },
         },
         {
           description: {
             contains: search,
-            mode: 'insensitive'
-          }
-        }
-      ]
+            mode: 'insensitive',
+          },
+        },
+      ];
     }
 
     // Fetch webinars
@@ -49,18 +49,18 @@ export async function GET(request: NextRequest) {
         include: {
           _count: {
             select: {
-              rsvps: true
-            }
-          }
+              rsvps: true,
+            },
+          },
         },
         orderBy: {
-          scheduledDate: 'asc'
+          scheduledDate: 'asc',
         },
         take: limit,
-        skip: offset
+        skip: offset,
       }),
-      prisma.webinar.count({ where })
-    ])
+      prisma.webinar.count({ where }),
+    ]);
 
     // Format webinars for public consumption
     const formattedWebinars = webinars.map(webinar => ({
@@ -76,21 +76,25 @@ export async function GET(request: NextRequest) {
       rsvpCount: webinar._count.rsvps,
       maxAttendees: webinar.maxAttendees,
       categories: webinar.categories ? JSON.parse(webinar.categories) : [],
-      guestSpeakers: webinar.guestSpeakers ? JSON.parse(webinar.guestSpeakers) : [],
+      guestSpeakers: webinar.guestSpeakers
+        ? JSON.parse(webinar.guestSpeakers)
+        : [],
       materials: webinar.materials ? JSON.parse(webinar.materials) : [],
       jitsiRoomUrl: webinar.jitsiRoomUrl,
       metaDescription: webinar.metaDescription,
-      socialImageUrl: webinar.socialImageUrl
-    }))
+      socialImageUrl: webinar.socialImageUrl,
+    }));
 
     return NextResponse.json({
       webinars: formattedWebinars,
       total,
-      hasMore: offset + limit < total
-    })
+      hasMore: offset + limit < total,
+    });
   } catch (error) {
-    console.error('Error fetching webinars:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error('Error fetching webinars:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
-

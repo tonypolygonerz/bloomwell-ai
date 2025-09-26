@@ -1,15 +1,15 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-import { getAdminFromRequest } from '@/lib/admin-auth'
+import { NextRequest, NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
+import { getAdminFromRequest } from '@/lib/admin-auth';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 export async function GET(request: NextRequest) {
   try {
     // Verify admin authentication
-    const admin = getAdminFromRequest(request)
+    const admin = getAdminFromRequest(request);
     if (!admin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Get user statistics
@@ -19,45 +19,45 @@ export async function GET(request: NextRequest) {
       oauthUsers,
       emailUsers,
       recentUsers,
-      activeUsers
+      activeUsers,
     ] = await Promise.all([
       // Total users
       prisma.user.count(),
-      
+
       // Users with organizations
       prisma.user.count({
         where: {
-          organizationId: { not: null }
-        }
+          organizationId: { not: null },
+        },
       }),
-      
+
       // OAuth users
       prisma.user.count({
         where: {
           accounts: {
-            some: {}
-          }
-        }
+            some: {},
+          },
+        },
       }),
-      
+
       // Email users (users without OAuth accounts)
       prisma.user.count({
         where: {
           accounts: {
-            none: {}
-          }
-        }
+            none: {},
+          },
+        },
       }),
-      
+
       // Users created in last 30 days
       prisma.user.count({
         where: {
           createdAt: {
-            gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-          }
-        }
+            gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+          },
+        },
       }),
-      
+
       // Active users (with conversations or RSVPs in last 30 days)
       prisma.user.count({
         where: {
@@ -66,24 +66,24 @@ export async function GET(request: NextRequest) {
               conversations: {
                 some: {
                   createdAt: {
-                    gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-                  }
-                }
-              }
+                    gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+                  },
+                },
+              },
             },
             {
               webinarRSVPs: {
                 some: {
                   rsvpDate: {
-                    gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-                  }
-                }
-              }
-            }
-          ]
-        }
-      })
-    ])
+                    gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+                  },
+                },
+              },
+            },
+          ],
+        },
+      }),
+    ]);
 
     return NextResponse.json({
       totalUsers,
@@ -91,15 +91,17 @@ export async function GET(request: NextRequest) {
       oauthUsers,
       emailUsers,
       recentUsers,
-      activeUsers
-    })
-
+      activeUsers,
+    });
   } catch (error) {
-    console.error('User stats API error:', error)
-    return NextResponse.json({ 
-      error: 'Failed to fetch user statistics' 
-    }, { status: 500 })
+    console.error('User stats API error:', error);
+    return NextResponse.json(
+      {
+        error: 'Failed to fetch user statistics',
+      },
+      { status: 500 }
+    );
   } finally {
-    await prisma.$disconnect()
+    await prisma.$disconnect();
   }
 }

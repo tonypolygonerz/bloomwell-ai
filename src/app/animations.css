@@ -134,7 +134,7 @@
   .animate-blob {
     animation-duration: 10s;
   }
-  
+
   .animate-fade-in-up,
   .animate-slide-in-left,
   .animate-slide-in-right {
@@ -178,7 +178,7 @@
 
 /* Focus States for Accessibility */
 .focus-visible:focus {
-  outline: 2px solid #10B981;
+  outline: 2px solid #10b981;
   outline-offset: 2px;
 }
 
@@ -192,7 +192,7 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #10B981;
+  background: #10b981;
   border-radius: 4px;
 }
 

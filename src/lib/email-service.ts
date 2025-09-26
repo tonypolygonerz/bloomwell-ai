@@ -1,29 +1,29 @@
 interface EmailData {
-  to: string
-  subject: string
-  html: string
-  text?: string
+  to: string;
+  subject: string;
+  html: string;
+  text?: string;
   attachments?: Array<{
-    filename: string
-    content: string
-    contentType: string
-  }>
+    filename: string;
+    content: string;
+    contentType: string;
+  }>;
 }
 
 interface RSVPEmailData {
-  userName: string
-  webinarTitle: string
-  webinarDate: string
-  joinUrl: string
-  calendarInvite?: string
+  userName: string;
+  webinarTitle: string;
+  webinarDate: string;
+  joinUrl: string;
+  calendarInvite?: string;
 }
 
 interface ReminderEmailData {
-  userName: string
-  webinarTitle: string
-  webinarDate: string
-  joinUrl: string
-  timeUntilEvent: string
+  userName: string;
+  webinarTitle: string;
+  webinarDate: string;
+  joinUrl: string;
+  timeUntilEvent: string;
 }
 
 export class EmailService {
@@ -31,27 +31,28 @@ export class EmailService {
     try {
       // For now, we'll use a simple console log approach
       // In production, you would integrate with an email service like SendGrid, Resend, or AWS SES
-      
+
       console.log('📧 Email would be sent:', {
         to: emailData.to,
         subject: emailData.subject,
         html: emailData.html.substring(0, 100) + '...',
-        hasAttachments: !!emailData.attachments?.length
-      })
-      
+        hasAttachments: !!emailData.attachments?.length,
+      });
+
       // Simulate email sending
-      await new Promise(resolve => setTimeout(resolve, 100))
-      
-      return true
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      return true;
     } catch (error) {
-      console.error('Failed to send email:', error)
-      return false
+      console.error('Failed to send email:', error);
+      return false;
     }
   }
 
   static async sendRSVPConfirmation(data: RSVPEmailData): Promise<boolean> {
-    const { userName, webinarTitle, webinarDate, joinUrl, calendarInvite } = data
-    
+    const { userName, webinarTitle, webinarDate, joinUrl, calendarInvite } =
+      data;
+
     const html = `
       <!DOCTYPE html>
       <html>
@@ -81,14 +82,16 @@ export class EmailService {
           <div class="event-details">
             <h3>📅 Event Details</h3>
             <p><strong>Title:</strong> ${webinarTitle}</p>
-            <p><strong>Date & Time:</strong> ${new Date(webinarDate).toLocaleDateString('en-US', {
+            <p><strong>Date & Time:</strong> ${new Date(
+              webinarDate
+            ).toLocaleDateString('en-US', {
               weekday: 'long',
               year: 'numeric',
               month: 'long',
               day: 'numeric',
               hour: '2-digit',
               minute: '2-digit',
-              timeZoneName: 'short'
+              timeZoneName: 'short',
             })}</p>
           </div>
           
@@ -105,8 +108,8 @@ export class EmailService {
         </div>
       </body>
       </html>
-    `
-    
+    `;
+
     const text = `
       Hi ${userName},
       
@@ -121,7 +124,7 @@ export class EmailService {
         day: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
-        timeZoneName: 'short'
+        timeZoneName: 'short',
       })}
       
       View event details: ${joinUrl}
@@ -131,42 +134,52 @@ export class EmailService {
       Questions? Reply to this email or visit our website at https://bloomwell-ai.com
       
       © 2024 Bloomwell AI. All rights reserved.
-    `
-    
+    `;
+
     return this.sendEmail({
-      to: data.userName.includes('@') ? data.userName : `${data.userName}@example.com`, // Fallback for demo
+      to: data.userName.includes('@')
+        ? data.userName
+        : `${data.userName}@example.com`, // Fallback for demo
       subject: `You're registered for ${webinarTitle} - Bloomwell AI`,
       html,
       text,
-      attachments: calendarInvite ? [{
-        filename: 'webinar.ics',
-        content: calendarInvite,
-        contentType: 'text/calendar'
-      }] : undefined
-    })
+      attachments: calendarInvite
+        ? [
+            {
+              filename: 'webinar.ics',
+              content: calendarInvite,
+              contentType: 'text/calendar',
+            },
+          ]
+        : undefined,
+    });
   }
 
-  static async sendReminderEmail(data: ReminderEmailData, type: '24h' | '1h' | '15m'): Promise<boolean> {
-    const { userName, webinarTitle, webinarDate, joinUrl, timeUntilEvent } = data
-    
-    let subject = ''
-    let timeText = ''
-    
+  static async sendReminderEmail(
+    data: ReminderEmailData,
+    type: '24h' | '1h' | '15m'
+  ): Promise<boolean> {
+    const { userName, webinarTitle, webinarDate, joinUrl, timeUntilEvent } =
+      data;
+
+    let subject = '';
+    let timeText = '';
+
     switch (type) {
       case '24h':
-        subject = `Tomorrow: ${webinarTitle}`
-        timeText = 'Tomorrow'
-        break
+        subject = `Tomorrow: ${webinarTitle}`;
+        timeText = 'Tomorrow';
+        break;
       case '1h':
-        subject = `Starting soon: ${webinarTitle}`
-        timeText = 'In 1 hour'
-        break
+        subject = `Starting soon: ${webinarTitle}`;
+        timeText = 'In 1 hour';
+        break;
       case '15m':
-        subject = `Join now: ${webinarTitle}`
-        timeText = 'Starting now!'
-        break
+        subject = `Join now: ${webinarTitle}`;
+        timeText = 'Starting now!';
+        break;
     }
-    
+
     const html = `
       <!DOCTYPE html>
       <html>
@@ -197,14 +210,16 @@ export class EmailService {
           <div class="event-details ${type === '15m' ? 'urgent' : ''}">
             <h3>📅 ${timeText}</h3>
             <p><strong>Title:</strong> ${webinarTitle}</p>
-            <p><strong>Date & Time:</strong> ${new Date(webinarDate).toLocaleDateString('en-US', {
+            <p><strong>Date & Time:</strong> ${new Date(
+              webinarDate
+            ).toLocaleDateString('en-US', {
               weekday: 'long',
               year: 'numeric',
               month: 'long',
               day: 'numeric',
               hour: '2-digit',
               minute: '2-digit',
-              timeZoneName: 'short'
+              timeZoneName: 'short',
             })}</p>
           </div>
           
@@ -219,8 +234,8 @@ export class EmailService {
         </div>
       </body>
       </html>
-    `
-    
+    `;
+
     const text = `
       Hi ${userName},
       
@@ -235,7 +250,7 @@ export class EmailService {
         day: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
-        timeZoneName: 'short'
+        timeZoneName: 'short',
       })}
       
       ${type === '15m' ? 'Join live now' : 'View event details'}: ${joinUrl}
@@ -243,30 +258,34 @@ export class EmailService {
       Questions? Reply to this email or visit our website at https://bloomwell-ai.com
       
       © 2024 Bloomwell AI. All rights reserved.
-    `
-    
+    `;
+
     return this.sendEmail({
-      to: data.userName.includes('@') ? data.userName : `${data.userName}@example.com`,
+      to: data.userName.includes('@')
+        ? data.userName
+        : `${data.userName}@example.com`,
       subject,
       html,
-      text
-    })
+      text,
+    });
   }
 
   static generateCalendarInvite(webinar: {
-    title: string
-    description: string
-    scheduledDate: string
-    duration: number
-    jitsiRoomUrl?: string
+    title: string;
+    description: string;
+    scheduledDate: string;
+    duration: number;
+    jitsiRoomUrl?: string;
   }): string {
-    const startDate = new Date(webinar.scheduledDate)
-    const endDate = new Date(startDate.getTime() + webinar.duration * 60 * 1000)
-    
+    const startDate = new Date(webinar.scheduledDate);
+    const endDate = new Date(
+      startDate.getTime() + webinar.duration * 60 * 1000
+    );
+
     const formatDate = (date: Date) => {
-      return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'
-    }
-    
+      return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    };
+
     return [
       'BEGIN:VCALENDAR',
       'VERSION:2.0',
@@ -280,8 +299,7 @@ export class EmailService {
       'STATUS:CONFIRMED',
       'SEQUENCE:0',
       'END:VEVENT',
-      'END:VCALENDAR'
-    ].join('\r\n')
+      'END:VCALENDAR',
+    ].join('\r\n');
   }
 }
-

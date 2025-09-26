@@ -1,28 +1,28 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-import { getAdminFromRequest } from '@/lib/admin-auth'
-import { syncGrants } from '@/lib/grants-sync'
+import { NextRequest, NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
+import { getAdminFromRequest } from '@/lib/admin-auth';
+import { syncGrants } from '@/lib/grants-sync';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 export async function GET(request: NextRequest) {
   try {
-    const admin = getAdminFromRequest(request)
+    const admin = getAdminFromRequest(request);
     if (!admin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { searchParams } = new URL(request.url)
-    const limit = parseInt(searchParams.get('limit') || '10')
+    const { searchParams } = new URL(request.url);
+    const limit = parseInt(searchParams.get('limit') || '10');
 
     // Get recent sync history
     const syncHistory = await prisma.grantSync.findMany({
       orderBy: { createdAt: 'desc' },
-      take: limit
-    })
+      take: limit,
+    });
 
     // Get current grants statistics
-    const now = new Date()
+    const now = new Date();
     const [totalGrants, activeGrants, lastSync] = await Promise.all([
       prisma.grant.count(),
       prisma.grant.count({
@@ -30,14 +30,14 @@ export async function GET(request: NextRequest) {
           isActive: true,
           OR: [
             { closeDate: null }, // Grants without close date are considered active
-            { closeDate: { gte: now } } // Grants with close date in the future
-          ]
-        }
+            { closeDate: { gte: now } }, // Grants with close date in the future
+          ],
+        },
       }),
       prisma.grantSync.findFirst({
-        orderBy: { createdAt: 'desc' }
-      })
-    ])
+        orderBy: { createdAt: 'desc' },
+      }),
+    ]);
 
     return NextResponse.json({
       syncHistory,
@@ -46,64 +46,73 @@ export async function GET(request: NextRequest) {
         activeGrants,
         lastSyncDate: lastSync?.createdAt,
         lastSyncStatus: lastSync?.syncStatus,
-        lastSyncFile: lastSync?.fileName
-      }
-    })
-
+        lastSyncFile: lastSync?.fileName,
+      },
+    });
   } catch (error) {
-    console.error('Grants sync status API error:', error)
-    return NextResponse.json({ 
-      error: 'Internal server error: ' + (error instanceof Error ? error.message : 'Unknown error') 
-    }, { status: 500 })
+    console.error('Grants sync status API error:', error);
+    return NextResponse.json(
+      {
+        error:
+          'Internal server error: ' +
+          (error instanceof Error ? error.message : 'Unknown error'),
+      },
+      { status: 500 }
+    );
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const admin = getAdminFromRequest(request)
+    const admin = getAdminFromRequest(request);
     if (!admin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    console.log(`Starting grants sync triggered by admin: ${admin.username}`)
+    console.log(`Starting grants sync triggered by admin: ${admin.username}`);
 
     // Check if there's already a sync in progress
     const activeSync = await prisma.grantSync.findFirst({
       where: { syncStatus: 'processing' },
-      orderBy: { createdAt: 'desc' }
-    })
+      orderBy: { createdAt: 'desc' },
+    });
 
     if (activeSync) {
-      const timeSinceStart = Date.now() - activeSync.createdAt.getTime()
-      const maxSyncTime = 30 * 60 * 1000 // 30 minutes
+      const timeSinceStart = Date.now() - activeSync.createdAt.getTime();
+      const maxSyncTime = 30 * 60 * 1000; // 30 minutes
 
       if (timeSinceStart < maxSyncTime) {
-        return NextResponse.json({
-          error: 'Sync already in progress',
-          activeSync: {
-            fileName: activeSync.fileName,
-            startedAt: activeSync.createdAt,
-            elapsedMinutes: Math.round(timeSinceStart / 60000)
-          }
-        }, { status: 409 })
+        return NextResponse.json(
+          {
+            error: 'Sync already in progress',
+            activeSync: {
+              fileName: activeSync.fileName,
+              startedAt: activeSync.createdAt,
+              elapsedMinutes: Math.round(timeSinceStart / 60000),
+            },
+          },
+          { status: 409 }
+        );
       } else {
         // Mark the old sync as failed due to timeout
         await prisma.grantSync.update({
           where: { id: activeSync.id },
           data: {
             syncStatus: 'failed',
-            errorMessage: 'Sync timed out after 30 minutes'
-          }
-        })
+            errorMessage: 'Sync timed out after 30 minutes',
+          },
+        });
       }
     }
 
     // Start the sync process
-    const syncResult = await syncGrants()
+    const syncResult = await syncGrants();
 
     if (syncResult.success) {
-      console.log(`Grants sync completed successfully: ${syncResult.recordsProcessed} processed, ${syncResult.recordsDeleted} deleted`)
-      
+      console.log(
+        `Grants sync completed successfully: ${syncResult.recordsProcessed} processed, ${syncResult.recordsDeleted} deleted`
+      );
+
       return NextResponse.json({
         success: true,
         message: 'Grants sync completed successfully',
@@ -112,24 +121,30 @@ export async function POST(request: NextRequest) {
           extractedDate: syncResult.extractedDate,
           fileSize: syncResult.fileSize,
           recordsProcessed: syncResult.recordsProcessed,
-          recordsDeleted: syncResult.recordsDeleted
-        }
-      })
+          recordsDeleted: syncResult.recordsDeleted,
+        },
+      });
     } else {
-      console.error(`Grants sync failed: ${syncResult.errorMessage}`)
-      
-      return NextResponse.json({
-        success: false,
-        error: 'Grants sync failed',
-        message: syncResult.errorMessage
-      }, { status: 500 })
-    }
+      console.error(`Grants sync failed: ${syncResult.errorMessage}`);
 
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Grants sync failed',
+          message: syncResult.errorMessage,
+        },
+        { status: 500 }
+      );
+    }
   } catch (error) {
-    console.error('Grants sync API error:', error)
-    return NextResponse.json({ 
-      error: 'Internal server error: ' + (error instanceof Error ? error.message : 'Unknown error') 
-    }, { status: 500 })
+    console.error('Grants sync API error:', error);
+    return NextResponse.json(
+      {
+        error:
+          'Internal server error: ' +
+          (error instanceof Error ? error.message : 'Unknown error'),
+      },
+      { status: 500 }
+    );
   }
 }
-

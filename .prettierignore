@@ -1,0 +1,13 @@
+node_modules
+.next
+out
+build
+dist
+coverage
+*.log
+.env*
+.DS_Store
+*.db
+*.sqlite
+prisma/migrations
+public/uploads

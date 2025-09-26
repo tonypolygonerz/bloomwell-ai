@@ -5,53 +5,57 @@
  * Tests model selection, 128K context, and fallback systems
  */
 
-const https = require('https')
-const fs = require('fs')
-const path = require('path')
+const https = require('https');
+const fs = require('fs');
+const path = require('path');
 
 // Load environment variables
-require('dotenv').config({ path: path.join(__dirname, '..', '.env.local') })
+require('dotenv').config({ path: path.join(__dirname, '..', '.env.local') });
 
-const OLLAMA_API_KEY = process.env.OLLAMA_API_KEY
-const OLLAMA_CLOUD_BASE_URL = process.env.OLLAMA_CLOUD_BASE_URL || 'https://ollama.com/api'
+const OLLAMA_API_KEY = process.env.OLLAMA_API_KEY;
+const OLLAMA_CLOUD_BASE_URL =
+  process.env.OLLAMA_CLOUD_BASE_URL || 'https://ollama.com/api';
 
 if (!OLLAMA_API_KEY) {
-  console.error('❌ OLLAMA_API_KEY not found in environment variables')
-  console.log('Please add OLLAMA_API_KEY to your .env.local file')
-  process.exit(1)
+  console.error('❌ OLLAMA_API_KEY not found in environment variables');
+  console.log('Please add OLLAMA_API_KEY to your .env.local file');
+  process.exit(1);
 }
 
 // Test cases for different model tiers
 const testCases = [
   {
     name: 'Enterprise Strategic Planning (128K Context)',
-    query: 'Help me create a comprehensive 3-year strategic plan for our food bank, incorporating our current programs, expansion goals, and detailed financial projections. Include board governance recommendations, volunteer management strategies, and community partnership development.',
+    query:
+      'Help me create a comprehensive 3-year strategic plan for our food bank, incorporating our current programs, expansion goals, and detailed financial projections. Include board governance recommendations, volunteer management strategies, and community partnership development.',
     expectedModel: 'deepseek-v3.1:671b-cloud',
     expectedTier: 'enterprise',
-    expectedContext: 128000
+    expectedContext: 128000,
   },
   {
     name: 'Document Analysis',
-    query: 'Analyze our complete 990 form for compliance issues and operational efficiency. Review our financial statements and identify areas for improvement.',
+    query:
+      'Analyze our complete 990 form for compliance issues and operational efficiency. Review our financial statements and identify areas for improvement.',
     expectedModel: 'qwen3-coder:480b-cloud',
     expectedTier: 'professional',
-    expectedContext: 32000
+    expectedContext: 32000,
   },
   {
     name: 'Grant Writing',
-    query: 'Review this detailed grant application including all attachments for improvements. Help me write a compelling narrative for our youth development program.',
+    query:
+      'Review this detailed grant application including all attachments for improvements. Help me write a compelling narrative for our youth development program.',
     expectedModel: 'gpt-oss:120b-cloud',
     expectedTier: 'professional',
-    expectedContext: 32000
+    expectedContext: 32000,
   },
   {
     name: 'General Q&A',
     query: 'What is a 501(c)(3) organization?',
     expectedModel: 'gpt-oss:20b-cloud',
     expectedTier: 'standard',
-    expectedContext: 8000
-  }
-]
+    expectedContext: 8000,
+  },
+];
 
 // Make HTTP request to Ollama Cloud
 function makeRequest(prompt, model) {
@@ -61,15 +65,15 @@ function makeRequest(prompt, model) {
       messages: [
         {
           role: 'user',
-          content: prompt
-        }
+          content: prompt,
+        },
       ],
       stream: false,
       options: {
         num_ctx: model.includes('deepseek-v3.1') ? 128000 : 32000,
-        temperature: 0.7
-      }
-    })
+        temperature: 0.7,
+      },
+    });
 
     const options = {
       hostname: 'ollama.com',
@@ -78,71 +82,71 @@ function makeRequest(prompt, model) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${OLLAMA_API_KEY}`,
-        'Content-Length': data.length
-      }
-    }
+        Authorization: `Bearer ${OLLAMA_API_KEY}`,
+        'Content-Length': data.length,
+      },
+    };
 
-    const req = https.request(options, (res) => {
-      let responseData = ''
-      
-      res.on('data', (chunk) => {
-        responseData += chunk
-      })
-      
+    const req = https.request(options, res => {
+      let responseData = '';
+
+      res.on('data', chunk => {
+        responseData += chunk;
+      });
+
       res.on('end', () => {
         try {
-          const parsed = JSON.parse(responseData)
+          const parsed = JSON.parse(responseData);
           resolve({
             status: res.statusCode,
             data: parsed,
-            headers: res.headers
-          })
+            headers: res.headers,
+          });
         } catch (error) {
-          reject(new Error(`Failed to parse response: ${error.message}`))
+          reject(new Error(`Failed to parse response: ${error.message}`));
         }
-      })
-    })
+      });
+    });
 
-    req.on('error', (error) => {
-      reject(error)
-    })
+    req.on('error', error => {
+      reject(error);
+    });
 
-    req.write(data)
-    req.end()
-  })
+    req.write(data);
+    req.end();
+  });
 }
 
 // Test model availability
 async function testModelAvailability() {
-  console.log('🔍 Testing model availability...\n')
-  
+  console.log('🔍 Testing model availability...\n');
+
   const models = [
     'deepseek-v3.1:671b-cloud',
-    'qwen3-coder:480b-cloud', 
+    'qwen3-coder:480b-cloud',
     'gpt-oss:120b-cloud',
-    'gpt-oss:20b-cloud'
-  ]
+    'gpt-oss:20b-cloud',
+  ];
 
   for (const model of models) {
     try {
-      const response = await makeRequest('test', model)
+      const response = await makeRequest('test', model);
       if (response.status === 200) {
-        console.log(`✅ ${model} - Available`)
+        console.log(`✅ ${model} - Available`);
       } else {
-        console.log(`❌ ${model} - Status: ${response.status}`)
+        console.log(`❌ ${model} - Status: ${response.status}`);
       }
     } catch (error) {
-      console.log(`❌ ${model} - Error: ${error.message}`)
+      console.log(`❌ ${model} - Error: ${error.message}`);
     }
   }
-  console.log('')
+  console.log('');
 }
 
 // Test 128K context with large document
 async function test128KContext() {
-  console.log('🧠 Testing 128K context capability...\n')
-  
+  console.log('🧠 Testing 128K context capability...\n');
+
   // Create a large document simulation
   const largeDocument = `
     STRATEGIC PLAN FOR NONPROFIT ORGANIZATION
@@ -300,7 +304,7 @@ async function test128KContext() {
     The success of this plan depends on the commitment and dedication of our board, staff, volunteers, and community partners. Together, we can achieve our vision of a thriving community where all individuals have access to the resources and opportunities they need to reach their full potential.
     
     We look forward to implementing this plan and continuing to make a positive difference in the lives of those we serve.
-  `.repeat(10) // Make it even larger to test 128K context
+  `.repeat(10); // Make it even larger to test 128K context
 
   const prompt = `Please analyze this comprehensive strategic plan document and provide detailed recommendations for implementation. Focus on:
 
@@ -310,104 +314,110 @@ async function test128KContext() {
 4. Success metrics and evaluation methods
 5. Specific action items for the first 6 months
 
-Document: ${largeDocument}`
+Document: ${largeDocument}`;
 
   try {
-    console.log('📄 Testing with large document (128K context)...')
-    const startTime = Date.now()
-    
-    const response = await makeRequest(prompt, 'deepseek-v3.1:671b-cloud')
-    const processingTime = Date.now() - startTime
-    
+    console.log('📄 Testing with large document (128K context)...');
+    const startTime = Date.now();
+
+    const response = await makeRequest(prompt, 'deepseek-v3.1:671b-cloud');
+    const processingTime = Date.now() - startTime;
+
     if (response.status === 200) {
-      console.log(`✅ 128K context test successful`)
-      console.log(`⏱️  Processing time: ${processingTime}ms`)
-      console.log(`📝 Response length: ${response.data.response?.length || 0} characters`)
-      console.log(`🧠 Model used: deepseek-v3.1:671b-cloud`)
+      console.log(`✅ 128K context test successful`);
+      console.log(`⏱️  Processing time: ${processingTime}ms`);
+      console.log(
+        `📝 Response length: ${response.data.response?.length || 0} characters`
+      );
+      console.log(`🧠 Model used: deepseek-v3.1:671b-cloud`);
     } else {
-      console.log(`❌ 128K context test failed - Status: ${response.status}`)
+      console.log(`❌ 128K context test failed - Status: ${response.status}`);
     }
   } catch (error) {
-    console.log(`❌ 128K context test failed - Error: ${error.message}`)
+    console.log(`❌ 128K context test failed - Error: ${error.message}`);
   }
-  console.log('')
+  console.log('');
 }
 
 // Test model selection logic
 async function testModelSelection() {
-  console.log('🎯 Testing model selection logic...\n')
-  
+  console.log('🎯 Testing model selection logic...\n');
+
   for (const testCase of testCases) {
     try {
-      console.log(`Testing: ${testCase.name}`)
-      console.log(`Query: ${testCase.query.substring(0, 100)}...`)
-      
-      const response = await makeRequest(testCase.query, testCase.expectedModel)
-      
+      console.log(`Testing: ${testCase.name}`);
+      console.log(`Query: ${testCase.query.substring(0, 100)}...`);
+
+      const response = await makeRequest(
+        testCase.query,
+        testCase.expectedModel
+      );
+
       if (response.status === 200) {
-        console.log(`✅ Model selection correct`)
-        console.log(`🤖 Model: ${testCase.expectedModel}`)
-        console.log(`🏷️  Tier: ${testCase.expectedTier}`)
-        console.log(`📏 Context: ${testCase.expectedContext.toLocaleString()}`)
-        console.log(`📝 Response: ${response.data.response?.substring(0, 200)}...`)
+        console.log(`✅ Model selection correct`);
+        console.log(`🤖 Model: ${testCase.expectedModel}`);
+        console.log(`🏷️  Tier: ${testCase.expectedTier}`);
+        console.log(`📏 Context: ${testCase.expectedContext.toLocaleString()}`);
+        console.log(
+          `📝 Response: ${response.data.response?.substring(0, 200)}...`
+        );
       } else {
-        console.log(`❌ Model selection failed - Status: ${response.status}`)
+        console.log(`❌ Model selection failed - Status: ${response.status}`);
       }
     } catch (error) {
-      console.log(`❌ Model selection failed - Error: ${error.message}`)
+      console.log(`❌ Model selection failed - Error: ${error.message}`);
     }
-    console.log('')
+    console.log('');
   }
 }
 
 // Test fallback system
 async function testFallbackSystem() {
-  console.log('🔄 Testing fallback system...\n')
-  
+  console.log('🔄 Testing fallback system...\n');
+
   // Test with invalid model to trigger fallback
   try {
-    console.log('Testing fallback with invalid model...')
-    const response = await makeRequest('Test query', 'invalid-model')
-    
+    console.log('Testing fallback with invalid model...');
+    const response = await makeRequest('Test query', 'invalid-model');
+
     if (response.status === 200) {
-      console.log('✅ Fallback system working')
+      console.log('✅ Fallback system working');
     } else {
-      console.log(`❌ Fallback system failed - Status: ${response.status}`)
+      console.log(`❌ Fallback system failed - Status: ${response.status}`);
     }
   } catch (error) {
-    console.log(`❌ Fallback system failed - Error: ${error.message}`)
+    console.log(`❌ Fallback system failed - Error: ${error.message}`);
   }
-  console.log('')
+  console.log('');
 }
 
 // Main test function
 async function runTests() {
-  console.log('🚀 Starting Ollama Cloud Integration Tests\n')
-  console.log(`🔑 API Key: ${OLLAMA_API_KEY.substring(0, 10)}...`)
-  console.log(`🌐 Base URL: ${OLLAMA_CLOUD_BASE_URL}\n`)
-  
+  console.log('🚀 Starting Ollama Cloud Integration Tests\n');
+  console.log(`🔑 API Key: ${OLLAMA_API_KEY.substring(0, 10)}...`);
+  console.log(`🌐 Base URL: ${OLLAMA_CLOUD_BASE_URL}\n`);
+
   try {
-    await testModelAvailability()
-    await test128KContext()
-    await testModelSelection()
-    await testFallbackSystem()
-    
-    console.log('✅ All tests completed!')
-    console.log('\n📋 Test Summary:')
-    console.log('- Model availability: Checked')
-    console.log('- 128K context capability: Tested')
-    console.log('- Model selection logic: Validated')
-    console.log('- Fallback system: Verified')
-    
+    await testModelAvailability();
+    await test128KContext();
+    await testModelSelection();
+    await testFallbackSystem();
+
+    console.log('✅ All tests completed!');
+    console.log('\n📋 Test Summary:');
+    console.log('- Model availability: Checked');
+    console.log('- 128K context capability: Tested');
+    console.log('- Model selection logic: Validated');
+    console.log('- Fallback system: Verified');
   } catch (error) {
-    console.error('❌ Test suite failed:', error.message)
-    process.exit(1)
+    console.error('❌ Test suite failed:', error.message);
+    process.exit(1);
   }
 }
 
 // Run tests if this script is executed directly
 if (require.main === module) {
-  runTests()
+  runTests();
 }
 
-module.exports = { runTests, testCases }
+module.exports = { runTests, testCases };

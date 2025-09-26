@@ -1,57 +1,57 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-import { getAdminFromRequest } from '@/lib/admin-auth'
+import { NextRequest, NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
+import { getAdminFromRequest } from '@/lib/admin-auth';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 export async function GET(request: NextRequest) {
   try {
     // Verify admin authentication
-    const admin = getAdminFromRequest(request)
+    const admin = getAdminFromRequest(request);
     if (!admin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { searchParams } = new URL(request.url)
-    const search = searchParams.get('search') || ''
-    const status = searchParams.get('status') || ''
-    const sortBy = searchParams.get('sortBy') || 'scheduledDate'
-    const sortOrder = searchParams.get('sortOrder') || 'desc'
-    const dateFrom = searchParams.get('dateFrom') || ''
-    const dateTo = searchParams.get('dateTo') || ''
+    const { searchParams } = new URL(request.url);
+    const search = searchParams.get('search') || '';
+    const status = searchParams.get('status') || '';
+    const sortBy = searchParams.get('sortBy') || 'scheduledDate';
+    const sortOrder = searchParams.get('sortOrder') || 'desc';
+    const dateFrom = searchParams.get('dateFrom') || '';
+    const dateTo = searchParams.get('dateTo') || '';
 
     // Build search conditions
-    let whereConditions: any = {}
-    
+    const whereConditions: any = {};
+
     if (search) {
       whereConditions.OR = [
         { title: { contains: search } },
-        { description: { contains: search } }
-      ]
+        { description: { contains: search } },
+      ];
     }
 
     // Add status filter
     if (status && status !== 'all') {
-      whereConditions.status = status
+      whereConditions.status = status;
     }
 
     // Add date range filter
     if (dateFrom || dateTo) {
-      whereConditions.scheduledDate = {}
+      whereConditions.scheduledDate = {};
       if (dateFrom) {
-        whereConditions.scheduledDate.gte = new Date(dateFrom)
+        whereConditions.scheduledDate.gte = new Date(dateFrom);
       }
       if (dateTo) {
-        whereConditions.scheduledDate.lte = new Date(dateTo)
+        whereConditions.scheduledDate.lte = new Date(dateTo);
       }
     }
 
     // Build sort conditions
-    const orderBy: any = {}
+    const orderBy: any = {};
     if (sortBy === 'rsvpCount') {
-      orderBy.rsvps = { _count: sortOrder }
+      orderBy.rsvps = { _count: sortOrder };
     } else {
-      orderBy[sortBy] = sortOrder
+      orderBy[sortBy] = sortOrder;
     }
 
     // Get webinars with filtering
@@ -60,22 +60,22 @@ export async function GET(request: NextRequest) {
       include: {
         rsvps: {
           select: {
-            id: true
-          }
+            id: true,
+          },
         },
         adminUser: {
           select: {
-            username: true
-          }
+            username: true,
+          },
         },
         _count: {
           select: {
-            rsvps: true
-          }
-        }
+            rsvps: true,
+          },
+        },
       },
-      orderBy
-    })
+      orderBy,
+    });
 
     // Transform data for frontend
     const transformedWebinars = webinars.map(webinar => ({
@@ -90,20 +90,22 @@ export async function GET(request: NextRequest) {
       status: webinar.status,
       createdAt: webinar.createdAt,
       rsvpCount: webinar._count.rsvps,
-      createdBy: webinar.adminUser.username
-    }))
+      createdBy: webinar.adminUser.username,
+    }));
 
     return NextResponse.json({
       webinars: transformedWebinars,
-      total: transformedWebinars.length
-    })
-
+      total: transformedWebinars.length,
+    });
   } catch (error) {
-    console.error('Webinar search API error:', error)
-    return NextResponse.json({ 
-      error: 'Failed to search webinars' 
-    }, { status: 500 })
+    console.error('Webinar search API error:', error);
+    return NextResponse.json(
+      {
+        error: 'Failed to search webinars',
+      },
+      { status: 500 }
+    );
   } finally {
-    await prisma.$disconnect()
+    await prisma.$disconnect();
   }
 }
