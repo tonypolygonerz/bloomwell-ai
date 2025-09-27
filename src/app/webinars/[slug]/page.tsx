@@ -5,10 +5,6 @@ import { useSession } from 'next-auth/react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { format } from 'date-fns';
-import { Metadata } from 'next';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
 
 interface Webinar {
   id: string;
@@ -224,12 +220,12 @@ export default function WebinarPage() {
           <p className='text-gray-600 mb-8'>
             {error || 'The webinar you are looking for does not exist.'}
           </p>
-          <a
+          <Link
             href='/'
             className='bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium'
           >
             Go Home
-          </a>
+          </Link>
         </div>
       </div>
     );
@@ -625,7 +621,7 @@ export default function WebinarPage() {
                       disabled
                       className='w-full bg-gray-500 text-white font-semibold py-3 px-6 rounded-lg cursor-not-allowed'
                     >
-                      You're going!
+                      You&apos;re going!
                     </button>
                   ) : session ? (
                     <button

@@ -114,6 +114,12 @@ export function Navigation() {
                 Profile
               </Link>
               <Link
+                href='/templates'
+                className='text-white hover:text-green-100 px-3 py-2 rounded-md text-sm font-medium'
+              >
+                Templates
+              </Link>
+              <Link
                 href='/notifications'
                 className='text-white hover:text-green-100 px-3 py-2 rounded-md text-sm font-medium'
               >

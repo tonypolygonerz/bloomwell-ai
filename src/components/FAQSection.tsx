@@ -53,7 +53,7 @@ export default function FAQSection() {
         Frequently Asked Questions
       </h2>
       <p className='text-xl text-gray-600 mb-12 max-w-2xl mx-auto'>
-        Everything you need to know about Bloomwell AI's pricing and policies
+        Everything you need to know about Bloomwell AI&apos;s pricing and policies
       </p>
 
       <div className='max-w-3xl mx-auto'>

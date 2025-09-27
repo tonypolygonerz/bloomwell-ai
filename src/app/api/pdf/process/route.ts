@@ -2,7 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { PrismaClient } from '@prisma/client';
-import { createPDFProcessor, PDFProcessor } from '@/lib/pdf-processor';
+import { createPDFProcessor } from '@/lib/pdf-processor';
+import { 
+  safeJsonStringify,
+  parsePDFKeyPoints,
+  parsePDFRecommendations,
+  logValidationErrors,
+  logValidationWarnings 
+} from '@/lib/json-field-utils';
+import { PDFKeyPoint, PDFRecommendation } from '@/types/json-fields';
 
 const prisma = new PrismaClient();
 
@@ -156,6 +164,17 @@ export async function POST(request: NextRequest) {
         documentType
       );
 
+      // Validate and stringify JSON fields
+      const keyPointsResult = safeJsonStringify(analysisResult.keyPoints, 'keyPoints');
+      if (!keyPointsResult.success && keyPointsResult.errors) {
+        logValidationErrors(keyPointsResult.errors, 'PDF Key Points');
+      }
+
+      const recommendationsResult = safeJsonStringify(analysisResult.recommendations, 'recommendations');
+      if (!recommendationsResult.success && recommendationsResult.errors) {
+        logValidationErrors(recommendationsResult.errors, 'PDF Recommendations');
+      }
+
       // Update processing record with results
       const updatedProcessing = await prisma.pDFProcessing.update({
         where: { id: pdfProcessing.id },
@@ -164,8 +183,8 @@ export async function POST(request: NextRequest) {
           extractedText: extractionResult.extractedText,
           documentType: analysisResult.documentType,
           summary: analysisResult.summary,
-          keyPoints: analysisResult.keyPoints,
-          recommendations: analysisResult.recommendations,
+          keyPoints: keyPointsResult.data || JSON.stringify([]),
+          recommendations: recommendationsResult.data || JSON.stringify([]),
           confidence: analysisResult.confidence,
           aiModel: analysisResult.model,
           processingTime: analysisResult.processingTime,

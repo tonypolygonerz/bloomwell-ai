@@ -133,7 +133,7 @@ export async function GET(request: NextRequest) {
             },
             take: 1,
           },
-          webinarRSVPs: {
+          rsvps: {
             select: {
               id: true,
               rsvpDate: true,
@@ -146,7 +146,7 @@ export async function GET(request: NextRequest) {
           _count: {
             select: {
               conversations: true,
-              webinarRSVPs: true,
+              rsvps: true,
             },
           },
         },
@@ -180,9 +180,9 @@ export async function GET(request: NextRequest) {
       createdAt: user.createdAt,
       status: 'active', // All users are active for now
       conversationCount: user._count.conversations,
-      rsvpCount: user._count.webinarRSVPs,
+      rsvpCount: user._count.rsvps,
       lastConversation: user.conversations[0]?.createdAt || null,
-      lastRSVP: user.webinarRSVPs[0]?.rsvpDate || null,
+      lastRSVP: user.rsvps[0]?.rsvpDate || null,
     }));
 
     return NextResponse.json({

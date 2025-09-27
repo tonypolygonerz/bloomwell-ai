@@ -104,7 +104,7 @@ export async function GET(request: NextRequest) {
         _count: {
           select: {
             conversations: true,
-            webinarRSVPs: true,
+            rsvps: true,
           },
         },
       },
@@ -134,7 +134,7 @@ export async function GET(request: NextRequest) {
       user.createdAt.toISOString().split('T')[0],
       user.updatedAt.toISOString().split('T')[0],
       user._count.conversations.toString(),
-      user._count.webinarRSVPs.toString(),
+      user._count.rsvps.toString(),
       'active',
     ]);
 

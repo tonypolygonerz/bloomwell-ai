@@ -601,7 +601,7 @@ export default function WebinarDetailClient({
                       disabled
                       className='w-full bg-gray-500 text-white font-semibold py-3 px-6 rounded-lg cursor-not-allowed'
                     >
-                      You're going!
+                      You&apos;re going!
                     </button>
                   ) : session ? (
                     <button

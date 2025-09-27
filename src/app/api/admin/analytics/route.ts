@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
               },
             },
             {
-              webinarRSVPs: {
+              rsvps: {
                 some: {
                   rsvpDate: { gte: start, lte: end },
                 },
@@ -228,7 +228,7 @@ export async function GET(request: NextRequest) {
                 },
               },
               {
-                webinarRSVPs: {
+                rsvps: {
                   none: {
                     rsvpDate: { gte: start },
                   },

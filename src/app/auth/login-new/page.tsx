@@ -192,7 +192,7 @@ export default function LoginPageNew() {
                 href='/auth/register'
                 className='text-green-600 hover:text-green-700 text-sm font-medium'
               >
-                Don't have an account? Sign up
+                Don&apos;t have an account? Sign up
               </a>
               <div className='text-xs text-gray-500'>
                 Secure authentication powered by NextAuth.js

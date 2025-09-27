@@ -229,7 +229,7 @@ export default function ProfilePage() {
             Organization Profile
           </h1>
           <p className='mt-2 text-gray-600'>
-            Manage your organization's information and settings
+            Manage your organization&apos;s information and settings
           </p>
         </div>
 
@@ -239,7 +239,7 @@ export default function ProfilePage() {
               Organization Details
             </h2>
             <p className='mt-1 text-sm text-gray-500'>
-              Update your organization's information to help us provide better
+              Update your organization&apos;s information to help us provide better
               assistance.
             </p>
           </div>
@@ -290,7 +290,7 @@ export default function ProfilePage() {
                 )}
               </div>
               <p className='mt-1 text-sm text-gray-500'>
-                Search using ProPublica's Nonprofit Explorer database
+                Search using ProPublica&apos;s Nonprofit Explorer database
               </p>
 
               {/* Search Results */}

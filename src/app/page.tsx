@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import ParallaxSections from '@/components/ParallaxSections';
 import HomeFooter from '@/components/HomeFooter';
@@ -145,7 +144,7 @@ export default function Home() {
               <p className='text-gray-600 mb-6 leading-relaxed'>
                 Comprehensive database of federal grants with AI-powered
                 matching to find the perfect funding opportunities for your
-                organization's mission and programs.
+                organization&apos;s mission and programs.
               </p>
               <Link
                 href='/chat?prompt=find-grants'

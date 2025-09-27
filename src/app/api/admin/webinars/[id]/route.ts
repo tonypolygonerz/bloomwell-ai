@@ -1,6 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { getAdminFromRequest } from '../../../../../lib/admin-auth';
+import { 
+  safeJsonParse, 
+  safeJsonStringify,
+  parseWebinarCategories, 
+  parseGuestSpeakers,
+  logValidationErrors,
+  logValidationWarnings 
+} from '@/lib/json-field-utils';
+import { WebinarCategories, GuestSpeaker, WebinarMaterial } from '@/types/json-fields';
 
 const prisma = new PrismaClient();
 
@@ -34,14 +43,36 @@ export async function GET(
       return NextResponse.json({ error: 'Webinar not found' }, { status: 404 });
     }
 
-    // Parse JSON fields
+    // Parse JSON fields with type safety
+    const categoriesResult = safeJsonParse<WebinarCategories>(webinar.categories, 'categories');
+    if (!categoriesResult.success && categoriesResult.errors) {
+      logValidationErrors(categoriesResult.errors, 'Webinar Categories');
+    }
+    if (categoriesResult.warnings) {
+      logValidationWarnings(categoriesResult.warnings, 'Webinar Categories');
+    }
+
+    const guestSpeakersResult = parseGuestSpeakers(webinar.guestSpeakers);
+    if (!guestSpeakersResult.success && guestSpeakersResult.errors) {
+      logValidationErrors(guestSpeakersResult.errors, 'Guest Speakers');
+    }
+    if (guestSpeakersResult.warnings) {
+      logValidationWarnings(guestSpeakersResult.warnings, 'Guest Speakers');
+    }
+
+    const materialsResult = safeJsonParse<WebinarMaterial[]>(webinar.materials, 'materials');
+    if (!materialsResult.success && materialsResult.errors) {
+      logValidationErrors(materialsResult.errors, 'Webinar Materials');
+    }
+    if (materialsResult.warnings) {
+      logValidationWarnings(materialsResult.warnings, 'Webinar Materials');
+    }
+
     const formattedWebinar = {
       ...webinar,
-      categories: webinar.categories ? JSON.parse(webinar.categories) : [],
-      guestSpeakers: webinar.guestSpeakers
-        ? JSON.parse(webinar.guestSpeakers)
-        : [],
-      materials: webinar.materials ? JSON.parse(webinar.materials) : [],
+      categories: categoriesResult.data || { primary: 'General' },
+      guestSpeakers: guestSpeakersResult.data || [],
+      materials: materialsResult.data || [],
       rsvpCount: webinar._count.rsvps,
     };
 
@@ -125,9 +156,30 @@ export async function PUT(
         metaDescription,
         maxAttendees: parseInt(maxAttendees),
         isPublished: status === 'published',
-        categories: JSON.stringify(categories),
-        guestSpeakers: JSON.stringify(guestSpeakers),
-        materials: JSON.stringify(materials),
+        categories: (() => {
+          const result = safeJsonStringify(categories, 'categories');
+          if (!result.success && result.errors) {
+            logValidationErrors(result.errors, 'Webinar Categories Update');
+            return JSON.stringify({ primary: 'General' });
+          }
+          return result.data || JSON.stringify({ primary: 'General' });
+        })(),
+        guestSpeakers: (() => {
+          const result = safeJsonStringify(guestSpeakers, 'guestSpeakers');
+          if (!result.success && result.errors) {
+            logValidationErrors(result.errors, 'Guest Speakers Update');
+            return JSON.stringify([]);
+          }
+          return result.data || JSON.stringify([]);
+        })(),
+        materials: (() => {
+          const result = safeJsonStringify(materials, 'materials');
+          if (!result.success && result.errors) {
+            logValidationErrors(result.errors, 'Webinar Materials Update');
+            return JSON.stringify([]);
+          }
+          return result.data || JSON.stringify([]);
+        })(),
       },
     });
 

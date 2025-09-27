@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
       status: webinar.status,
       createdAt: webinar.createdAt,
       rsvpCount: webinar._count.rsvps,
-      createdBy: webinar.adminUser.username,
+      createdBy: webinar.adminUser?.username || 'Unknown',
     }));
 
     return NextResponse.json({

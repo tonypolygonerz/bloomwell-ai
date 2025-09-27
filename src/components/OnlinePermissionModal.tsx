@@ -1,7 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-
 interface OnlinePermissionModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -47,7 +45,7 @@ export default function OnlinePermissionModal({
 
         <div className='mb-4'>
           <p className='text-sm text-gray-600 mb-3'>
-            Your question: <span className='font-medium'>"{message}"</span>
+            Your question: <span className='font-medium'>&ldquo;{message}&rdquo;</span>
           </p>
           <p className='text-sm text-gray-600 mb-3'>
             This type of question might benefit from current, up-to-date

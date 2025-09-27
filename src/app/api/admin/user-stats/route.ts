@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
               },
             },
             {
-              webinarRSVPs: {
+              rsvps: {
                 some: {
                   rsvpDate: {
                     gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),

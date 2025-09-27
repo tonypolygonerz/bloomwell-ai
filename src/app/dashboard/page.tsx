@@ -1,7 +1,9 @@
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import UpcomingEventsWidget from '@/components/UpcomingEventsWidget';
 import PDFUsageWidget from '@/components/PDFUsageWidget';
+import IntelligenceProfileManager from '@/components/IntelligenceProfileManager';
 
 export default async function Dashboard() {
   const session = await getServerSession();
@@ -27,36 +29,42 @@ export default async function Dashboard() {
           <div className='bg-white p-6 rounded-lg shadow'>
             <h3 className='text-lg font-semibold mb-4'>Quick Actions</h3>
             <div className='space-y-2'>
-              <a
+              <Link
                 href='/chat'
                 className='block w-full text-left p-3 border rounded hover:bg-gray-50 transition-colors'
               >
                 💬 Chat with AI Assistant
-              </a>
-              <a
+              </Link>
+              <Link
                 href='/chat?prompt=find-grants'
                 className='block w-full text-left p-3 border rounded hover:bg-gray-50 transition-colors'
               >
                 🔍 Find Grants
-              </a>
-              <a
+              </Link>
+              <Link
                 href='/documents'
                 className='block w-full text-left p-3 border rounded hover:bg-gray-50 transition-colors'
               >
                 📄 Analyze Documents
-              </a>
-              <a
+              </Link>
+              <Link
                 href='/chat?prompt=board-help'
                 className='block w-full text-left p-3 border rounded hover:bg-gray-50 transition-colors'
               >
                 👥 Board Governance Help
-              </a>
-              <a
+              </Link>
+              <Link
                 href='/chat?prompt=funding-ideas'
                 className='block w-full text-left p-3 border rounded hover:bg-gray-50 transition-colors'
               >
                 💡 Funding Ideas
-              </a>
+              </Link>
+              <Link
+                href='/templates'
+                className='block w-full text-left p-3 border rounded hover:bg-gray-50 transition-colors'
+              >
+                📋 Guided Templates
+              </Link>
             </div>
           </div>
 
@@ -99,12 +107,12 @@ export default async function Dashboard() {
           <div className='bg-white p-6 rounded-lg shadow'>
             <h3 className='text-lg font-semibold mb-4'>Webinar Resources</h3>
             <div className='space-y-2'>
-              <a
+              <Link
                 href='/webinars'
                 className='block w-full text-left p-3 border rounded hover:bg-gray-50 transition-colors'
               >
                 📅 Browse All Webinars
-              </a>
+              </Link>
               <a
                 href='/notifications'
                 className='block w-full text-left p-3 border rounded hover:bg-gray-50 transition-colors'
@@ -113,6 +121,11 @@ export default async function Dashboard() {
               </a>
             </div>
           </div>
+        </div>
+
+        {/* Intelligence Profile Section */}
+        <div className='mt-6'>
+          <IntelligenceProfileManager userId={session.user?.id || ''} />
         </div>
       </div>
     </div>

@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import AdminBreadcrumb from '@/components/AdminBreadcrumb';
 import AdminSearchFilters from '@/components/AdminSearchFilters';
 
 interface User {

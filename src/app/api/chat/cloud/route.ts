@@ -341,6 +341,7 @@ export async function POST(request: NextRequest) {
     // Save messages to database with cloud tracking
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
+      include: { organization: true },
     });
 
     if (user) {

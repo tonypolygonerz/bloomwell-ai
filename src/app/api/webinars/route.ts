@@ -1,5 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { 
+  safeJsonParse, 
+  parseWebinarCategories, 
+  parseGuestSpeakers,
+  logValidationErrors,
+  logValidationWarnings 
+} from '@/lib/json-field-utils';
+import { WebinarCategories, GuestSpeaker, WebinarMaterial } from '@/types/json-fields';
 
 const prisma = new PrismaClient();
 
@@ -75,11 +83,36 @@ export async function GET(request: NextRequest) {
       status: webinar.status,
       rsvpCount: webinar._count.rsvps,
       maxAttendees: webinar.maxAttendees,
-      categories: webinar.categories ? JSON.parse(webinar.categories) : [],
-      guestSpeakers: webinar.guestSpeakers
-        ? JSON.parse(webinar.guestSpeakers)
-        : [],
-      materials: webinar.materials ? JSON.parse(webinar.materials) : [],
+      categories: (() => {
+        const result = safeJsonParse<WebinarCategories>(webinar.categories, 'categories');
+        if (!result.success && result.errors) {
+          logValidationErrors(result.errors, 'Webinar Categories');
+        }
+        if (result.warnings) {
+          logValidationWarnings(result.warnings, 'Webinar Categories');
+        }
+        return result.data || { primary: 'General' };
+      })(),
+      guestSpeakers: (() => {
+        const result = parseGuestSpeakers(webinar.guestSpeakers);
+        if (!result.success && result.errors) {
+          logValidationErrors(result.errors, 'Guest Speakers');
+        }
+        if (result.warnings) {
+          logValidationWarnings(result.warnings, 'Guest Speakers');
+        }
+        return result.data || [];
+      })(),
+      materials: (() => {
+        const result = safeJsonParse<WebinarMaterial[]>(webinar.materials, 'materials');
+        if (!result.success && result.errors) {
+          logValidationErrors(result.errors, 'Webinar Materials');
+        }
+        if (result.warnings) {
+          logValidationWarnings(result.warnings, 'Webinar Materials');
+        }
+        return result.data || [];
+      })(),
       jitsiRoomUrl: webinar.jitsiRoomUrl,
       metaDescription: webinar.metaDescription,
       socialImageUrl: webinar.socialImageUrl,

@@ -5,7 +5,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 // GET - Fetch all conversations for the user
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const session = await getServerSession();
 
@@ -55,6 +55,7 @@ export async function POST(request: NextRequest) {
 
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
+      include: { organization: true },
     });
 
     if (!user) {
@@ -65,7 +66,7 @@ export async function POST(request: NextRequest) {
       data: {
         title: title || 'New Conversation',
         userId: user.id,
-        organizationId: user.organizationId,
+        organizationId: user.organization?.id,
       },
     });
 

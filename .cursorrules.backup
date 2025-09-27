@@ -1,0 +1,89 @@
+# Bloomwell AI Development Standards
+# Company: Polygonerz LLC | Product: Bloomwell AI | Domain: bloomwell-ai.com
+
+## Project Context
+- Tech Stack: Next.js 15.5.2, TypeScript, PostgreSQL, Prisma ORM, Tailwind CSS, NextAuth.js
+- Target Users: Nonprofits under $3M budget, social enterprises, faith-based organizations
+- Business Model: $29.99/month or $209/year (12 months paid in advance) with 14-day free trial
+- Repository: nonprofit-ai-assistant (legacy name, rebrand to Bloomwell AI in progress)
+
+## Implementation Best Practices
+- Before implementing features, confirm understanding of nonprofit-specific requirements
+- For complex features, plan approach and confirm integration with existing grants/webinar systems
+- Always preserve existing functionality (73K+ federal grants, admin dashboard, authentication)
+- Run prettier on all new files for consistent formatting
+- Run type checking and linting before completion
+- Test all new API routes with realistic nonprofit data
+- Maintain distinct UI themes: Green for public pages, Purple for admin pages
+
+## Code Quality Standards
+- Prefer functional components with TypeScript interfaces
+- Use branded types for IDs: `type WebinarId = string & { __brand: 'WebinarId' }`
+- Prefer 'type' over 'interface' unless extending/merging required
+- Write self-documenting code, avoid comments except for business logic caveats
+- Use descriptive function names that reflect nonprofit domain (e.g., `calculateGrantDeadline`)
+
+## UI/UX Theme Guidelines
+- **Public-facing pages**: Bloomwell AI green branding (#10B981 primary)
+  - Includes: /webinars, /webinar/[slug], homepage, auth pages, user dashboard
+- **Admin pages**: Keep existing purple theme unchanged
+  - Includes: /admin/*, super admin functionality, internal management tools
+- Mobile-first responsive design using Tailwind CSS utilities only
+- Professional nonprofit aesthetic for public pages
+- Include loading states and error boundaries for all async operations
+- SEO optimization required for all public-facing pages
+
+## Pricing & Subscription Logic
+- Monthly: $29.99/month
+- Annual: $209/year (equivalent to $17.42/month, 42% discount)
+- Free trial: 14 days, no credit card required
+- Trial-to-paid conversion tracking required
+- Subscription status must be checked for all premium features
+
+## Nonprofit-Specific Considerations
+- Grant deadline tracking and reminders are mission-critical features
+- Webinar content must be accessible and professional for nonprofit leaders
+- User profiles should capture organization type, mission, and funding status
+- All features should provide value that justifies $29.99/month subscription
+- Consider multi-user organization accounts in future-proofing
+
+## Database & API Patterns
+- Use Prisma schema extensions, never modify existing tables destructively
+- All user-facing APIs must respect trial period and subscription status
+- Include proper error handling for authentication states
+- Use consistent naming: webinarRSVPs, grantMatches, organizationProfiles
+- Always include proper relations and cascade deletes
+
+## Testing Requirements
+- Unit tests for grant matching algorithms and date calculations
+- Integration tests for all payment and trial period logic
+- Test webinar RSVP flows with various authentication states
+- Verify email deliverability for transactional messages
+- Test mobile responsiveness on actual devices
+- Test annual vs monthly subscription pricing logic
+
+## Security & Compliance
+- Nonprofit data is sensitive - implement proper access controls
+- Trial period logic must be tamper-proof
+- Validate all user inputs, especially organization data
+- Rate limit RSVP endpoints to prevent abuse
+- Audit log critical actions (subscription changes, grant access)
+
+## Performance Standards
+- Public webinar pages must load under 2 seconds
+- Grant search results under 500ms for typical queries
+- Database queries optimized for 10K+ users
+- Image optimization for webinar thumbnails and speaker photos
+- Proper caching strategy for frequently accessed nonprofit resources
+
+## Error Handling
+- Graceful degradation when external APIs fail (grants data, email services)
+- Clear error messages specific to nonprofit context
+- Fallback UI states for network issues during webinar registration
+- Proper logging for debugging subscription and trial issues
+
+## Documentation Standards
+- API endpoints documented with nonprofit use case examples
+- Database schema changes logged with migration rationale
+- Feature flags documented for A/B testing subscription flows
+- Deployment checklist including domain configuration for bloomwell-ai.com

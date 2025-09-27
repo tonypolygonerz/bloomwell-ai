@@ -18,9 +18,9 @@ export default function HomeFooter() {
             <div className='bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300'>
               <div className='text-4xl mb-4'>⭐</div>
               <p className='text-gray-600 mb-6 italic'>
-                "Bloomwell AI helped us identify 15 new grant opportunities we
+                &ldquo;Bloomwell AI helped us identify 15 new grant opportunities we
                 never would have found. The AI assistant provided invaluable
-                guidance for our proposal writing."
+                guidance for our proposal writing.&rdquo;
               </p>
               <div className='font-semibold text-gray-900'>Sarah Johnson</div>
               <div className='text-sm text-gray-500'>
@@ -31,9 +31,9 @@ export default function HomeFooter() {
             <div className='bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300'>
               <div className='text-4xl mb-4'>⭐</div>
               <p className='text-gray-600 mb-6 italic'>
-                "The webinar series on board governance transformed our
+                &ldquo;The webinar series on board governance transformed our
                 organization. We implemented the strategies immediately and saw
-                results within months."
+                results within months.&rdquo;
               </p>
               <div className='font-semibold text-gray-900'>Michael Chen</div>
               <div className='text-sm text-gray-500'>
@@ -44,9 +44,9 @@ export default function HomeFooter() {
             <div className='bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300'>
               <div className='text-4xl mb-4'>⭐</div>
               <p className='text-gray-600 mb-6 italic'>
-                "At $29.99/month, Bloomwell AI pays for itself with just one
+                &ldquo;At $29.99/month, Bloomwell AI pays for itself with just one
                 successful grant application. The ROI has been incredible for
-                our small nonprofit."
+                our small nonprofit.&rdquo;
               </p>
               <div className='font-semibold text-gray-900'>Lisa Rodriguez</div>
               <div className='text-sm text-gray-500'>

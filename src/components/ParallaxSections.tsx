@@ -22,7 +22,7 @@ export default function ParallaxSections() {
                 Our AI-powered system continuously updates our database with the
                 latest federal grant opportunities. Advanced filtering and
                 matching algorithms help you find grants that align perfectly
-                with your organization's mission, programs, and funding needs.
+                with your organization&apos;s mission, programs, and funding needs.
               </p>
               <Link
                 href='/chat?prompt=find-grants'

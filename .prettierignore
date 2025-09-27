@@ -11,3 +11,4 @@ coverage
 *.sqlite
 prisma/migrations
 public/uploads
+

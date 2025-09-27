@@ -44,7 +44,7 @@ export async function GET(
           },
           take: 10,
         },
-        webinarRSVPs: {
+        rsvps: {
           include: {
             webinar: {
               select: {
@@ -63,7 +63,7 @@ export async function GET(
         _count: {
           select: {
             conversations: true,
-            webinarRSVPs: true,
+            rsvps: true,
           },
         },
       },
@@ -95,9 +95,9 @@ export async function GET(
       createdAt: user.createdAt,
       status: 'active', // All users are active for now
       conversationCount: user._count.conversations,
-      rsvpCount: user._count.webinarRSVPs,
+      rsvpCount: user._count.rsvps,
       lastConversation: user.conversations[0]?.createdAt || null,
-      lastRSVP: user.webinarRSVPs[0]?.rsvpDate || null,
+      lastRSVP: user.rsvps[0]?.rsvpDate || null,
     };
 
     // Transform conversations
@@ -109,7 +109,7 @@ export async function GET(
     }));
 
     // Transform RSVPs
-    const transformedRSVPs = user.webinarRSVPs.map(rsvp => ({
+    const transformedRSVPs = user.rsvps.map(rsvp => ({
       id: rsvp.id,
       webinar: rsvp.webinar,
       rsvpDate: rsvp.rsvpDate,

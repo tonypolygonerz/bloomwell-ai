@@ -59,7 +59,7 @@ export const authOptions = {
     signIn: '/auth/login',
   },
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account, _profile }) {
       if (account?.provider === 'google' || account?.provider === 'azure-ad') {
         try {
           // Check if user already exists
@@ -87,7 +87,7 @@ export const authOptions = {
       }
       return true;
     },
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, _account }) {
       if (user) {
         token.id = user.id;
         token.email = user.email;

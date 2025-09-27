@@ -159,7 +159,7 @@ export default function UserDetail() {
         <div className='text-center'>
           <h1 className='text-2xl font-bold text-gray-900'>User not found</h1>
           <p className='mt-2 text-gray-600'>
-            The user you're looking for doesn't exist.
+            The user you&apos;re looking for doesn&apos;t exist.
           </p>
           <Link
             href='/admin/users'
