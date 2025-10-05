@@ -14,6 +14,66 @@ import { getUserIntelligenceProfile } from '../../../../lib/user-intelligence-ut
 
 const prisma = new PrismaClient();
 
+/**
+ * Determines if a message should trigger web search
+ */
+function shouldUseWebSearch(message: string): boolean {
+  const triggers = [
+    // Temporal indicators
+    'recent', 'latest', 'current', 'today', 'this year', '2025',
+    
+    // Action requests
+    'find grants for', 'research foundation', 'search for', 'look up',
+    
+    // Current information needs
+    'compliance requirements', 'regulatory changes', 'irs guidance',
+    'best practices', 'industry trends', 'what are the current',
+    
+    // Discovery requests
+    'who received', 'recent awards', 'funding priorities'
+  ];
+  
+  const lowerMessage = message.toLowerCase();
+  return triggers.some(trigger => lowerMessage.includes(trigger));
+}
+
+/**
+ * Extracts clean search query from conversational message
+ */
+function extractSearchQuery(message: string): string {
+  // Remove common question words and punctuation
+  const cleanMessage = message
+    .toLowerCase()
+    .replace(/^(what|how|when|where|why|who|can you|please|could you|find|search|look up|tell me about)\s+/gi, '')
+    .replace(/\?+$/g, '')
+    .replace(/for me/gi, '')
+    .trim();
+  
+  return cleanMessage;
+}
+
+/**
+ * Categorizes search query for logging
+ */
+function categorizeQuery(query: string): string {
+  const lowerQuery = query.toLowerCase();
+  
+  if (lowerQuery.includes('grant') || lowerQuery.includes('foundation') || lowerQuery.includes('funding')) {
+    return 'grants';
+  }
+  if (lowerQuery.includes('compliance') || lowerQuery.includes('regulation') || lowerQuery.includes('irs')) {
+    return 'compliance';
+  }
+  if (lowerQuery.includes('best practice') || lowerQuery.includes('strategy') || lowerQuery.includes('trend')) {
+    return 'best-practices';
+  }
+  if (lowerQuery.includes('foundation') || lowerQuery.includes('donor')) {
+    return 'foundations';
+  }
+  
+  return 'general';
+}
+
 // Cloud model configuration with 128K context support
 const CLOUD_MODELS = {
   enterprise: {
@@ -230,7 +290,8 @@ async function generateCloudResponse(
   message: string,
   conversationHistory: any[],
   selectedModel: any,
-  selectedGuidelines: any[] = []
+  selectedGuidelines: any[] = [],
+  webSearchContext: string = ''
 ): Promise<{
   response: string;
   processingTime: number;
@@ -251,8 +312,16 @@ async function generateCloudResponse(
       selectedGuidelines
     );
 
+    // Build messages array with web search context if available
+    const messages = [
+      { role: 'system', content: enhancedPrompt },
+      ...(webSearchContext ? [{ role: 'system', content: webSearchContext }] : []),
+      ...conversationHistory,
+      { role: 'user', content: message }
+    ];
+
     const result = await client.generateWithFallback(
-      enhancedPrompt,
+      messages.map(m => `${m.role}: ${m.content}`).join('\n\n'),
       selectedModel.model,
       {
         temperature: 0.7,
@@ -333,6 +402,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Fetch user data for guideline selection
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      include: { organization: true },
+    });
+
     // Select appropriate cloud model
     const selectedModel = selectCloudModel(message, conversationHistory);
 
@@ -344,11 +419,77 @@ export async function POST(request: NextRequest) {
       contextLength: selectedModel.contextLength,
     });
 
-    // Fetch user data for guideline selection
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-      include: { organization: true },
-    });
+    // Web search integration
+    let webSearchResults = null;
+    let webSearchContext = '';
+
+    // Check if web search should be triggered
+    if (shouldUseWebSearch(message)) {
+      try {
+        // Check daily limit
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const searchCount = await (prisma as any).webSearchLog.count({
+          where: {
+            userId: user?.id,
+            timestamp: { gte: today }
+          }
+        });
+
+        // Only use web search if under daily limit
+        if (searchCount < 10) {
+          const searchQuery = extractSearchQuery(message);
+          const category = categorizeQuery(searchQuery);
+          
+          console.log(`🔍 Triggering web search: "${searchQuery}" [${category}]`);
+          
+          // Initialize Ollama client for web search
+          if (process.env.OLLAMA_API_KEY) {
+            const ollamaCloud = new OllamaCloudClient(process.env.OLLAMA_API_KEY);
+            
+            const startTime = Date.now();
+            webSearchResults = await ollamaCloud.webSearch(searchQuery, 5);
+            const processingTime = Date.now() - startTime;
+
+            // Create enhanced context with web results
+            webSearchContext = `
+CURRENT WEB SEARCH RESULTS (${new Date().toISOString()}):
+Query: "${searchQuery}"
+
+${webSearchResults.results.map((r: any, idx: number) => `
+[Source ${idx + 1}] ${r.title}
+URL: ${r.url}
+Content: ${r.content}
+`).join('\n---\n')}
+
+INSTRUCTIONS: You have access to current web information above. Use these sources to provide accurate, up-to-date information. When using information from these sources, cite them as [Source #]. Prioritize information from these current sources over your training data when they conflict.
+`;
+
+            // Log the search
+            if (user) {
+              await (prisma as any).webSearchLog.create({
+                data: {
+                  userId: user.id,
+                  query: searchQuery,
+                  category,
+                  resultsCount: webSearchResults.results.length,
+                  processingTime,
+                  timestamp: new Date()
+                }
+              });
+            }
+
+            console.log(`✅ Web search completed: ${webSearchResults.results.length} results in ${processingTime}ms`);
+          }
+        } else {
+          console.log('⚠️ Daily web search limit reached for user');
+        }
+      } catch (error) {
+        console.error('❌ Web search failed in chat:', error);
+        // Continue without web search if it fails
+      }
+    }
 
     // Initialize guideline selection variables
     let selectedGuidelines: any[] = [];
@@ -406,7 +547,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Generate response using Ollama Cloud with guideline-enhanced prompts
+    // Generate response using Ollama Cloud with guideline-enhanced prompts and web search context
     const {
       response: aiResponse,
       processingTime,
@@ -415,7 +556,8 @@ export async function POST(request: NextRequest) {
       message,
       conversationHistory,
       selectedModel,
-      selectedGuidelines
+      selectedGuidelines,
+      webSearchContext
     );
 
     // Save messages to database with cloud tracking
@@ -461,6 +603,11 @@ export async function POST(request: NextRequest) {
       tokenEstimate: tokenEstimate,
       queryType: selectedModel.queryType,
       contextLength: selectedModel.contextLength,
+      webSearchUsed: webSearchResults !== null,
+      sources: webSearchResults?.results.map((r: any) => ({
+        title: r.title,
+        url: r.url
+      })) || [],
       timestamp: new Date().toISOString(),
     });
   } catch (error) {

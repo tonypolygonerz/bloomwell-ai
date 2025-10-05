@@ -24,6 +24,23 @@ export interface CloudError {
   fallbackModel?: string;
 }
 
+// Add these interfaces for web search
+interface WebSearchResult {
+  title: string;
+  url: string;
+  content: string;
+}
+
+interface WebSearchResponse {
+  results: WebSearchResult[];
+}
+
+interface WebFetchResponse {
+  title: string;
+  content: string;
+  links: string[];
+}
+
 // Cloud model configuration with fallback hierarchy
 export const CLOUD_MODELS: Record<string, CloudModelConfig> = {
   'deepseek-v3.1:671b-cloud': {
@@ -315,6 +332,96 @@ export class OllamaCloudClient {
         available: false,
         lastError: error instanceof Error ? error.message : 'Unknown error',
       };
+    }
+  }
+
+  /**
+   * Performs web search using Ollama's web search API
+   * @param query - Search query string
+   * @param maxResults - Maximum results to return (default 5, max 10)
+   */
+  async webSearch(query: string, maxResults: number = 5): Promise<WebSearchResponse> {
+    try {
+      if (!query || query.trim().length === 0) {
+        throw new Error('Search query cannot be empty');
+      }
+
+      const response = await fetch(`${this.baseUrl}/web_search`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${this.apiKey}`,
+        },
+        body: JSON.stringify({
+          query: query.trim(),
+          max_results: Math.min(maxResults, 10) // API maximum is 10
+        }),
+      });
+
+      if (!response.ok) {
+        const error = this.parseError(
+          new Error(`HTTP ${response.status}`),
+          response
+        );
+        throw error;
+      }
+
+      const results = await response.json();
+      console.log(`Web search completed: "${query}" - ${results.results.length} results`);
+      return results;
+
+    } catch (error) {
+      console.error('Ollama web search error:', error);
+      throw new Error(`Web search failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Fetches content from a specific URL using Ollama's web fetch API
+   * @param url - URL to fetch
+   */
+  async webFetch(url: string): Promise<WebFetchResponse> {
+    try {
+      if (!url || !this.isValidUrl(url)) {
+        throw new Error('Valid URL required');
+      }
+
+      const response = await fetch(`${this.baseUrl}/web_fetch`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${this.apiKey}`,
+        },
+        body: JSON.stringify({ url }),
+      });
+
+      if (!response.ok) {
+        const error = this.parseError(
+          new Error(`HTTP ${response.status}`),
+          response
+        );
+        throw error;
+      }
+
+      const result = await response.json();
+      console.log(`Web fetch completed: ${url}`);
+      return result;
+
+    } catch (error) {
+      console.error('Ollama web fetch error:', error);
+      throw new Error(`Web fetch failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Validates URL format
+   */
+  private isValidUrl(url: string): boolean {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
     }
   }
 }
