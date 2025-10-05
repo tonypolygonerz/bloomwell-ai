@@ -35,14 +35,16 @@ model User {
 }
 
 model Organization {
-  id          String   @id @default(cuid())
-  name        String
-  mission     String?
-  budget      String?
-  staffSize   String?
-  focusAreas  String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id               String   @id @default(cuid())
+  name             String
+  mission          String?
+  budget           String?
+  staffSize        String?
+  focusAreas       String?
+  organizationType String?  // nonprofit, church, faith_based, social_enterprise
+  state            String?  // US state abbreviation
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
   
   users User[]
   conversations Conversation[]
@@ -402,4 +404,22 @@ model PDFProcessing {
   @@index([userId, createdAt])
   @@index([status, createdAt])
   @@map("pdf_processings")
+}
+
+// AI GUIDELINES MODEL FOR CONTEXTUAL AI PROMPTS
+
+model AIGuideline {
+  id               String   @id @default(cuid())
+  name             String   // Guideline name/title
+  category         String   // Category (e.g., "grant_writing", "board_governance", "fundraising")
+  guidanceText     String   // The actual guidance/prompt text for AI
+  conditions       Json?    // JSON object with conditional arrays: organizationTypes, budgetRanges, states, queryKeywords, templateIds
+  priority         Int      @default(5) // Priority for ranking (1-10, higher = more important)
+  isActive         Boolean  @default(true) // Whether this guideline is active
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  @@index([category, isActive])
+  @@index([priority, isActive])
+  @@map("ai_guidelines")
 }

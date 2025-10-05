@@ -193,3 +193,5 @@ export function validateUserIntelligenceProfile(profile: any): {
     score,
   };
 }
+
+

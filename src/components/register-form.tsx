@@ -26,7 +26,8 @@ export function RegisterForm() {
       });
 
       if (response.ok) {
-        router.push('/auth/login?message=Registration successful');
+        // After successful registration, redirect to onboarding
+        router.push('/onboarding/organization?message=Registration successful');
       } else {
         const data = await response.json();
         setError(data.error || 'Registration failed');
@@ -43,7 +44,7 @@ export function RegisterForm() {
     setError('');
 
     try {
-      await signIn(provider, { callbackUrl: '/dashboard' });
+      await signIn(provider, { callbackUrl: '/onboarding/organization' });
     } catch (error) {
       setError('An error occurred with OAuth sign-in. Please try again.');
       setLoading(false);

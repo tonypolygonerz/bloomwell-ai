@@ -14,8 +14,7 @@ import {
   validateUserIntelligenceProfile 
 } from '@/lib/user-intelligence-utils';
 import { 
-  parseIntelligenceUpdate,
-  parseUserIntelligence 
+  parseIntelligenceUpdate
 } from '@/lib/template-system-utils';
 
 const prisma = new PrismaClient();
@@ -94,20 +93,20 @@ export async function PUT(request: NextRequest) {
     }
 
     let updatedIntelligence: UserIntelligence;
-    let intelligenceUpdates: IntelligenceUpdate[] = [];
+    const intelligenceUpdates: IntelligenceUpdate[] = [];
 
     if (intelligenceProfile) {
-      // Full profile update
-      const validationResult = parseUserIntelligence(intelligenceProfile);
+      // Full profile update - validate using user intelligence utils
+      const validation = validateUserIntelligenceProfile(intelligenceProfile);
       
-      if (!validationResult.success) {
+      if (!validation.isValid) {
         return NextResponse.json({ 
           error: 'Invalid intelligence profile',
-          details: validationResult.errors 
+          details: validation.errors 
         }, { status: 400 });
       }
 
-      updatedIntelligence = validationResult.data!;
+      updatedIntelligence = intelligenceProfile;
     } else if (updates) {
       // Partial updates
       const currentIntelligence = getUserIntelligenceProfile(user.intelligenceProfile) || 
@@ -306,3 +305,5 @@ export async function POST(request: NextRequest) {
     await prisma.$disconnect();
   }
 }
+
+

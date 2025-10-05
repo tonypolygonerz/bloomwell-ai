@@ -5,6 +5,12 @@ import {
   OllamaCloudClient,
   CloudError,
 } from '../../../../lib/ollama-cloud-client';
+import { 
+  selectRelevantGuidelines, 
+  buildFocusedPrompt, 
+  GuidelineContext 
+} from '../../../../lib/guideline-selector';
+import { getUserIntelligenceProfile } from '../../../../lib/user-intelligence-utils';
 
 const prisma = new PrismaClient();
 
@@ -149,12 +155,13 @@ function selectCloudModel(
   };
 }
 
-// Enhanced prompt building for different model tiers
+// Enhanced prompt building for different model tiers with guideline integration
 function buildEnhancedPrompt(
   message: string,
   conversationHistory: any[],
   modelTier: string,
-  queryType: string
+  queryType: string,
+  selectedGuidelines: any[] = []
 ): string {
   const basePrompt = `You are Bloomwell AI, a senior nonprofit consultant with 20+ years of experience helping organizations under $3M budget achieve their mission. You specialize in grant writing, board governance, strategic planning, compliance, and financial sustainability.
 
@@ -165,8 +172,11 @@ Current question: ${message}
 
 Please provide a helpful, detailed response:`;
 
+  // Build the base prompt with tier-specific enhancements
+  let enhancedPrompt = basePrompt;
+
   if (modelTier === 'enterprise') {
-    return `${basePrompt}
+    enhancedPrompt = `${enhancedPrompt}
 
 As an enterprise-level AI consultant, provide:
 - Comprehensive strategic frameworks and methodologies
@@ -181,7 +191,7 @@ Structure your response with clear sections, actionable steps, and professional 
 
   if (modelTier === 'professional') {
     if (queryType === 'documents') {
-      return `${basePrompt}
+      enhancedPrompt = `${enhancedPrompt}
 
 As a professional document analysis specialist, provide:
 - Detailed compliance review and recommendations
@@ -194,7 +204,7 @@ Focus on accuracy, compliance, and practical implementation.`;
     }
 
     if (queryType === 'grants') {
-      return `${basePrompt}
+      enhancedPrompt = `${enhancedPrompt}
 
 As a professional grant writing consultant, provide:
 - Strategic grant application guidance
@@ -207,14 +217,20 @@ Focus on maximizing funding success and compliance.`;
     }
   }
 
-  return basePrompt;
+  // Apply guideline-based context enhancement
+  if (selectedGuidelines && selectedGuidelines.length > 0) {
+    enhancedPrompt = buildFocusedPrompt(enhancedPrompt, selectedGuidelines);
+  }
+
+  return enhancedPrompt;
 }
 
 // Ollama Cloud API integration with 128K context support
 async function generateCloudResponse(
   message: string,
   conversationHistory: any[],
-  selectedModel: any
+  selectedModel: any,
+  selectedGuidelines: any[] = []
 ): Promise<{
   response: string;
   processingTime: number;
@@ -231,7 +247,8 @@ async function generateCloudResponse(
       message,
       conversationHistory,
       selectedModel.tier,
-      selectedModel.queryType
+      selectedModel.queryType,
+      selectedGuidelines
     );
 
     const result = await client.generateWithFallback(
@@ -327,7 +344,69 @@ export async function POST(request: NextRequest) {
       contextLength: selectedModel.contextLength,
     });
 
-    // Generate response using Ollama Cloud
+    // Fetch user data for guideline selection
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      include: { organization: true },
+    });
+
+    // Initialize guideline selection variables
+    let selectedGuidelines: any[] = [];
+
+    if (user) {
+      try {
+        // Fetch active guidelines from database
+        const guidelines = await (prisma as any).aIGuideline.findMany({
+          where: { isActive: true }
+        });
+
+        // Build guideline context using organization data
+        const org = user.organization as any; // Type assertion for new fields
+        const guidelineContext: GuidelineContext = {
+          user: {
+            organizationType: org?.organizationType || undefined,
+            budgetRange: org?.budget || undefined,
+            state: org?.state || undefined,
+            focusAreas: org?.focusAreas ? org.focusAreas.split(',') : []
+          },
+          query: message,
+          templateId: undefined // We'll add template support later
+        };
+
+        // Select relevant guidelines
+        selectedGuidelines = selectRelevantGuidelines(
+          guidelines.map((g: any) => ({
+            id: g.id,
+            name: g.name,
+            category: g.category,
+            guidanceText: g.guidanceText,
+            conditions: g.conditions as any,
+            priority: g.priority,
+            isActive: g.isActive
+          })),
+          guidelineContext
+        );
+
+        // Debug logging for guideline selection
+        console.log('Guideline Selection:', {
+          userProfile: {
+            organizationType: org?.organizationType || 'undefined',
+            budgetRange: org?.budget || 'undefined',
+            state: org?.state || 'undefined',
+            focusAreas: org?.focusAreas || 'undefined'
+          },
+          selectedGuidelinesCount: selectedGuidelines.length,
+          selectedGuidelineNames: selectedGuidelines.map((g: any) => g.name)
+        });
+
+      } catch (error) {
+        console.error('Guideline selection error:', error);
+        // Continue without guidelines if there's an error
+        selectedGuidelines = [];
+      }
+    }
+
+    // Generate response using Ollama Cloud with guideline-enhanced prompts
     const {
       response: aiResponse,
       processingTime,
@@ -335,15 +414,11 @@ export async function POST(request: NextRequest) {
     } = await generateCloudResponse(
       message,
       conversationHistory,
-      selectedModel
+      selectedModel,
+      selectedGuidelines
     );
 
     // Save messages to database with cloud tracking
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-      include: { organization: true },
-    });
-
     if (user) {
       // Save user message
       await prisma.message.create({

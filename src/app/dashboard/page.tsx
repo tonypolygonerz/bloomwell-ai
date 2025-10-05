@@ -1,15 +1,28 @@
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { PrismaClient } from '@prisma/client';
 import UpcomingEventsWidget from '@/components/UpcomingEventsWidget';
 import PDFUsageWidget from '@/components/PDFUsageWidget';
 import IntelligenceProfileManager from '@/components/IntelligenceProfileManager';
+
+const prisma = new PrismaClient();
 
 export default async function Dashboard() {
   const session = await getServerSession();
 
   if (!session) {
     redirect('/auth/login');
+  }
+
+  // Check if user has an organization
+  const user = await prisma.user.findUnique({
+    where: { email: session.user?.email || '' },
+    include: { organization: true },
+  });
+
+  if (!user?.organizationId) {
+    redirect('/onboarding/organization');
   }
 
   return (
