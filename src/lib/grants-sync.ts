@@ -1,8 +1,6 @@
-import { PrismaClient } from '@prisma/client';
 import { parseStringPromise } from 'xml2js';
 import AdmZip from 'adm-zip';
-
-const prisma = new PrismaClient();
+import { prisma } from './prisma';
 
 export interface GrantFileInfo {
   fileName: string;
@@ -244,7 +242,96 @@ export async function downloadAndExtractZip(fileName: string): Promise<string> {
 }
 
 /**
+ * Checks if a grant is eligible for 501(c)(3) nonprofits
+ * Returns false if grant is ONLY for cities, states, municipalities
+ */
+function isEligibleForNonprofits(
+  eligibilityCriteria?: string,
+  title?: string,
+  description?: string
+): boolean {
+  if (!eligibilityCriteria && !title && !description) {
+    return true; // If no eligibility info, include it
+  }
+
+  const textToCheck =
+    `${eligibilityCriteria || ''} ${title || ''} ${description || ''}`.toLowerCase();
+
+  // Keywords that indicate government-only grants
+  const governmentOnlyKeywords = [
+    'state governments only',
+    'local governments only',
+    'city governments only',
+    'county governments only',
+    'municipal governments only',
+    'municipalities only',
+    'tribal governments only',
+    'public agencies only',
+    'government agencies only',
+    'state agencies only',
+  ];
+
+  // If it explicitly says "only" for government entities, exclude it
+  for (const keyword of governmentOnlyKeywords) {
+    if (textToCheck.includes(keyword)) {
+      console.log(`Excluding grant (government-only): ${title}`);
+      return false;
+    }
+  }
+
+  // Check if nonprofits are explicitly mentioned as eligible
+  const nonprofitKeywords = [
+    '501(c)(3)',
+    '501c3',
+    'nonprofit',
+    'non-profit',
+    'nongovernmental',
+    'non-governmental',
+    'ngo',
+    'charitable',
+    'private organizations',
+    'community-based',
+  ];
+
+  const hasNonprofitMention = nonprofitKeywords.some(keyword =>
+    textToCheck.includes(keyword)
+  );
+
+  // Check if it's ONLY for specific government types (excluding nonprofits)
+  const governmentTypes = [
+    'state government',
+    'local government',
+    'city government',
+    'county government',
+    'municipal government',
+    'tribal government',
+  ];
+
+  const hasGovernmentType = governmentTypes.some(type =>
+    textToCheck.includes(type)
+  );
+
+  // If it mentions government types but NO nonprofit keywords, likely government-only
+  if (hasGovernmentType && !hasNonprofitMention) {
+    // Check if it says "and" or "or" which might include multiple eligibility types
+    const hasInclusiveLanguage =
+      textToCheck.includes(' and ') ||
+      textToCheck.includes(' or ') ||
+      textToCheck.includes('including');
+
+    if (!hasInclusiveLanguage) {
+      console.log(`Excluding grant (likely government-only): ${title}`);
+      return false;
+    }
+  }
+
+  // Default to including the grant (err on side of inclusion)
+  return true;
+}
+
+/**
  * Parses XML content to extract grant opportunities
+ * Filters out grants that are only for cities, states, and municipalities
  */
 export async function parseGrantsXML(xmlContent: string): Promise<GrantData[]> {
   try {
@@ -318,14 +405,39 @@ export async function parseGrantsXML(xmlContent: string): Promise<GrantData[]> {
           continue;
         }
 
-        // Parse dates
-        const postingDateStr = opp?.PostDate?.['#text'] || opp?.PostDate;
-        const closeDateStr = opp?.CloseDate?.['#text'] || opp?.CloseDate;
+        // Parse dates - try multiple possible field names
+        const postingDateStr =
+          opp?.PostDate?.['#text'] ||
+          opp?.PostDate ||
+          opp?.posting_date?.['#text'] ||
+          opp?.posting_date ||
+          opp?.PostingDate?.['#text'] ||
+          opp?.PostingDate;
 
-        const postingDate = postingDateStr
-          ? new Date(postingDateStr)
-          : undefined;
-        const closeDate = closeDateStr ? new Date(closeDateStr) : undefined;
+        const closeDateStr =
+          opp?.CloseDate?.['#text'] ||
+          opp?.CloseDate ||
+          opp?.close_date?.['#text'] ||
+          opp?.close_date ||
+          opp?.ArchiveDate?.['#text'] ||
+          opp?.ArchiveDate ||
+          opp?.archive_date?.['#text'] ||
+          opp?.archive_date ||
+          opp?.ClosingDate?.['#text'] ||
+          opp?.ClosingDate;
+
+        const postingDate = parseGrantDate(postingDateStr);
+        const closeDate = parseGrantDate(closeDateStr);
+
+        // Log date parsing for debugging
+        if (!postingDate && !closeDate) {
+          console.log(
+            `No dates found for ${opportunityId}: ${title.substring(0, 50)}...`
+          );
+          // Log available fields to help debug
+          const availableFields = Object.keys(opp || {});
+          console.log(`  Available fields:`, availableFields.slice(0, 10));
+        }
 
         // Skip if dates are invalid
         if (postingDate && isNaN(postingDate.getTime())) {
@@ -363,6 +475,12 @@ export async function parseGrantsXML(xmlContent: string): Promise<GrantData[]> {
           opp?.EligibilityInfo?.EligibilityDescription?.['#text'] ||
           opp?.EligibilityInfo?.EligibilityDescription;
 
+        // Filter out grants that are only for government entities
+        if (!isEligibleForNonprofits(eligibilityCriteria, title, description)) {
+          console.log(`Filtered out government-only grant: ${opportunityId}`);
+          continue;
+        }
+
         grants.push({
           opportunityId,
           opportunityNumber:
@@ -392,13 +510,54 @@ export async function parseGrantsXML(xmlContent: string): Promise<GrantData[]> {
       }
     }
 
-    console.log(`Parsed ${grants.length} grant opportunities from XML`);
+    console.log(
+      `Parsed ${grants.length} grant opportunities from XML (nonprofit-eligible only)`
+    );
+    console.log(
+      `Note: Grants filtered out for being government-only are not included in this count`
+    );
     return grants;
   } catch (error) {
     console.error('Error parsing grants XML:', error);
     throw new Error(
       `Failed to parse grants XML: ${error instanceof Error ? error.message : 'Unknown error'}`
     );
+  }
+}
+
+/**
+ * Helper function to parse dates from grants.gov format
+ * Handles formats like: MMDDYYYY, MM/DD/YYYY, YYYY-MM-DD, etc.
+ */
+function parseGrantDate(dateStr: string | undefined): Date | undefined {
+  if (!dateStr) return undefined;
+
+  try {
+    // Remove any whitespace
+    const cleanDate = dateStr.trim();
+
+    // Format: MMDDYYYY (08152014)
+    if (/^\d{8}$/.test(cleanDate)) {
+      const month = parseInt(cleanDate.substring(0, 2), 10);
+      const day = parseInt(cleanDate.substring(2, 4), 10);
+      const year = parseInt(cleanDate.substring(4, 8), 10);
+
+      // Validate ranges
+      if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+        return new Date(year, month - 1, day);
+      }
+    }
+
+    // Try standard date parsing for other formats
+    const parsed = new Date(cleanDate);
+    if (!isNaN(parsed.getTime())) {
+      return parsed;
+    }
+
+    return undefined;
+  } catch (error) {
+    console.warn(`Failed to parse date: ${dateStr}`, error);
+    return undefined;
   }
 }
 
@@ -426,6 +585,12 @@ function parseAmount(amountStr: string | undefined): number | undefined {
  */
 export async function cleanupExpiredGrants(): Promise<number> {
   try {
+    // Ensure prisma is available
+    if (!prisma || !prisma.grant) {
+      console.warn('Prisma client not available, skipping cleanup');
+      return 0;
+    }
+
     const oneDayAgo = new Date();
     oneDayAgo.setDate(oneDayAgo.getDate() - 1);
 
@@ -457,6 +622,12 @@ export async function cleanupExpiredGrants(): Promise<number> {
  */
 export async function upsertGrants(grants: GrantData[]): Promise<number> {
   try {
+    // Ensure prisma is available
+    if (!prisma || !prisma.grant) {
+      console.error('Prisma client not available for upsert');
+      return 0;
+    }
+
     let processedCount = 0;
 
     // Process grants in batches to avoid memory issues
@@ -495,6 +666,7 @@ export async function upsertGrants(grants: GrantData[]): Promise<number> {
                     : grant.fundingInstrument,
                   isActive: true,
                   lastSyncedAt: new Date(),
+                  updatedAt: new Date(),
                 },
                 create: {
                   opportunityId: grant.opportunityId,
@@ -515,6 +687,7 @@ export async function upsertGrants(grants: GrantData[]): Promise<number> {
                     : grant.fundingInstrument,
                   isActive: true,
                   lastSyncedAt: new Date(),
+                  updatedAt: new Date(),
                 },
               });
               processedCount++;
@@ -573,6 +746,7 @@ export async function createSyncRecord(
         recordsProcessed,
         recordsDeleted,
         errorMessage,
+        updatedAt: new Date(),
       },
     });
   } catch (error) {

@@ -1,12 +1,14 @@
 import { getServerSession } from 'next-auth';
+import { prisma } from '@/lib/prisma';
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import { PrismaClient } from '@prisma/client';
-import UpcomingEventsWidget from '@/components/UpcomingEventsWidget';
-import PDFUsageWidget from '@/components/PDFUsageWidget';
-import IntelligenceProfileManager from '@/components/IntelligenceProfileManager';
 
-const prisma = new PrismaClient();
+import Link from 'next/link';
+
+import UpcomingEventsWidget from '@/components/UpcomingEventsWidget';
+
+import PDFUsageWidget from '@/components/PDFUsageWidget';
+
+import IntelligenceProfileManager from '@/components/IntelligenceProfileManager';
 
 export default async function Dashboard() {
   const session = await getServerSession();

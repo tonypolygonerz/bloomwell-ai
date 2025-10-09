@@ -1,27 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
+
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { PrismaClient } from '@prisma/client';
-import { 
+
+import {
   TemplateWorkflowProgress,
-  IntelligenceUpdate 
+  IntelligenceUpdate,
 } from '@/types/json-fields';
-import { 
+import {
   createDefaultUserIntelligenceProfile,
-  getUserIntelligenceProfile 
+  getUserIntelligenceProfile,
 } from '@/lib/user-intelligence-utils';
-import { 
+import {
   parseTemplateWorkflowProgress,
   calculateWorkflowProgress,
-  estimateTimeRemaining 
+  estimateTimeRemaining,
 } from '@/lib/template-system-utils';
-
-const prisma = new PrismaClient();
 
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -29,7 +29,10 @@ export async function POST(request: NextRequest) {
     const { templateId } = await request.json();
 
     if (!templateId) {
-      return NextResponse.json({ error: 'Template ID is required' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Template ID is required' },
+        { status: 400 }
+      );
     }
 
     // Get the template with its steps
@@ -44,11 +47,17 @@ export async function POST(request: NextRequest) {
     });
 
     if (!template) {
-      return NextResponse.json({ error: 'Template not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Template not found' },
+        { status: 404 }
+      );
     }
 
     if (!template.isActive) {
-      return NextResponse.json({ error: 'Template is not active' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Template is not active' },
+        { status: 400 }
+      );
     }
 
     // Check if user already has an active project for this template
@@ -61,10 +70,13 @@ export async function POST(request: NextRequest) {
     });
 
     if (existingProject) {
-      return NextResponse.json({ 
-        error: 'You already have an active project for this template',
-        projectId: existingProject.id 
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: 'You already have an active project for this template',
+          projectId: existingProject.id,
+        },
+        { status: 400 }
+      );
     }
 
     // Get user's intelligence profile
@@ -137,7 +149,6 @@ export async function POST(request: NextRequest) {
       totalSteps: template.steps.length,
       message: 'Template started successfully',
     });
-
   } catch (error) {
     console.error('Error starting template:', error);
     return NextResponse.json(
@@ -148,5 +159,3 @@ export async function POST(request: NextRequest) {
     await prisma.$disconnect();
   }
 }
-
-

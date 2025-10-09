@@ -12,7 +12,11 @@ import {
   ValidationResult,
   JSONFieldError,
 } from '@/types/json-fields';
-import { validateJsonField, logValidationErrors, logValidationWarnings } from './json-field-utils';
+import {
+  validateJsonField,
+  logValidationErrors,
+  logValidationWarnings,
+} from './json-field-utils';
 
 /**
  * Template System Utilities
@@ -20,17 +24,21 @@ import { validateJsonField, logValidationErrors, logValidationWarnings } from '.
  */
 
 // Template Selection Intelligence utilities
-export function parseTemplateSelectionIntelligence(data: any): ValidationResult<TemplateSelectionIntelligence> {
-  return validateJsonField(data, 'templateSelectionIntelligence', (profile) => {
+export function parseTemplateSelectionIntelligence(
+  data: any
+): ValidationResult<TemplateSelectionIntelligence> {
+  return validateJsonField(data, 'templateSelectionIntelligence', profile => {
     if (!profile || typeof profile !== 'object') {
       return {
         success: false,
-        errors: [{
-          field: 'templateSelectionIntelligence',
-          message: 'Template selection intelligence is required',
-          expectedType: 'TemplateSelectionIntelligence',
-          receivedValue: profile,
-        }],
+        errors: [
+          {
+            field: 'templateSelectionIntelligence',
+            message: 'Template selection intelligence is required',
+            expectedType: 'TemplateSelectionIntelligence',
+            receivedValue: profile,
+          },
+        ],
       };
     }
 
@@ -61,12 +69,16 @@ export function parseTemplateSelectionIntelligence(data: any): ValidationResult<
 
     // Validate completedTemplates
     if (Array.isArray(profile.completedTemplates)) {
-      result.completedTemplates = profile.completedTemplates.filter((item: any) => typeof item === 'string');
+      result.completedTemplates = profile.completedTemplates.filter(
+        (item: any) => typeof item === 'string'
+      );
     }
 
     // Validate inProgressTemplates
     if (Array.isArray(profile.inProgressTemplates)) {
-      result.inProgressTemplates = profile.inProgressTemplates.filter((item: any) => typeof item === 'string');
+      result.inProgressTemplates = profile.inProgressTemplates.filter(
+        (item: any) => typeof item === 'string'
+      );
     }
 
     // Validate skillLevel
@@ -76,7 +88,9 @@ export function parseTemplateSelectionIntelligence(data: any): ValidationResult<
 
     // Validate preferredCategories
     if (Array.isArray(profile.preferredCategories)) {
-      result.preferredCategories = profile.preferredCategories.filter((item: any) => typeof item === 'string');
+      result.preferredCategories = profile.preferredCategories.filter(
+        (item: any) => typeof item === 'string'
+      );
     }
 
     // Validate timeAvailability
@@ -85,7 +99,11 @@ export function parseTemplateSelectionIntelligence(data: any): ValidationResult<
     }
 
     // Validate learningStyle
-    if (['guided', 'self_directed', 'collaborative'].includes(profile.learningStyle)) {
+    if (
+      ['guided', 'self_directed', 'collaborative'].includes(
+        profile.learningStyle
+      )
+    ) {
       result.learningStyle = profile.learningStyle;
     }
 
@@ -98,12 +116,19 @@ export function parseTemplateSelectionIntelligence(data: any): ValidationResult<
     }
 
     // Validate successRate
-    if (typeof profile.successRate === 'number' && profile.successRate >= 0 && profile.successRate <= 1) {
+    if (
+      typeof profile.successRate === 'number' &&
+      profile.successRate >= 0 &&
+      profile.successRate <= 1
+    ) {
       result.successRate = profile.successRate;
     }
 
     // Validate averageCompletionTime
-    if (typeof profile.averageCompletionTime === 'number' && profile.averageCompletionTime >= 0) {
+    if (
+      typeof profile.averageCompletionTime === 'number' &&
+      profile.averageCompletionTime >= 0
+    ) {
       result.averageCompletionTime = profile.averageCompletionTime;
     }
 
@@ -116,17 +141,21 @@ export function parseTemplateSelectionIntelligence(data: any): ValidationResult<
 }
 
 // Template Workflow Progress utilities
-export function parseTemplateWorkflowProgress(data: any): ValidationResult<TemplateWorkflowProgress> {
-  return validateJsonField(data, 'templateWorkflowProgress', (progress) => {
+export function parseTemplateWorkflowProgress(
+  data: any
+): ValidationResult<TemplateWorkflowProgress> {
+  return validateJsonField(data, 'templateWorkflowProgress', progress => {
     if (!progress || typeof progress !== 'object') {
       return {
         success: false,
-        errors: [{
-          field: 'templateWorkflowProgress',
-          message: 'Template workflow progress is required',
-          expectedType: 'TemplateWorkflowProgress',
-          receivedValue: progress,
-        }],
+        errors: [
+          {
+            field: 'templateWorkflowProgress',
+            message: 'Template workflow progress is required',
+            expectedType: 'TemplateWorkflowProgress',
+            receivedValue: progress,
+          },
+        ],
       };
     }
 
@@ -168,12 +197,16 @@ export function parseTemplateWorkflowProgress(data: any): ValidationResult<Templ
 
     // Validate completedSteps
     if (Array.isArray(progress.completedSteps)) {
-      result.completedSteps = progress.completedSteps.filter((item: any) => typeof item === 'number');
+      result.completedSteps = progress.completedSteps.filter(
+        (item: any) => typeof item === 'number'
+      );
     }
 
     // Validate skippedSteps
     if (Array.isArray(progress.skippedSteps)) {
-      result.skippedSteps = progress.skippedSteps.filter((item: any) => typeof item === 'number');
+      result.skippedSteps = progress.skippedSteps.filter(
+        (item: any) => typeof item === 'number'
+      );
     }
 
     // Validate stepProgress
@@ -182,12 +215,19 @@ export function parseTemplateWorkflowProgress(data: any): ValidationResult<Templ
     }
 
     // Validate overallProgress
-    if (typeof progress.overallProgress === 'number' && progress.overallProgress >= 0 && progress.overallProgress <= 100) {
+    if (
+      typeof progress.overallProgress === 'number' &&
+      progress.overallProgress >= 0 &&
+      progress.overallProgress <= 100
+    ) {
       result.overallProgress = progress.overallProgress;
     }
 
     // Validate estimatedTimeRemaining
-    if (typeof progress.estimatedTimeRemaining === 'number' && progress.estimatedTimeRemaining >= 0) {
+    if (
+      typeof progress.estimatedTimeRemaining === 'number' &&
+      progress.estimatedTimeRemaining >= 0
+    ) {
       result.estimatedTimeRemaining = progress.estimatedTimeRemaining;
     }
 
@@ -213,17 +253,21 @@ export function parseTemplateWorkflowProgress(data: any): ValidationResult<Templ
 }
 
 // Intelligence Update utilities
-export function parseIntelligenceUpdate(data: any): ValidationResult<IntelligenceUpdate> {
-  return validateJsonField(data, 'intelligenceUpdate', (update) => {
+export function parseIntelligenceUpdate(
+  data: any
+): ValidationResult<IntelligenceUpdate> {
+  return validateJsonField(data, 'intelligenceUpdate', update => {
     if (!update || typeof update !== 'object') {
       return {
         success: false,
-        errors: [{
-          field: 'intelligenceUpdate',
-          message: 'Intelligence update is required',
-          expectedType: 'IntelligenceUpdate',
-          receivedValue: update,
-        }],
+        errors: [
+          {
+            field: 'intelligenceUpdate',
+            message: 'Intelligence update is required',
+            expectedType: 'IntelligenceUpdate',
+            receivedValue: update,
+          },
+        ],
       };
     }
 
@@ -265,7 +309,15 @@ export function parseIntelligenceUpdate(data: any): ValidationResult<Intelligenc
     }
 
     // Validate updateType
-    if (['focus_area', 'skill_level', 'preference', 'knowledge', 'capability'].includes(update.updateType)) {
+    if (
+      [
+        'focus_area',
+        'skill_level',
+        'preference',
+        'knowledge',
+        'capability',
+      ].includes(update.updateType)
+    ) {
       result.updateType = update.updateType;
     }
 
@@ -286,12 +338,20 @@ export function parseIntelligenceUpdate(data: any): ValidationResult<Intelligenc
     result.newValue = update.newValue;
 
     // Validate confidence
-    if (typeof update.confidence === 'number' && update.confidence >= 0 && update.confidence <= 1) {
+    if (
+      typeof update.confidence === 'number' &&
+      update.confidence >= 0 &&
+      update.confidence <= 1
+    ) {
       result.confidence = update.confidence;
     }
 
     // Validate source
-    if (['user_input', 'ai_analysis', 'pattern_recognition'].includes(update.source)) {
+    if (
+      ['user_input', 'ai_analysis', 'pattern_recognition'].includes(
+        update.source
+      )
+    ) {
       result.source = update.source;
     }
 
@@ -317,17 +377,21 @@ export function parseIntelligenceUpdate(data: any): ValidationResult<Intelligenc
 }
 
 // Template Recommendation Score utilities
-export function parseTemplateRecommendationScore(data: any): ValidationResult<TemplateRecommendationScore> {
-  return validateJsonField(data, 'templateRecommendationScore', (score) => {
+export function parseTemplateRecommendationScore(
+  data: any
+): ValidationResult<TemplateRecommendationScore> {
+  return validateJsonField(data, 'templateRecommendationScore', score => {
     if (!score || typeof score !== 'object') {
       return {
         success: false,
-        errors: [{
-          field: 'templateRecommendationScore',
-          message: 'Template recommendation score is required',
-          expectedType: 'TemplateRecommendationScore',
-          receivedValue: score,
-        }],
+        errors: [
+          {
+            field: 'templateRecommendationScore',
+            message: 'Template recommendation score is required',
+            expectedType: 'TemplateRecommendationScore',
+            receivedValue: score,
+          },
+        ],
       };
     }
 
@@ -360,28 +424,44 @@ export function parseTemplateRecommendationScore(data: any): ValidationResult<Te
     }
 
     // Validate score
-    if (typeof score.score === 'number' && score.score >= 0 && score.score <= 100) {
+    if (
+      typeof score.score === 'number' &&
+      score.score >= 0 &&
+      score.score <= 100
+    ) {
       result.score = score.score;
     }
 
     // Validate factors
     if (score.factors && typeof score.factors === 'object') {
       const factors = score.factors;
-      if (typeof factors.skillMatch === 'number') result.factors.skillMatch = factors.skillMatch;
-      if (typeof factors.categoryPreference === 'number') result.factors.categoryPreference = factors.categoryPreference;
-      if (typeof factors.timeAvailability === 'number') result.factors.timeAvailability = factors.timeAvailability;
-      if (typeof factors.prerequisiteMatch === 'number') result.factors.prerequisiteMatch = factors.prerequisiteMatch;
-      if (typeof factors.successRate === 'number') result.factors.successRate = factors.successRate;
-      if (typeof factors.userEngagement === 'number') result.factors.userEngagement = factors.userEngagement;
+      if (typeof factors.skillMatch === 'number')
+        result.factors.skillMatch = factors.skillMatch;
+      if (typeof factors.categoryPreference === 'number')
+        result.factors.categoryPreference = factors.categoryPreference;
+      if (typeof factors.timeAvailability === 'number')
+        result.factors.timeAvailability = factors.timeAvailability;
+      if (typeof factors.prerequisiteMatch === 'number')
+        result.factors.prerequisiteMatch = factors.prerequisiteMatch;
+      if (typeof factors.successRate === 'number')
+        result.factors.successRate = factors.successRate;
+      if (typeof factors.userEngagement === 'number')
+        result.factors.userEngagement = factors.userEngagement;
     }
 
     // Validate reasoning
     if (Array.isArray(score.reasoning)) {
-      result.reasoning = score.reasoning.filter((item: any) => typeof item === 'string');
+      result.reasoning = score.reasoning.filter(
+        (item: any) => typeof item === 'string'
+      );
     }
 
     // Validate confidence
-    if (typeof score.confidence === 'number' && score.confidence >= 0 && score.confidence <= 1) {
+    if (
+      typeof score.confidence === 'number' &&
+      score.confidence >= 0 &&
+      score.confidence <= 1
+    ) {
       result.confidence = score.confidence;
     }
 
@@ -394,17 +474,21 @@ export function parseTemplateRecommendationScore(data: any): ValidationResult<Te
 }
 
 // Template Step Response utilities
-export function parseTemplateStepResponse(data: any): ValidationResult<TemplateStepResponse> {
-  return validateJsonField(data, 'templateStepResponse', (response) => {
+export function parseTemplateStepResponse(
+  data: any
+): ValidationResult<TemplateStepResponse> {
+  return validateJsonField(data, 'templateStepResponse', response => {
     if (!response || typeof response !== 'object') {
       return {
         success: false,
-        errors: [{
-          field: 'templateStepResponse',
-          message: 'Template step response is required',
-          expectedType: 'TemplateStepResponse',
-          receivedValue: response,
-        }],
+        errors: [
+          {
+            field: 'templateStepResponse',
+            message: 'Template step response is required',
+            expectedType: 'TemplateStepResponse',
+            receivedValue: response,
+          },
+        ],
       };
     }
 
@@ -438,7 +522,10 @@ export function parseTemplateStepResponse(data: any): ValidationResult<TemplateS
     }
 
     // Validate questionKey
-    if (typeof response.questionKey === 'string' && response.questionKey.trim()) {
+    if (
+      typeof response.questionKey === 'string' &&
+      response.questionKey.trim()
+    ) {
       result.questionKey = response.questionKey.trim();
     } else {
       errors.push({
@@ -467,29 +554,52 @@ export function parseTemplateStepResponse(data: any): ValidationResult<TemplateS
     }
 
     // Validate confidence
-    if (typeof response.confidence === 'number' && response.confidence >= 0 && response.confidence <= 1) {
+    if (
+      typeof response.confidence === 'number' &&
+      response.confidence >= 0 &&
+      response.confidence <= 1
+    ) {
       result.confidence = response.confidence;
     }
 
     // Validate qualityScore
-    if (typeof response.qualityScore === 'number' && response.qualityScore >= 0 && response.qualityScore <= 1) {
+    if (
+      typeof response.qualityScore === 'number' &&
+      response.qualityScore >= 0 &&
+      response.qualityScore <= 1
+    ) {
       result.qualityScore = response.qualityScore;
     }
 
     // Validate intelligenceInsights
-    if (response.intelligenceInsights && typeof response.intelligenceInsights === 'object') {
+    if (
+      response.intelligenceInsights &&
+      typeof response.intelligenceInsights === 'object'
+    ) {
       const insights = response.intelligenceInsights;
       if (Array.isArray(insights.skillLevelIndicators)) {
-        result.intelligenceInsights.skillLevelIndicators = insights.skillLevelIndicators.filter((item: any) => typeof item === 'string');
+        result.intelligenceInsights.skillLevelIndicators =
+          insights.skillLevelIndicators.filter(
+            (item: any) => typeof item === 'string'
+          );
       }
       if (Array.isArray(insights.focusAreaSuggestions)) {
-        result.intelligenceInsights.focusAreaSuggestions = insights.focusAreaSuggestions.filter((item: any) => typeof item === 'string');
+        result.intelligenceInsights.focusAreaSuggestions =
+          insights.focusAreaSuggestions.filter(
+            (item: any) => typeof item === 'string'
+          );
       }
       if (Array.isArray(insights.capabilityAssessments)) {
-        result.intelligenceInsights.capabilityAssessments = insights.capabilityAssessments.filter((item: any) => typeof item === 'string');
+        result.intelligenceInsights.capabilityAssessments =
+          insights.capabilityAssessments.filter(
+            (item: any) => typeof item === 'string'
+          );
       }
       if (Array.isArray(insights.nextStepRecommendations)) {
-        result.intelligenceInsights.nextStepRecommendations = insights.nextStepRecommendations.filter((item: any) => typeof item === 'string');
+        result.intelligenceInsights.nextStepRecommendations =
+          insights.nextStepRecommendations.filter(
+            (item: any) => typeof item === 'string'
+          );
       }
     }
 
@@ -515,8 +625,10 @@ export function parseTemplateStepResponse(data: any): ValidationResult<TemplateS
 }
 
 // Template Validation Rules utilities
-export function parseTemplateValidationRules(data: any): ValidationResult<TemplateValidationRules> {
-  return validateJsonField(data, 'templateValidationRules', (rules) => {
+export function parseTemplateValidationRules(
+  data: any
+): ValidationResult<TemplateValidationRules> {
+  return validateJsonField(data, 'templateValidationRules', rules => {
     if (!rules || typeof rules !== 'object') {
       return {
         success: true,
@@ -529,7 +641,10 @@ export function parseTemplateValidationRules(data: any): ValidationResult<Templa
     const result: TemplateValidationRules = {};
 
     // Validate intelligenceIntegration
-    if (rules.intelligenceIntegration && typeof rules.intelligenceIntegration === 'object') {
+    if (
+      rules.intelligenceIntegration &&
+      typeof rules.intelligenceIntegration === 'object'
+    ) {
       result.intelligenceIntegration = {
         updateFields: [],
         confidenceThreshold: 0.5,
@@ -537,15 +652,22 @@ export function parseTemplateValidationRules(data: any): ValidationResult<Templa
       };
 
       if (Array.isArray(rules.intelligenceIntegration.updateFields)) {
-        result.intelligenceIntegration.updateFields = rules.intelligenceIntegration.updateFields.filter((item: any) => typeof item === 'string');
+        result.intelligenceIntegration.updateFields =
+          rules.intelligenceIntegration.updateFields.filter(
+            (item: any) => typeof item === 'string'
+          );
       }
 
-      if (typeof rules.intelligenceIntegration.confidenceThreshold === 'number') {
-        result.intelligenceIntegration.confidenceThreshold = rules.intelligenceIntegration.confidenceThreshold;
+      if (
+        typeof rules.intelligenceIntegration.confidenceThreshold === 'number'
+      ) {
+        result.intelligenceIntegration.confidenceThreshold =
+          rules.intelligenceIntegration.confidenceThreshold;
       }
 
       if (typeof rules.intelligenceIntegration.analysisRequired === 'boolean') {
-        result.intelligenceIntegration.analysisRequired = rules.intelligenceIntegration.analysisRequired;
+        result.intelligenceIntegration.analysisRequired =
+          rules.intelligenceIntegration.analysisRequired;
       }
     }
 
@@ -558,20 +680,26 @@ export function parseTemplateValidationRules(data: any): ValidationResult<Templa
       };
 
       if (typeof rules.progressTracking.timeTracking === 'boolean') {
-        result.progressTracking.timeTracking = rules.progressTracking.timeTracking;
+        result.progressTracking.timeTracking =
+          rules.progressTracking.timeTracking;
       }
 
       if (typeof rules.progressTracking.attemptLimit === 'number') {
-        result.progressTracking.attemptLimit = rules.progressTracking.attemptLimit;
+        result.progressTracking.attemptLimit =
+          rules.progressTracking.attemptLimit;
       }
 
       if (typeof rules.progressTracking.skipAllowed === 'boolean') {
-        result.progressTracking.skipAllowed = rules.progressTracking.skipAllowed;
+        result.progressTracking.skipAllowed =
+          rules.progressTracking.skipAllowed;
       }
     }
 
     // Validate responseEnhancement
-    if (rules.responseEnhancement && typeof rules.responseEnhancement === 'object') {
+    if (
+      rules.responseEnhancement &&
+      typeof rules.responseEnhancement === 'object'
+    ) {
       result.responseEnhancement = {
         aiEnhancement: false,
         qualityScoring: false,
@@ -579,15 +707,18 @@ export function parseTemplateValidationRules(data: any): ValidationResult<Templa
       };
 
       if (typeof rules.responseEnhancement.aiEnhancement === 'boolean') {
-        result.responseEnhancement.aiEnhancement = rules.responseEnhancement.aiEnhancement;
+        result.responseEnhancement.aiEnhancement =
+          rules.responseEnhancement.aiEnhancement;
       }
 
       if (typeof rules.responseEnhancement.qualityScoring === 'boolean') {
-        result.responseEnhancement.qualityScoring = rules.responseEnhancement.qualityScoring;
+        result.responseEnhancement.qualityScoring =
+          rules.responseEnhancement.qualityScoring;
       }
 
       if (typeof rules.responseEnhancement.confidenceThreshold === 'number') {
-        result.responseEnhancement.confidenceThreshold = rules.responseEnhancement.confidenceThreshold;
+        result.responseEnhancement.confidenceThreshold =
+          rules.responseEnhancement.confidenceThreshold;
       }
     }
 
@@ -600,8 +731,10 @@ export function parseTemplateValidationRules(data: any): ValidationResult<Templa
 }
 
 // Template Step Options utilities
-export function parseTemplateStepOptions(data: any): ValidationResult<TemplateStepOptions> {
-  return validateJsonField(data, 'templateStepOptions', (options) => {
+export function parseTemplateStepOptions(
+  data: any
+): ValidationResult<TemplateStepOptions> {
+  return validateJsonField(data, 'templateStepOptions', options => {
     if (!options || typeof options !== 'object') {
       return {
         success: true,
@@ -634,7 +767,10 @@ export function parseTemplateStepOptions(data: any): ValidationResult<TemplateSt
     }
 
     // Validate intelligenceImpact
-    if (options.intelligenceImpact && typeof options.intelligenceImpact === 'object') {
+    if (
+      options.intelligenceImpact &&
+      typeof options.intelligenceImpact === 'object'
+    ) {
       result.intelligenceImpact = {
         updatesIntelligence: false,
         field: '',
@@ -642,7 +778,8 @@ export function parseTemplateStepOptions(data: any): ValidationResult<TemplateSt
       };
 
       if (typeof options.intelligenceImpact.updatesIntelligence === 'boolean') {
-        result.intelligenceImpact.updatesIntelligence = options.intelligenceImpact.updatesIntelligence;
+        result.intelligenceImpact.updatesIntelligence =
+          options.intelligenceImpact.updatesIntelligence;
       }
 
       if (typeof options.intelligenceImpact.field === 'string') {
@@ -661,7 +798,9 @@ export function parseTemplateStepOptions(data: any): ValidationResult<TemplateSt
 
     // Validate prerequisiteCheck
     if (Array.isArray(options.prerequisiteCheck)) {
-      result.prerequisiteCheck = options.prerequisiteCheck.filter((item: any) => typeof item === 'string');
+      result.prerequisiteCheck = options.prerequisiteCheck.filter(
+        (item: any) => typeof item === 'string'
+      );
     }
 
     return {
@@ -698,8 +837,10 @@ export function calculateTemplateRecommendationScore(
     factors.skillMatch = 100;
     reasoning.push('Perfect skill level match');
   } else if (
-    (templateData.difficulty === 'intermediate' && userIntelligence.skillLevel === 'beginner') ||
-    (templateData.difficulty === 'advanced' && userIntelligence.skillLevel === 'intermediate')
+    (templateData.difficulty === 'intermediate' &&
+      userIntelligence.skillLevel === 'beginner') ||
+    (templateData.difficulty === 'advanced' &&
+      userIntelligence.skillLevel === 'intermediate')
   ) {
     factors.skillMatch = 70;
     reasoning.push('Appropriate skill progression');
@@ -718,9 +859,13 @@ export function calculateTemplateRecommendationScore(
   }
 
   // Calculate time availability
-  const timeMatch = templateData.estimatedTime <= 2 ? 'high' : 
-                   templateData.estimatedTime <= 5 ? 'medium' : 'low';
-  
+  const timeMatch =
+    templateData.estimatedTime <= 2
+      ? 'high'
+      : templateData.estimatedTime <= 5
+        ? 'medium'
+        : 'low';
+
   if (timeMatch === userIntelligence.timeAvailability) {
     factors.timeAvailability = 100;
     reasoning.push('Time commitment matches availability');
@@ -737,12 +882,12 @@ export function calculateTemplateRecommendationScore(
 
   // Calculate overall score
   const score = Math.round(
-    (factors.skillMatch * 0.3) +
-    (factors.categoryPreference * 0.25) +
-    (factors.timeAvailability * 0.2) +
-    (factors.prerequisiteMatch * 0.15) +
-    (factors.successRate * 0.05) +
-    (factors.userEngagement * 0.05)
+    factors.skillMatch * 0.3 +
+      factors.categoryPreference * 0.25 +
+      factors.timeAvailability * 0.2 +
+      factors.prerequisiteMatch * 0.15 +
+      factors.successRate * 0.05 +
+      factors.userEngagement * 0.05
   );
 
   return {
@@ -780,7 +925,8 @@ export function updateUserIntelligenceFromResponse(
       reasoning: 'Skill level assessment based on response quality',
     };
     updates.push(update);
-    intelligence.expertiseLevel = response.intelligenceInsights.skillLevelIndicators[0] as any;
+    intelligence.expertiseLevel = response.intelligenceInsights
+      .skillLevelIndicators[0] as any;
   }
 
   if (response.intelligenceInsights.focusAreaSuggestions.length > 0) {
@@ -821,7 +967,7 @@ export function calculateWorkflowProgress(
   const completedCount = completedSteps.length;
   const skippedCount = skippedSteps.length;
   const totalCompleted = completedCount + skippedCount;
-  
+
   return Math.round((totalCompleted / totalSteps) * 100);
 }
 
@@ -836,14 +982,12 @@ export function estimateTimeRemaining(
 ): number {
   const remainingSteps = totalSteps - currentStep + 1;
   const baseTime = remainingSteps * averageStepTime;
-  
+
   // Adjust based on user's learning style and time availability
   let multiplier = 1;
   if (userIntelligence.learningStyle === 'guided') multiplier *= 0.8;
   if (userIntelligence.timeAvailability === 'high') multiplier *= 0.7;
   if (userIntelligence.timeAvailability === 'low') multiplier *= 1.3;
-  
+
   return Math.round(baseTime * multiplier);
 }
-
-

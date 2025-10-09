@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import { getAdminFromRequest } from '@/lib/admin-auth';
 import { syncGrants } from '@/lib/grants-sync';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,7 +14,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '10');
 
     // Get recent sync history
-    const syncHistory = await prisma.grantSync.findMany({
+    const syncHistory = await prisma.grant_syncs.findMany({
       orderBy: { createdAt: 'desc' },
       take: limit,
     });
@@ -24,8 +22,8 @@ export async function GET(request: NextRequest) {
     // Get current grants statistics
     const now = new Date();
     const [totalGrants, activeGrants, lastSync] = await Promise.all([
-      prisma.grant.count(),
-      prisma.grant.count({
+      prisma.grants.count(),
+      prisma.grants.count({
         where: {
           isActive: true,
           OR: [
@@ -34,7 +32,7 @@ export async function GET(request: NextRequest) {
           ],
         },
       }),
-      prisma.grantSync.findFirst({
+      prisma.grant_syncs.findFirst({
         orderBy: { createdAt: 'desc' },
       }),
     ]);
@@ -72,7 +70,7 @@ export async function POST(request: NextRequest) {
     console.log(`Starting grants sync triggered by admin: ${admin.username}`);
 
     // Check if there's already a sync in progress
-    const activeSync = await prisma.grantSync.findFirst({
+    const activeSync = await prisma.grant_syncs.findFirst({
       where: { syncStatus: 'processing' },
       orderBy: { createdAt: 'desc' },
     });
@@ -95,7 +93,7 @@ export async function POST(request: NextRequest) {
         );
       } else {
         // Mark the old sync as failed due to timeout
-        await prisma.grantSync.update({
+        await prisma.grant_syncs.update({
           where: { id: activeSync.id },
           data: {
             syncStatus: 'failed',

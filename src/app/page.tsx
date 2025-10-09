@@ -79,8 +79,8 @@ export default function Home() {
             </h1>
 
             <p className='text-xl md:text-2xl text-gray-600 mb-8 max-w-4xl mx-auto leading-relaxed'>
-              Access 73,000+ federal grants, get expert AI guidance, and join
-              live webinars
+              Access 900+ current federal grants, get expert AI guidance, and
+              join live webinars
               <span className='block font-semibold text-green-600'>
                 all for $29.99/month
               </span>
@@ -139,12 +139,13 @@ export default function Home() {
                 </svg>
               </div>
               <h3 className='text-2xl font-bold text-gray-900 mb-4'>
-                73,000+ Federal Grants
+                900+ Current Grant Opportunities
               </h3>
               <p className='text-gray-600 mb-6 leading-relaxed'>
-                Comprehensive database of federal grants with AI-powered
-                matching to find the perfect funding opportunities for your
-                organization&apos;s mission and programs.
+                Curated database of active federal grants, updated weekly from
+                grants.gov. AI-powered matching finds perfect funding
+                opportunities for your organization&apos;s mission - all actively
+                accepting applications.
               </p>
               <Link
                 href='/chat?prompt=find-grants'

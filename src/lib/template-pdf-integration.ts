@@ -1,10 +1,8 @@
 // Template-PDF Integration Service
 // Enhances template responses with PDF analysis data
 
-import { PrismaClient } from '@prisma/client';
 import { OllamaCloudClient } from './ollama-cloud-client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 export interface TemplatePDFEnhancement {
   templateId: string;

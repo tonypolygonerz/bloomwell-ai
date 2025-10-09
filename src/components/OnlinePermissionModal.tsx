@@ -45,7 +45,8 @@ export default function OnlinePermissionModal({
 
         <div className='mb-4'>
           <p className='text-sm text-gray-600 mb-3'>
-            Your question: <span className='font-medium'>&ldquo;{message}&rdquo;</span>
+            Your question:{' '}
+            <span className='font-medium'>&ldquo;{message}&rdquo;</span>
           </p>
           <p className='text-sm text-gray-600 mb-3'>
             This type of question might benefit from current, up-to-date

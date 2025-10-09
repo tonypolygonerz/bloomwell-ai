@@ -16,12 +16,18 @@ export async function POST(req: NextRequest) {
 
     // Validate URL
     if (!url || !isValidUrl(url)) {
-      return NextResponse.json({ error: 'Valid URL required' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Valid URL required' },
+        { status: 400 }
+      );
     }
 
     // Initialize Ollama client
     if (!process.env.OLLAMA_API_KEY) {
-      return NextResponse.json({ error: 'Ollama API key not configured' }, { status: 500 });
+      return NextResponse.json(
+        { error: 'Ollama API key not configured' },
+        { status: 500 }
+      );
     }
 
     const ollamaCloud = new OllamaCloudClient(process.env.OLLAMA_API_KEY);
@@ -39,17 +45,16 @@ export async function POST(req: NextRequest) {
       metadata: {
         processingTime,
         contentLength: fetchResult.content.length,
-        linkCount: fetchResult.links.length
+        linkCount: fetchResult.links.length,
       },
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
-
   } catch (error) {
     console.error('Web fetch API error:', error);
     return NextResponse.json(
-      { 
-        error: 'Fetch failed', 
-        details: error instanceof Error ? error.message : 'Unknown error' 
+      {
+        error: 'Fetch failed',
+        details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );

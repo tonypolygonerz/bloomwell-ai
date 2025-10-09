@@ -1,26 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
+
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { PrismaClient } from '@prisma/client';
-import { 
-  TemplateWorkflowState, 
+
+import {
+  TemplateWorkflowState,
   TemplateStepResponse,
-  IntelligenceUpdate 
+  IntelligenceUpdate,
 } from '@/types/json-fields';
-import { 
+import {
   getUserIntelligenceProfile,
-  updateUserIntelligenceProfile 
+  updateUserIntelligenceProfile,
 } from '@/lib/user-intelligence-utils';
-import { 
+import {
   parseTemplateWorkflowProgress,
   parseTemplateStepResponse,
   parseIntelligenceUpdate,
   updateUserIntelligenceFromResponse,
   calculateWorkflowProgress,
-  estimateTimeRemaining 
+  estimateTimeRemaining,
 } from '@/lib/template-system-utils';
-
-const prisma = new PrismaClient();
 
 export async function GET(
   request: NextRequest,
@@ -28,7 +28,7 @@ export async function GET(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -61,11 +61,18 @@ export async function GET(
     }
 
     // Parse workflow progress from metadata
-    const metadata = userProject.metadata ? JSON.parse(userProject.metadata as string) : {};
-    const progressResult = parseTemplateWorkflowProgress(metadata.initialProgress);
-    
+    const metadata = userProject.metadata
+      ? JSON.parse(userProject.metadata as string)
+      : {};
+    const progressResult = parseTemplateWorkflowProgress(
+      metadata.initialProgress
+    );
+
     if (!progressResult.success) {
-      return NextResponse.json({ error: 'Invalid workflow progress' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Invalid workflow progress' },
+        { status: 400 }
+      );
     }
 
     const progress = progressResult.data!;
@@ -76,11 +83,15 @@ export async function GET(
     );
 
     if (!currentStep) {
-      return NextResponse.json({ error: 'Current step not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Current step not found' },
+        { status: 404 }
+      );
     }
 
     // Parse intelligence updates from progress
-    const intelligenceUpdates: IntelligenceUpdate[] = progress.intelligenceUpdates || [];
+    const intelligenceUpdates: IntelligenceUpdate[] =
+      progress.intelligenceUpdates || [];
 
     // Create workflow state
     const workflowState: TemplateWorkflowState = {
@@ -89,7 +100,8 @@ export async function GET(
       userId: userProject.userId,
       status: userProject.status.toLowerCase() as any,
       progress,
-      intelligenceProfile: getUserIntelligenceProfile(userProject.intelligenceProfile) || {},
+      intelligenceProfile:
+        getUserIntelligenceProfile(userProject.intelligenceProfile) || {},
       responses: userProject.responses.map(response => ({
         stepId: response.stepId,
         questionKey: response.stepId, // This should be mapped properly
@@ -103,7 +115,9 @@ export async function GET(
           capabilityAssessments: [],
           nextStepRecommendations: [],
         },
-        metadata: response.metadata ? JSON.parse(response.metadata as string) : {},
+        metadata: response.metadata
+          ? JSON.parse(response.metadata as string)
+          : {},
         submittedAt: response.submittedAt,
       })),
       recommendations: [],
@@ -116,7 +130,6 @@ export async function GET(
       currentStep,
       intelligenceUpdates,
     });
-
   } catch (error) {
     console.error('Error fetching workflow state:', error);
     return NextResponse.json(
@@ -127,5 +140,3 @@ export async function GET(
     await prisma.$disconnect();
   }
 }
-
-

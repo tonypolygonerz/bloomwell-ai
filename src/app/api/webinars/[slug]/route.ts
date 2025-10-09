@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
-import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 export async function GET(
   request: NextRequest,
@@ -10,7 +10,7 @@ export async function GET(
 ) {
   try {
     const { slug } = await params;
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
 
     const webinar = await prisma.webinar.findFirst({
       where: {

@@ -1,4 +1,9 @@
-import { parseUserIntelligence, safeJsonStringify, logValidationErrors, logValidationWarnings } from './json-field-utils';
+import {
+  parseUserIntelligence,
+  safeJsonStringify,
+  logValidationErrors,
+  logValidationWarnings,
+} from './json-field-utils';
 import { UserIntelligence } from '@/types/json-fields';
 
 /**
@@ -9,17 +14,19 @@ import { UserIntelligence } from '@/types/json-fields';
 /**
  * Safely parse user intelligence profile from database
  */
-export function getUserIntelligenceProfile(profile: any): UserIntelligence | null {
+export function getUserIntelligenceProfile(
+  profile: any
+): UserIntelligence | null {
   const result = parseUserIntelligence(profile);
-  
+
   if (!result.success && result.errors) {
     logValidationErrors(result.errors, 'User Intelligence Profile');
   }
-  
+
   if (result.warnings) {
     logValidationWarnings(result.warnings, 'User Intelligence Profile');
   }
-  
+
   return result.data || null;
 }
 
@@ -28,12 +35,12 @@ export function getUserIntelligenceProfile(profile: any): UserIntelligence | nul
  */
 export function setUserIntelligenceProfile(profile: UserIntelligence): string {
   const result = safeJsonStringify(profile, 'intelligenceProfile');
-  
+
   if (!result.success && result.errors) {
     logValidationErrors(result.errors, 'User Intelligence Profile Update');
     return JSON.stringify({});
   }
-  
+
   return result.data || JSON.stringify({});
 }
 
@@ -154,7 +161,7 @@ export function validateUserIntelligenceProfile(profile: any): {
 } {
   const intelligence = getUserIntelligenceProfile(profile);
   const missingFields: string[] = [];
-  
+
   if (!intelligence) {
     return {
       isComplete: false,
@@ -162,36 +169,37 @@ export function validateUserIntelligenceProfile(profile: any): {
       score: 0,
     };
   }
-  
+
   if (!intelligence.focusAreas || intelligence.focusAreas.length === 0) {
     missingFields.push('focusAreas');
   }
-  
+
   if (!intelligence.budgetRange || intelligence.budgetRange === 'unknown') {
     missingFields.push('budgetRange');
   }
-  
+
   if (!intelligence.staffSize || intelligence.staffSize === 0) {
     missingFields.push('staffSize');
   }
-  
+
   if (!intelligence.organizationType) {
     missingFields.push('organizationType');
   }
-  
-  if (!intelligence.grantInterests || intelligence.grantInterests.length === 0) {
+
+  if (
+    !intelligence.grantInterests ||
+    intelligence.grantInterests.length === 0
+  ) {
     missingFields.push('grantInterests');
   }
-  
+
   const totalFields = 5;
   const completedFields = totalFields - missingFields.length;
   const score = Math.round((completedFields / totalFields) * 100);
-  
+
   return {
     isComplete: missingFields.length === 0,
     missingFields,
     score,
   };
 }
-
-

@@ -220,8 +220,8 @@ export default function AdminGrantsPage() {
               </div>
               <div className='mt-2'>
                 <p className='text-xs text-gray-500'>
-                  Currently available grants that users can apply for (not
-                  expired)
+                  Current grant opportunities actively accepting applications.
+                  Expired grants are automatically removed during sync.
                 </p>
               </div>
             </div>
@@ -241,10 +241,14 @@ export default function AdminGrantsPage() {
                 update the database. The system automatically:
               </p>
               <ul className='mt-2 list-disc list-inside space-y-1'>
-                <li>Removes expired grants (closeDate &lt; today - 1 day)</li>
+                <li>
+                  Automatically removes expired grants to maintain only current
+                  opportunities
+                </li>
+                <li>Filters out city/state/municipal-only grants</li>
                 <li>Handles duplicates using upsert operations</li>
                 <li>Updates existing grants with latest information</li>
-                <li>Only shows active grants to users</li>
+                <li>Only shows nonprofit-eligible, active grants to users</li>
               </ul>
             </div>
             <div className='mt-5'>

@@ -239,8 +239,8 @@ export default function ProfilePage() {
               Organization Details
             </h2>
             <p className='mt-1 text-sm text-gray-500'>
-              Update your organization&apos;s information to help us provide better
-              assistance.
+              Update your organization&apos;s information to help us provide
+              better assistance.
             </p>
           </div>
 

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
-import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 // Keywords that indicate the query should use local Ollama (nonprofit-specific)
 const NONPROFIT_KEYWORDS = [
@@ -143,7 +143,7 @@ async function searchGrantsForUser(
     }
 
     // Query grants directly from database
-    const grants = await prisma.grant.findMany({
+    const grants = await prisma.grants.findMany({
       where: whereConditions,
       orderBy: { closeDate: 'asc' },
       take: 5, // Limit to top 5 results for chat
@@ -191,7 +191,7 @@ Would you like me to search for grants in a specific category or agency?`;
     });
 
     // Get total count for context
-    const totalCount = await prisma.grant.count({
+    const totalCount = await prisma.grants.count({
       where: {
         isActive: true,
         closeDate: { gte: new Date() },
@@ -337,7 +337,7 @@ Please let me know your preference, and I'll adjust my response accordingly.`;
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
 
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

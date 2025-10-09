@@ -1,18 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
-import { PrismaClient } from '@prisma/client';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import {
   OllamaCloudClient,
   CloudError,
 } from '../../../../lib/ollama-cloud-client';
-import { 
-  selectRelevantGuidelines, 
-  buildFocusedPrompt, 
-  GuidelineContext 
+import {
+  selectRelevantGuidelines,
+  buildFocusedPrompt,
+  GuidelineContext,
 } from '../../../../lib/guideline-selector';
 import { getUserIntelligenceProfile } from '../../../../lib/user-intelligence-utils';
-
-const prisma = new PrismaClient();
 
 /**
  * Determines if a message should trigger web search
@@ -20,19 +19,33 @@ const prisma = new PrismaClient();
 function shouldUseWebSearch(message: string): boolean {
   const triggers = [
     // Temporal indicators
-    'recent', 'latest', 'current', 'today', 'this year', '2025',
-    
+    'recent',
+    'latest',
+    'current',
+    'today',
+    'this year',
+    '2025',
+
     // Action requests
-    'find grants for', 'research foundation', 'search for', 'look up',
-    
+    'find grants for',
+    'research foundation',
+    'search for',
+    'look up',
+
     // Current information needs
-    'compliance requirements', 'regulatory changes', 'irs guidance',
-    'best practices', 'industry trends', 'what are the current',
-    
+    'compliance requirements',
+    'regulatory changes',
+    'irs guidance',
+    'best practices',
+    'industry trends',
+    'what are the current',
+
     // Discovery requests
-    'who received', 'recent awards', 'funding priorities'
+    'who received',
+    'recent awards',
+    'funding priorities',
   ];
-  
+
   const lowerMessage = message.toLowerCase();
   return triggers.some(trigger => lowerMessage.includes(trigger));
 }
@@ -44,11 +57,14 @@ function extractSearchQuery(message: string): string {
   // Remove common question words and punctuation
   const cleanMessage = message
     .toLowerCase()
-    .replace(/^(what|how|when|where|why|who|can you|please|could you|find|search|look up|tell me about)\s+/gi, '')
+    .replace(
+      /^(what|how|when|where|why|who|can you|please|could you|find|search|look up|tell me about)\s+/gi,
+      ''
+    )
     .replace(/\?+$/g, '')
     .replace(/for me/gi, '')
     .trim();
-  
+
   return cleanMessage;
 }
 
@@ -57,20 +73,32 @@ function extractSearchQuery(message: string): string {
  */
 function categorizeQuery(query: string): string {
   const lowerQuery = query.toLowerCase();
-  
-  if (lowerQuery.includes('grant') || lowerQuery.includes('foundation') || lowerQuery.includes('funding')) {
+
+  if (
+    lowerQuery.includes('grant') ||
+    lowerQuery.includes('foundation') ||
+    lowerQuery.includes('funding')
+  ) {
     return 'grants';
   }
-  if (lowerQuery.includes('compliance') || lowerQuery.includes('regulation') || lowerQuery.includes('irs')) {
+  if (
+    lowerQuery.includes('compliance') ||
+    lowerQuery.includes('regulation') ||
+    lowerQuery.includes('irs')
+  ) {
     return 'compliance';
   }
-  if (lowerQuery.includes('best practice') || lowerQuery.includes('strategy') || lowerQuery.includes('trend')) {
+  if (
+    lowerQuery.includes('best practice') ||
+    lowerQuery.includes('strategy') ||
+    lowerQuery.includes('trend')
+  ) {
     return 'best-practices';
   }
   if (lowerQuery.includes('foundation') || lowerQuery.includes('donor')) {
     return 'foundations';
   }
-  
+
   return 'general';
 }
 
@@ -315,9 +343,11 @@ async function generateCloudResponse(
     // Build messages array with web search context if available
     const messages = [
       { role: 'system', content: enhancedPrompt },
-      ...(webSearchContext ? [{ role: 'system', content: webSearchContext }] : []),
+      ...(webSearchContext
+        ? [{ role: 'system', content: webSearchContext }]
+        : []),
       ...conversationHistory,
-      { role: 'user', content: message }
+      { role: 'user', content: message },
     ];
 
     const result = await client.generateWithFallback(
@@ -365,7 +395,7 @@ async function generateCloudResponse(
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
 
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -429,25 +459,29 @@ export async function POST(request: NextRequest) {
         // Check daily limit
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        
+
         const searchCount = await (prisma as any).webSearchLog.count({
           where: {
             userId: user?.id,
-            timestamp: { gte: today }
-          }
+            timestamp: { gte: today },
+          },
         });
 
         // Only use web search if under daily limit
         if (searchCount < 10) {
           const searchQuery = extractSearchQuery(message);
           const category = categorizeQuery(searchQuery);
-          
-          console.log(`🔍 Triggering web search: "${searchQuery}" [${category}]`);
-          
+
+          console.log(
+            `🔍 Triggering web search: "${searchQuery}" [${category}]`
+          );
+
           // Initialize Ollama client for web search
           if (process.env.OLLAMA_API_KEY) {
-            const ollamaCloud = new OllamaCloudClient(process.env.OLLAMA_API_KEY);
-            
+            const ollamaCloud = new OllamaCloudClient(
+              process.env.OLLAMA_API_KEY
+            );
+
             const startTime = Date.now();
             webSearchResults = await ollamaCloud.webSearch(searchQuery, 5);
             const processingTime = Date.now() - startTime;
@@ -457,11 +491,15 @@ export async function POST(request: NextRequest) {
 CURRENT WEB SEARCH RESULTS (${new Date().toISOString()}):
 Query: "${searchQuery}"
 
-${webSearchResults.results.map((r: any, idx: number) => `
+${webSearchResults.results
+  .map(
+    (r: any, idx: number) => `
 [Source ${idx + 1}] ${r.title}
 URL: ${r.url}
 Content: ${r.content}
-`).join('\n---\n')}
+`
+  )
+  .join('\n---\n')}
 
 INSTRUCTIONS: You have access to current web information above. Use these sources to provide accurate, up-to-date information. When using information from these sources, cite them as [Source #]. Prioritize information from these current sources over your training data when they conflict.
 `;
@@ -475,12 +513,14 @@ INSTRUCTIONS: You have access to current web information above. Use these source
                   category,
                   resultsCount: webSearchResults.results.length,
                   processingTime,
-                  timestamp: new Date()
-                }
+                  timestamp: new Date(),
+                },
               });
             }
 
-            console.log(`✅ Web search completed: ${webSearchResults.results.length} results in ${processingTime}ms`);
+            console.log(
+              `✅ Web search completed: ${webSearchResults.results.length} results in ${processingTime}ms`
+            );
           }
         } else {
           console.log('⚠️ Daily web search limit reached for user');
@@ -498,7 +538,7 @@ INSTRUCTIONS: You have access to current web information above. Use these source
       try {
         // Fetch active guidelines from database
         const guidelines = await (prisma as any).aIGuideline.findMany({
-          where: { isActive: true }
+          where: { isActive: true },
         });
 
         // Build guideline context using organization data
@@ -508,10 +548,10 @@ INSTRUCTIONS: You have access to current web information above. Use these source
             organizationType: org?.organizationType || undefined,
             budgetRange: org?.budget || undefined,
             state: org?.state || undefined,
-            focusAreas: org?.focusAreas ? org.focusAreas.split(',') : []
+            focusAreas: org?.focusAreas ? org.focusAreas.split(',') : [],
           },
           query: message,
-          templateId: undefined // We'll add template support later
+          templateId: undefined, // We'll add template support later
         };
 
         // Select relevant guidelines
@@ -523,7 +563,7 @@ INSTRUCTIONS: You have access to current web information above. Use these source
             guidanceText: g.guidanceText,
             conditions: g.conditions as any,
             priority: g.priority,
-            isActive: g.isActive
+            isActive: g.isActive,
           })),
           guidelineContext
         );
@@ -534,12 +574,11 @@ INSTRUCTIONS: You have access to current web information above. Use these source
             organizationType: org?.organizationType || 'undefined',
             budgetRange: org?.budget || 'undefined',
             state: org?.state || 'undefined',
-            focusAreas: org?.focusAreas || 'undefined'
+            focusAreas: org?.focusAreas || 'undefined',
           },
           selectedGuidelinesCount: selectedGuidelines.length,
-          selectedGuidelineNames: selectedGuidelines.map((g: any) => g.name)
+          selectedGuidelineNames: selectedGuidelines.map((g: any) => g.name),
         });
-
       } catch (error) {
         console.error('Guideline selection error:', error);
         // Continue without guidelines if there's an error
@@ -604,10 +643,11 @@ INSTRUCTIONS: You have access to current web information above. Use these source
       queryType: selectedModel.queryType,
       contextLength: selectedModel.contextLength,
       webSearchUsed: webSearchResults !== null,
-      sources: webSearchResults?.results.map((r: any) => ({
-        title: r.title,
-        url: r.url
-      })) || [],
+      sources:
+        webSearchResults?.results.map((r: any) => ({
+          title: r.title,
+          url: r.url,
+        })) || [],
       timestamp: new Date().toISOString(),
     });
   } catch (error) {

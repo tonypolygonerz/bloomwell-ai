@@ -1,18 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
+
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { PrismaClient } from '@prisma/client';
+
 import { createPDFProcessor } from '@/lib/pdf-processor';
-import { 
+
+import {
   safeJsonStringify,
   parsePDFKeyPoints,
   parsePDFRecommendations,
   logValidationErrors,
-  logValidationWarnings 
+  logValidationWarnings,
 } from '@/lib/json-field-utils';
 import { PDFKeyPoint, PDFRecommendation } from '@/types/json-fields';
-
-const prisma = new PrismaClient();
 
 // PDF processing limits
 const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
@@ -165,14 +166,23 @@ export async function POST(request: NextRequest) {
       );
 
       // Validate and stringify JSON fields
-      const keyPointsResult = safeJsonStringify(analysisResult.keyPoints, 'keyPoints');
+      const keyPointsResult = safeJsonStringify(
+        analysisResult.keyPoints,
+        'keyPoints'
+      );
       if (!keyPointsResult.success && keyPointsResult.errors) {
         logValidationErrors(keyPointsResult.errors, 'PDF Key Points');
       }
 
-      const recommendationsResult = safeJsonStringify(analysisResult.recommendations, 'recommendations');
+      const recommendationsResult = safeJsonStringify(
+        analysisResult.recommendations,
+        'recommendations'
+      );
       if (!recommendationsResult.success && recommendationsResult.errors) {
-        logValidationErrors(recommendationsResult.errors, 'PDF Recommendations');
+        logValidationErrors(
+          recommendationsResult.errors,
+          'PDF Recommendations'
+        );
       }
 
       // Update processing record with results

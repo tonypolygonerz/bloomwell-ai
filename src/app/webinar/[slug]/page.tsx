@@ -1,9 +1,8 @@
 import { Metadata } from 'next';
+import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
-import { PrismaClient } from '@prisma/client';
-import WebinarDetailClient from './WebinarDetailClient';
 
-const prisma = new PrismaClient();
+import WebinarDetailClient from './WebinarDetailClient';
 
 interface WebinarPageProps {
   params: Promise<{ slug: string }>;

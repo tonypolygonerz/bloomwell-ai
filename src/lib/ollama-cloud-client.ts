@@ -340,7 +340,10 @@ export class OllamaCloudClient {
    * @param query - Search query string
    * @param maxResults - Maximum results to return (default 5, max 10)
    */
-  async webSearch(query: string, maxResults: number = 5): Promise<WebSearchResponse> {
+  async webSearch(
+    query: string,
+    maxResults: number = 5
+  ): Promise<WebSearchResponse> {
     try {
       if (!query || query.trim().length === 0) {
         throw new Error('Search query cannot be empty');
@@ -354,7 +357,7 @@ export class OllamaCloudClient {
         },
         body: JSON.stringify({
           query: query.trim(),
-          max_results: Math.min(maxResults, 10) // API maximum is 10
+          max_results: Math.min(maxResults, 10), // API maximum is 10
         }),
       });
 
@@ -367,12 +370,15 @@ export class OllamaCloudClient {
       }
 
       const results = await response.json();
-      console.log(`Web search completed: "${query}" - ${results.results.length} results`);
+      console.log(
+        `Web search completed: "${query}" - ${results.results.length} results`
+      );
       return results;
-
     } catch (error) {
       console.error('Ollama web search error:', error);
-      throw new Error(`Web search failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Web search failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -406,10 +412,11 @@ export class OllamaCloudClient {
       const result = await response.json();
       console.log(`Web fetch completed: ${url}`);
       return result;
-
     } catch (error) {
       console.error('Ollama web fetch error:', error);
-      throw new Error(`Web fetch failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Web fetch failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 

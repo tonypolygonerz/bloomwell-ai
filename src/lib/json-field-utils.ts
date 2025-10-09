@@ -27,7 +27,10 @@ import {
  */
 
 // Generic JSON parsing function with error handling
-export function safeJsonParse<T>(jsonString: string | null | undefined, fieldName: string): ValidationResult<T> {
+export function safeJsonParse<T>(
+  jsonString: string | null | undefined,
+  fieldName: string
+): ValidationResult<T> {
   if (!jsonString) {
     return {
       success: true,
@@ -45,18 +48,23 @@ export function safeJsonParse<T>(jsonString: string | null | undefined, fieldNam
   } catch (error) {
     return {
       success: false,
-      errors: [{
-        field: fieldName,
-        message: `Invalid JSON format: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        expectedType: 'valid JSON',
-        receivedValue: jsonString,
-      }],
+      errors: [
+        {
+          field: fieldName,
+          message: `Invalid JSON format: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          expectedType: 'valid JSON',
+          receivedValue: jsonString,
+        },
+      ],
     };
   }
 }
 
 // Generic JSON stringify function with error handling
-export function safeJsonStringify<T>(data: T, fieldName: string): ValidationResult<string> {
+export function safeJsonStringify<T>(
+  data: T,
+  fieldName: string
+): ValidationResult<string> {
   try {
     const jsonString = JSON.stringify(data);
     return {
@@ -66,18 +74,22 @@ export function safeJsonStringify<T>(data: T, fieldName: string): ValidationResu
   } catch (error) {
     return {
       success: false,
-      errors: [{
-        field: fieldName,
-        message: `Failed to stringify data: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        expectedType: 'serializable object',
-        receivedValue: data,
-      }],
+      errors: [
+        {
+          field: fieldName,
+          message: `Failed to stringify data: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          expectedType: 'serializable object',
+          receivedValue: data,
+        },
+      ],
     };
   }
 }
 
 // User Intelligence Profile utilities
-export function parseUserIntelligence(profile: any): ValidationResult<UserIntelligence> {
+export function parseUserIntelligence(
+  profile: any
+): ValidationResult<UserIntelligence> {
   if (!profile || typeof profile !== 'object') {
     return {
       success: true,
@@ -95,7 +107,9 @@ export function parseUserIntelligence(profile: any): ValidationResult<UserIntell
     // Validate focusAreas
     if (profile.focusAreas !== undefined) {
       if (Array.isArray(profile.focusAreas)) {
-        result.focusAreas = profile.focusAreas.filter((item: any) => typeof item === 'string');
+        result.focusAreas = profile.focusAreas.filter(
+          (item: any) => typeof item === 'string'
+        );
       } else {
         errors.push({
           field: 'focusAreas',
@@ -151,19 +165,29 @@ export function parseUserIntelligence(profile: any): ValidationResult<UserIntell
 
     // Validate preferences
     if (profile.preferences !== undefined) {
-      if (typeof profile.preferences === 'object' && profile.preferences !== null) {
+      if (
+        typeof profile.preferences === 'object' &&
+        profile.preferences !== null
+      ) {
         result.preferences = {};
-        
+
         if (profile.preferences.communicationStyle) {
-          if (['formal', 'casual'].includes(profile.preferences.communicationStyle)) {
-            result.preferences.communicationStyle = profile.preferences.communicationStyle;
+          if (
+            ['formal', 'casual'].includes(
+              profile.preferences.communicationStyle
+            )
+          ) {
+            result.preferences.communicationStyle =
+              profile.preferences.communicationStyle;
           } else {
             warnings.push('Invalid communicationStyle value, using default');
           }
         }
 
         if (profile.preferences.detailLevel) {
-          if (['high', 'medium', 'low'].includes(profile.preferences.detailLevel)) {
+          if (
+            ['high', 'medium', 'low'].includes(profile.preferences.detailLevel)
+          ) {
             result.preferences.detailLevel = profile.preferences.detailLevel;
           } else {
             warnings.push('Invalid detailLevel value, using default');
@@ -182,7 +206,9 @@ export function parseUserIntelligence(profile: any): ValidationResult<UserIntell
     // Validate grantInterests
     if (profile.grantInterests !== undefined) {
       if (Array.isArray(profile.grantInterests)) {
-        result.grantInterests = profile.grantInterests.filter((item: any) => typeof item === 'string');
+        result.grantInterests = profile.grantInterests.filter(
+          (item: any) => typeof item === 'string'
+        );
       } else {
         errors.push({
           field: 'grantInterests',
@@ -195,7 +221,11 @@ export function parseUserIntelligence(profile: any): ValidationResult<UserIntell
 
     // Validate organizationType
     if (profile.organizationType !== undefined) {
-      if (['nonprofit', 'social_enterprise', 'faith_based'].includes(profile.organizationType)) {
+      if (
+        ['nonprofit', 'social_enterprise', 'faith_based'].includes(
+          profile.organizationType
+        )
+      ) {
         result.organizationType = profile.organizationType;
       } else {
         warnings.push('Invalid organizationType value, using default');
@@ -211,18 +241,22 @@ export function parseUserIntelligence(profile: any): ValidationResult<UserIntell
   } catch (error) {
     return {
       success: false,
-      errors: [{
-        field: 'userIntelligence',
-        message: `Parsing error: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        expectedType: 'UserIntelligence',
-        receivedValue: profile,
-      }],
+      errors: [
+        {
+          field: 'userIntelligence',
+          message: `Parsing error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          expectedType: 'UserIntelligence',
+          receivedValue: profile,
+        },
+      ],
     };
   }
 }
 
 // Webinar Categories utilities
-export function parseWebinarCategories(categories: any): ValidationResult<WebinarCategories> {
+export function parseWebinarCategories(
+  categories: any
+): ValidationResult<WebinarCategories> {
   if (!categories || typeof categories !== 'object') {
     return {
       success: true,
@@ -253,7 +287,9 @@ export function parseWebinarCategories(categories: any): ValidationResult<Webina
     // Validate secondary categories
     if (categories.secondary !== undefined) {
       if (Array.isArray(categories.secondary)) {
-        result.secondary = categories.secondary.filter((item: any) => typeof item === 'string' && item.trim());
+        result.secondary = categories.secondary.filter(
+          (item: any) => typeof item === 'string' && item.trim()
+        );
       } else {
         errors.push({
           field: 'secondary',
@@ -267,7 +303,9 @@ export function parseWebinarCategories(categories: any): ValidationResult<Webina
     // Validate tags
     if (categories.tags !== undefined) {
       if (Array.isArray(categories.tags)) {
-        result.tags = categories.tags.filter((item: any) => typeof item === 'string' && item.trim());
+        result.tags = categories.tags.filter(
+          (item: any) => typeof item === 'string' && item.trim()
+        );
       } else {
         errors.push({
           field: 'tags',
@@ -286,18 +324,22 @@ export function parseWebinarCategories(categories: any): ValidationResult<Webina
   } catch (error) {
     return {
       success: false,
-      errors: [{
-        field: 'webinarCategories',
-        message: `Parsing error: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        expectedType: 'WebinarCategories',
-        receivedValue: categories,
-      }],
+      errors: [
+        {
+          field: 'webinarCategories',
+          message: `Parsing error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          expectedType: 'WebinarCategories',
+          receivedValue: categories,
+        },
+      ],
     };
   }
 }
 
 // Guest Speakers utilities
-export function parseGuestSpeakers(speakers: any): ValidationResult<GuestSpeaker[]> {
+export function parseGuestSpeakers(
+  speakers: any
+): ValidationResult<GuestSpeaker[]> {
   if (!speakers) {
     return {
       success: true,
@@ -309,12 +351,14 @@ export function parseGuestSpeakers(speakers: any): ValidationResult<GuestSpeaker
   if (!Array.isArray(speakers)) {
     return {
       success: false,
-      errors: [{
-        field: 'guestSpeakers',
-        message: 'Expected array of speaker objects',
-        expectedType: 'GuestSpeaker[]',
-        receivedValue: speakers,
-      }],
+      errors: [
+        {
+          field: 'guestSpeakers',
+          message: 'Expected array of speaker objects',
+          expectedType: 'GuestSpeaker[]',
+          receivedValue: speakers,
+        },
+      ],
     };
   }
 
@@ -361,7 +405,10 @@ export function parseGuestSpeakers(speakers: any): ValidationResult<GuestSpeaker
       });
     }
 
-    if (typeof speaker.organization === 'string' && speaker.organization.trim()) {
+    if (
+      typeof speaker.organization === 'string' &&
+      speaker.organization.trim()
+    ) {
       validSpeaker.organization = speaker.organization.trim();
     } else {
       errors.push({
@@ -377,11 +424,18 @@ export function parseGuestSpeakers(speakers: any): ValidationResult<GuestSpeaker
       validSpeaker.bio = speaker.bio.trim();
     }
 
-    if (speaker.imageUrl !== undefined && typeof speaker.imageUrl === 'string') {
+    if (
+      speaker.imageUrl !== undefined &&
+      typeof speaker.imageUrl === 'string'
+    ) {
       validSpeaker.imageUrl = speaker.imageUrl.trim();
     }
 
-    if (speaker.socialLinks !== undefined && typeof speaker.socialLinks === 'object' && speaker.socialLinks !== null) {
+    if (
+      speaker.socialLinks !== undefined &&
+      typeof speaker.socialLinks === 'object' &&
+      speaker.socialLinks !== null
+    ) {
       validSpeaker.socialLinks = {};
       if (typeof speaker.socialLinks.linkedin === 'string') {
         validSpeaker.socialLinks.linkedin = speaker.socialLinks.linkedin.trim();
@@ -405,7 +459,9 @@ export function parseGuestSpeakers(speakers: any): ValidationResult<GuestSpeaker
 }
 
 // Validation Rules utilities
-export function parseValidationRules(rules: any): ValidationResult<ValidationRules> {
+export function parseValidationRules(
+  rules: any
+): ValidationResult<ValidationRules> {
   if (!rules || typeof rules !== 'object') {
     return {
       success: true,
@@ -502,7 +558,9 @@ export function parseValidationRules(rules: any): ValidationResult<ValidationRul
     // Validate allowedValues
     if (rules.allowedValues !== undefined) {
       if (Array.isArray(rules.allowedValues)) {
-        result.allowedValues = rules.allowedValues.filter((item: any) => typeof item === 'string');
+        result.allowedValues = rules.allowedValues.filter(
+          (item: any) => typeof item === 'string'
+        );
       } else {
         errors.push({
           field: 'allowedValues',
@@ -516,7 +574,9 @@ export function parseValidationRules(rules: any): ValidationResult<ValidationRul
     // Validate fileTypes
     if (rules.fileTypes !== undefined) {
       if (Array.isArray(rules.fileTypes)) {
-        result.fileTypes = rules.fileTypes.filter((item: any) => typeof item === 'string');
+        result.fileTypes = rules.fileTypes.filter(
+          (item: any) => typeof item === 'string'
+        );
       } else {
         errors.push({
           field: 'fileTypes',
@@ -549,18 +609,22 @@ export function parseValidationRules(rules: any): ValidationResult<ValidationRul
   } catch (error) {
     return {
       success: false,
-      errors: [{
-        field: 'validationRules',
-        message: `Parsing error: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        expectedType: 'ValidationRules',
-        receivedValue: rules,
-      }],
+      errors: [
+        {
+          field: 'validationRules',
+          message: `Parsing error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          expectedType: 'ValidationRules',
+          receivedValue: rules,
+        },
+      ],
     };
   }
 }
 
 // PDF Key Points utilities
-export function parsePDFKeyPoints(keyPoints: any): ValidationResult<PDFKeyPoint[]> {
+export function parsePDFKeyPoints(
+  keyPoints: any
+): ValidationResult<PDFKeyPoint[]> {
   if (!keyPoints) {
     return {
       success: true,
@@ -572,12 +636,14 @@ export function parsePDFKeyPoints(keyPoints: any): ValidationResult<PDFKeyPoint[
   if (!Array.isArray(keyPoints)) {
     return {
       success: false,
-      errors: [{
-        field: 'keyPoints',
-        message: 'Expected array of key point objects',
-        expectedType: 'PDFKeyPoint[]',
-        receivedValue: keyPoints,
-      }],
+      errors: [
+        {
+          field: 'keyPoints',
+          message: 'Expected array of key point objects',
+          expectedType: 'PDFKeyPoint[]',
+          receivedValue: keyPoints,
+        },
+      ],
     };
   }
 
@@ -653,7 +719,9 @@ export function parsePDFKeyPoints(keyPoints: any): ValidationResult<PDFKeyPoint[
 
     if (point.relatedPoints !== undefined) {
       if (Array.isArray(point.relatedPoints)) {
-        validPoint.relatedPoints = point.relatedPoints.filter((item: any) => typeof item === 'string');
+        validPoint.relatedPoints = point.relatedPoints.filter(
+          (item: any) => typeof item === 'string'
+        );
       } else {
         errors.push({
           field: `keyPoints[${index}].relatedPoints`,
@@ -675,7 +743,9 @@ export function parsePDFKeyPoints(keyPoints: any): ValidationResult<PDFKeyPoint[
 }
 
 // PDF Recommendations utilities
-export function parsePDFRecommendations(recommendations: any): ValidationResult<PDFRecommendation[]> {
+export function parsePDFRecommendations(
+  recommendations: any
+): ValidationResult<PDFRecommendation[]> {
   if (!recommendations) {
     return {
       success: true,
@@ -687,12 +757,14 @@ export function parsePDFRecommendations(recommendations: any): ValidationResult<
   if (!Array.isArray(recommendations)) {
     return {
       success: false,
-      errors: [{
-        field: 'recommendations',
-        message: 'Expected array of recommendation objects',
-        expectedType: 'PDFRecommendation[]',
-        receivedValue: recommendations,
-      }],
+      errors: [
+        {
+          field: 'recommendations',
+          message: 'Expected array of recommendation objects',
+          expectedType: 'PDFRecommendation[]',
+          receivedValue: recommendations,
+        },
+      ],
     };
   }
 
@@ -764,12 +836,17 @@ export function parsePDFRecommendations(recommendations: any): ValidationResult<
 
     // Validate category
     if (rec.category !== undefined) {
-      if (['funding', 'compliance', 'strategy', 'operations', 'other'].includes(rec.category)) {
+      if (
+        ['funding', 'compliance', 'strategy', 'operations', 'other'].includes(
+          rec.category
+        )
+      ) {
         validRec.category = rec.category;
       } else {
         errors.push({
           field: `recommendations[${index}].category`,
-          message: 'Expected funding, compliance, strategy, operations, or other',
+          message:
+            'Expected funding, compliance, strategy, operations, or other',
           expectedType: 'funding | compliance | strategy | operations | other',
           receivedValue: rec.category,
         });
@@ -806,7 +883,9 @@ export function parsePDFRecommendations(recommendations: any): ValidationResult<
 
     if (rec.relatedPoints !== undefined) {
       if (Array.isArray(rec.relatedPoints)) {
-        validRec.relatedPoints = rec.relatedPoints.filter((item: any) => typeof item === 'string');
+        validRec.relatedPoints = rec.relatedPoints.filter(
+          (item: any) => typeof item === 'string'
+        );
       } else {
         errors.push({
           field: `recommendations[${index}].relatedPoints`,
@@ -838,25 +917,33 @@ export function validateJsonField<T>(
   } catch (error) {
     return {
       success: false,
-      errors: [{
-        field: fieldName,
-        message: `Validation error: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        expectedType: 'valid JSON',
-        receivedValue: data,
-      }],
+      errors: [
+        {
+          field: fieldName,
+          message: `Validation error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          expectedType: 'valid JSON',
+          receivedValue: data,
+        },
+      ],
     };
   }
 }
 
 // Utility to log validation errors
-export function logValidationErrors(errors: JSONFieldError[], context: string = 'JSON Field Validation') {
+export function logValidationErrors(
+  errors: JSONFieldError[],
+  context: string = 'JSON Field Validation'
+) {
   if (errors.length > 0) {
     console.error(`${context} - Validation Errors:`, errors);
   }
 }
 
 // Utility to log validation warnings
-export function logValidationWarnings(warnings: string[], context: string = 'JSON Field Validation') {
+export function logValidationWarnings(
+  warnings: string[],
+  context: string = 'JSON Field Validation'
+) {
   if (warnings.length > 0) {
     console.warn(`${context} - Validation Warnings:`, warnings);
   }

@@ -1,26 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
+
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { PrismaClient } from '@prisma/client';
-import { 
-  TemplateWorkflowState, 
+
+import {
+  TemplateWorkflowState,
   TemplateStepResponse,
-  IntelligenceUpdate 
+  IntelligenceUpdate,
 } from '@/types/json-fields';
-import { 
+import {
   getUserIntelligenceProfile,
-  updateUserIntelligenceProfile 
+  updateUserIntelligenceProfile,
 } from '@/lib/user-intelligence-utils';
-import { 
+import {
   parseTemplateWorkflowProgress,
   parseTemplateStepResponse,
   parseIntelligenceUpdate,
   updateUserIntelligenceFromResponse,
   calculateWorkflowProgress,
-  estimateTimeRemaining 
+  estimateTimeRemaining,
 } from '@/lib/template-system-utils';
-
-const prisma = new PrismaClient();
 
 export async function POST(
   request: NextRequest,
@@ -28,7 +28,7 @@ export async function POST(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -37,7 +37,10 @@ export async function POST(
     const { stepId, response } = await request.json();
 
     if (!stepId || !response) {
-      return NextResponse.json({ error: 'Step ID and response are required' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Step ID and response are required' },
+        { status: 400 }
+      );
     }
 
     // Get user project with template and steps
@@ -64,7 +67,9 @@ export async function POST(
     }
 
     // Get the current step
-    const currentStep = userProject.template.steps.find(step => step.id === stepId);
+    const currentStep = userProject.template.steps.find(
+      step => step.id === stepId
+    );
     if (!currentStep) {
       return NextResponse.json({ error: 'Step not found' }, { status: 404 });
     }
@@ -75,7 +80,9 @@ export async function POST(
     }
 
     // Parse current intelligence profile
-    let currentIntelligence = getUserIntelligenceProfile(userProject.intelligenceProfile);
+    let currentIntelligence = getUserIntelligenceProfile(
+      userProject.intelligenceProfile
+    );
     if (!currentIntelligence) {
       currentIntelligence = {
         focusAreas: [],
@@ -119,8 +126,12 @@ export async function POST(
     };
 
     // Update user intelligence based on response
-    const { intelligence: updatedIntelligence, updates: intelligenceUpdates } = 
-      updateUserIntelligenceFromResponse(currentIntelligence, stepResponse, currentStep);
+    const { intelligence: updatedIntelligence, updates: intelligenceUpdates } =
+      updateUserIntelligenceFromResponse(
+        currentIntelligence,
+        stepResponse,
+        currentStep
+      );
 
     // Save the response to database
     const savedResponse = await prisma.templateResponse.create({
@@ -138,15 +149,22 @@ export async function POST(
     });
 
     // Update workflow progress
-    const metadata = userProject.metadata ? JSON.parse(userProject.metadata as string) : {};
-    const progressResult = parseTemplateWorkflowProgress(metadata.initialProgress);
-    
+    const metadata = userProject.metadata
+      ? JSON.parse(userProject.metadata as string)
+      : {};
+    const progressResult = parseTemplateWorkflowProgress(
+      metadata.initialProgress
+    );
+
     if (!progressResult.success) {
-      return NextResponse.json({ error: 'Invalid workflow progress' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Invalid workflow progress' },
+        { status: 400 }
+      );
     }
 
     const progress = progressResult.data!;
-    
+
     // Mark current step as completed
     if (!progress.completedSteps.includes(currentStep.stepNumber)) {
       progress.completedSteps.push(currentStep.stepNumber);
@@ -164,8 +182,10 @@ export async function POST(
 
     // Move to next step
     const nextStepNumber = currentStep.stepNumber + 1;
-    const nextStep = userProject.template.steps.find(step => step.stepNumber === nextStepNumber);
-    
+    const nextStep = userProject.template.steps.find(
+      step => step.stepNumber === nextStepNumber
+    );
+
     if (nextStep) {
       progress.currentStep = nextStepNumber;
       progress.stepProgress[nextStep.id] = {
@@ -204,7 +224,10 @@ export async function POST(
     );
 
     progress.lastActiveAt = new Date();
-    progress.intelligenceUpdates = [...(progress.intelligenceUpdates || []), ...intelligenceUpdates];
+    progress.intelligenceUpdates = [
+      ...(progress.intelligenceUpdates || []),
+      ...intelligenceUpdates,
+    ];
 
     // Update user project
     const updatedProject = await prisma.userProject.update({
@@ -252,7 +275,9 @@ export async function POST(
           capabilityAssessments: [],
           nextStepRecommendations: [],
         },
-        metadata: response.metadata ? JSON.parse(response.metadata as string) : {},
+        metadata: response.metadata
+          ? JSON.parse(response.metadata as string)
+          : {},
         submittedAt: response.submittedAt,
       })),
       recommendations: [],
@@ -264,9 +289,10 @@ export async function POST(
       workflowState,
       nextStep: nextStep || null,
       intelligenceUpdates,
-      message: nextStep ? 'Response submitted successfully' : 'Workflow completed!',
+      message: nextStep
+        ? 'Response submitted successfully'
+        : 'Workflow completed!',
     });
-
   } catch (error) {
     console.error('Error submitting step response:', error);
     return NextResponse.json(
@@ -277,5 +303,3 @@ export async function POST(
     await prisma.$disconnect();
   }
 }
-
-

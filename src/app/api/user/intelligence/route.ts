@@ -1,28 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
+
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { PrismaClient } from '@prisma/client';
-import { 
+
+import {
   UserIntelligence,
   IntelligenceUpdate,
-  ValidationResult 
+  ValidationResult,
 } from '@/types/json-fields';
-import { 
+import {
   getUserIntelligenceProfile,
   updateUserIntelligenceProfile,
   createDefaultUserIntelligenceProfile,
-  validateUserIntelligenceProfile 
+  validateUserIntelligenceProfile,
 } from '@/lib/user-intelligence-utils';
-import { 
-  parseIntelligenceUpdate
-} from '@/lib/template-system-utils';
-
-const prisma = new PrismaClient();
+import { parseIntelligenceUpdate } from '@/lib/template-system-utils';
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -37,8 +35,10 @@ export async function GET(request: NextRequest) {
     }
 
     // Parse user intelligence profile
-    const intelligenceProfile = getUserIntelligenceProfile(user.intelligenceProfile);
-    
+    const intelligenceProfile = getUserIntelligenceProfile(
+      user.intelligenceProfile
+    );
+
     if (!intelligenceProfile) {
       // Create default profile if none exists
       const defaultProfile = createDefaultUserIntelligenceProfile();
@@ -57,7 +57,6 @@ export async function GET(request: NextRequest) {
       isDefault: false,
       validation,
     });
-
   } catch (error) {
     console.error('Error fetching user intelligence:', error);
     return NextResponse.json(
@@ -72,7 +71,7 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -80,7 +79,10 @@ export async function PUT(request: NextRequest) {
     const { intelligenceProfile, updates } = await request.json();
 
     if (!intelligenceProfile && !updates) {
-      return NextResponse.json({ error: 'Intelligence profile or updates are required' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Intelligence profile or updates are required' },
+        { status: 400 }
+      );
     }
 
     // Get current user
@@ -98,18 +100,22 @@ export async function PUT(request: NextRequest) {
     if (intelligenceProfile) {
       // Full profile update - validate using user intelligence utils
       const validation = validateUserIntelligenceProfile(intelligenceProfile);
-      
+
       if (!validation.isValid) {
-        return NextResponse.json({ 
-          error: 'Invalid intelligence profile',
-          details: validation.errors 
-        }, { status: 400 });
+        return NextResponse.json(
+          {
+            error: 'Invalid intelligence profile',
+            details: validation.errors,
+          },
+          { status: 400 }
+        );
       }
 
       updatedIntelligence = intelligenceProfile;
     } else if (updates) {
       // Partial updates
-      const currentIntelligence = getUserIntelligenceProfile(user.intelligenceProfile) || 
+      const currentIntelligence =
+        getUserIntelligenceProfile(user.intelligenceProfile) ||
         createDefaultUserIntelligenceProfile();
 
       updatedIntelligence = { ...currentIntelligence };
@@ -117,12 +123,15 @@ export async function PUT(request: NextRequest) {
       // Process each update
       for (const update of updates) {
         const updateValidation = parseIntelligenceUpdate(update);
-        
+
         if (!updateValidation.success) {
-          return NextResponse.json({ 
-            error: 'Invalid intelligence update',
-            details: updateValidation.errors 
-          }, { status: 400 });
+          return NextResponse.json(
+            {
+              error: 'Invalid intelligence update',
+              details: updateValidation.errors,
+            },
+            { status: 400 }
+          );
         }
 
         const validUpdate = updateValidation.data!;
@@ -149,21 +158,31 @@ export async function PUT(request: NextRequest) {
             updatedIntelligence.grantInterests = validUpdate.newValue;
             break;
           case 'preferences':
-            updatedIntelligence.preferences = { ...updatedIntelligence.preferences, ...validUpdate.newValue };
+            updatedIntelligence.preferences = {
+              ...updatedIntelligence.preferences,
+              ...validUpdate.newValue,
+            };
             break;
           case 'fundingHistory':
-            updatedIntelligence.fundingHistory = { ...updatedIntelligence.fundingHistory, ...validUpdate.newValue };
+            updatedIntelligence.fundingHistory = {
+              ...updatedIntelligence.fundingHistory,
+              ...validUpdate.newValue,
+            };
             break;
           default:
             // Handle custom fields
-            (updatedIntelligence as any)[validUpdate.field] = validUpdate.newValue;
+            (updatedIntelligence as any)[validUpdate.field] =
+              validUpdate.newValue;
         }
       }
 
       // Update last analysis timestamp
       updatedIntelligence.lastAnalysis = new Date();
     } else {
-      return NextResponse.json({ error: 'No valid update data provided' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'No valid update data provided' },
+        { status: 400 }
+      );
     }
 
     // Validate the updated profile
@@ -180,7 +199,10 @@ export async function PUT(request: NextRequest) {
 
     // Log intelligence updates for audit trail
     if (intelligenceUpdates.length > 0) {
-      console.log(`User ${session.user.id} intelligence updates:`, intelligenceUpdates);
+      console.log(
+        `User ${session.user.id} intelligence updates:`,
+        intelligenceUpdates
+      );
     }
 
     return NextResponse.json({
@@ -189,7 +211,6 @@ export async function PUT(request: NextRequest) {
       updates: intelligenceUpdates,
       message: 'Intelligence profile updated successfully',
     });
-
   } catch (error) {
     console.error('Error updating user intelligence:', error);
     return NextResponse.json(
@@ -204,7 +225,7 @@ export async function PUT(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -212,17 +233,23 @@ export async function POST(request: NextRequest) {
     const { update } = await request.json();
 
     if (!update) {
-      return NextResponse.json({ error: 'Update is required' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Update is required' },
+        { status: 400 }
+      );
     }
 
     // Validate the update
     const updateValidation = parseIntelligenceUpdate(update);
-    
+
     if (!updateValidation.success) {
-      return NextResponse.json({ 
-        error: 'Invalid intelligence update',
-        details: updateValidation.errors 
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: 'Invalid intelligence update',
+          details: updateValidation.errors,
+        },
+        { status: 400 }
+      );
     }
 
     const validUpdate = updateValidation.data!;
@@ -237,7 +264,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Get current intelligence profile
-    const currentIntelligence = getUserIntelligenceProfile(user.intelligenceProfile) || 
+    const currentIntelligence =
+      getUserIntelligenceProfile(user.intelligenceProfile) ||
       createDefaultUserIntelligenceProfile();
 
     // Apply the update
@@ -263,10 +291,16 @@ export async function POST(request: NextRequest) {
         updatedIntelligence.grantInterests = validUpdate.newValue;
         break;
       case 'preferences':
-        updatedIntelligence.preferences = { ...updatedIntelligence.preferences, ...validUpdate.newValue };
+        updatedIntelligence.preferences = {
+          ...updatedIntelligence.preferences,
+          ...validUpdate.newValue,
+        };
         break;
       case 'fundingHistory':
-        updatedIntelligence.fundingHistory = { ...updatedIntelligence.fundingHistory, ...validUpdate.newValue };
+        updatedIntelligence.fundingHistory = {
+          ...updatedIntelligence.fundingHistory,
+          ...validUpdate.newValue,
+        };
         break;
       default:
         // Handle custom fields
@@ -294,7 +328,6 @@ export async function POST(request: NextRequest) {
       update: validUpdate,
       message: 'Intelligence profile updated successfully',
     });
-
   } catch (error) {
     console.error('Error applying intelligence update:', error);
     return NextResponse.json(
@@ -305,5 +338,3 @@ export async function POST(request: NextRequest) {
     await prisma.$disconnect();
   }
 }
-
-

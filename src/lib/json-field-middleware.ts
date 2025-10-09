@@ -40,7 +40,9 @@ export function handleValidationResult<T>(
   requestId?: string
 ): T | null {
   if (!result.success && result.errors) {
-    throw new Error(`Validation failed: ${result.errors.map(e => e.message).join(', ')}`);
+    throw new Error(
+      `Validation failed: ${result.errors.map(e => e.message).join(', ')}`
+    );
   }
 
   if (result.warnings) {
@@ -60,13 +62,18 @@ export function withJSONFieldErrorHandling(
     try {
       return await handler(request);
     } catch (error) {
-      if (error instanceof Error && error.message.includes('Validation failed:')) {
-        const errors: JSONFieldError[] = [{
-          field: 'unknown',
-          message: error.message,
-          expectedType: 'valid JSON',
-          receivedValue: null,
-        }];
+      if (
+        error instanceof Error &&
+        error.message.includes('Validation failed:')
+      ) {
+        const errors: JSONFieldError[] = [
+          {
+            field: 'unknown',
+            message: error.message,
+            expectedType: 'valid JSON',
+            receivedValue: null,
+          },
+        ];
 
         return createJSONFieldErrorResponse(errors, 'Request Processing');
       }
@@ -92,7 +99,9 @@ export function validateRequestBodyJSONField(
   const result = validator(fieldValue);
 
   if (!result.success && result.errors) {
-    throw new Error(`Invalid ${fieldName}: ${result.errors.map(e => e.message).join(', ')}`);
+    throw new Error(
+      `Invalid ${fieldName}: ${result.errors.map(e => e.message).join(', ')}`
+    );
   }
 
   if (result.warnings) {
@@ -140,7 +149,10 @@ class JSONFieldErrorRateLimiter {
     const record = this.errorCounts.get(identifier);
 
     if (!record || now > record.resetTime) {
-      this.errorCounts.set(identifier, { count: 1, resetTime: now + this.windowMs });
+      this.errorCounts.set(identifier, {
+        count: 1,
+        resetTime: now + this.windowMs,
+      });
       return false;
     }
 
@@ -163,7 +175,10 @@ const rateLimiter = new JSONFieldErrorRateLimiter();
  * Check if client is rate limited for JSON field errors
  */
 export function isJSONFieldErrorRateLimited(request: NextRequest): boolean {
-  const identifier = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
+  const identifier =
+    request.headers.get('x-forwarded-for') ||
+    request.headers.get('x-real-ip') ||
+    'unknown';
   return rateLimiter.isRateLimited(identifier);
 }
 
@@ -171,7 +186,10 @@ export function isJSONFieldErrorRateLimited(request: NextRequest): boolean {
  * Reset rate limit for client
  */
 export function resetJSONFieldErrorRateLimit(request: NextRequest): void {
-  const identifier = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
+  const identifier =
+    request.headers.get('x-forwarded-for') ||
+    request.headers.get('x-real-ip') ||
+    'unknown';
   rateLimiter.reset(identifier);
 }
 
@@ -192,26 +210,34 @@ export function withComprehensiveJSONFieldValidation(
 
     try {
       const response = await handler(request);
-      
+
       // Reset rate limit on successful request
       if (response.status < 400) {
         resetJSONFieldErrorRateLimit(request);
       }
-      
+
       return response;
     } catch (error) {
-      if (error instanceof Error && error.message.includes('Validation failed:')) {
-        const errors: JSONFieldError[] = [{
-          field: 'request',
-          message: error.message,
-          expectedType: 'valid JSON',
-          receivedValue: null,
-        }];
+      if (
+        error instanceof Error &&
+        error.message.includes('Validation failed:')
+      ) {
+        const errors: JSONFieldError[] = [
+          {
+            field: 'request',
+            message: error.message,
+            expectedType: 'valid JSON',
+            receivedValue: null,
+          },
+        ];
 
         return createJSONFieldErrorResponse(errors, 'Request Validation');
       }
 
-      console.error('Unexpected error in comprehensive JSON field middleware:', error);
+      console.error(
+        'Unexpected error in comprehensive JSON field middleware:',
+        error
+      );
       return NextResponse.json(
         { error: 'Internal server error' },
         { status: 500 }
@@ -237,7 +263,9 @@ export function logJSONFieldValidationError(
     receivedValue: error.receivedValue,
     path: error.path,
     userAgent: request?.headers.get('user-agent'),
-    ip: request?.headers.get('x-forwarded-for') || request?.headers.get('x-real-ip'),
+    ip:
+      request?.headers.get('x-forwarded-for') ||
+      request?.headers.get('x-real-ip'),
     url: request?.url,
   };
 

@@ -1,17 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { getAdminFromRequest } from '../../../../../lib/admin-auth';
-import { 
-  safeJsonParse, 
+
+import {
+  safeJsonParse,
   safeJsonStringify,
-  parseWebinarCategories, 
+  parseWebinarCategories,
   parseGuestSpeakers,
   logValidationErrors,
-  logValidationWarnings 
+  logValidationWarnings,
 } from '@/lib/json-field-utils';
-import { WebinarCategories, GuestSpeaker, WebinarMaterial } from '@/types/json-fields';
-
-const prisma = new PrismaClient();
+import {
+  WebinarCategories,
+  GuestSpeaker,
+  WebinarMaterial,
+} from '@/types/json-fields';
 
 export async function GET(
   request: NextRequest,
@@ -44,7 +47,10 @@ export async function GET(
     }
 
     // Parse JSON fields with type safety
-    const categoriesResult = safeJsonParse<WebinarCategories>(webinar.categories, 'categories');
+    const categoriesResult = safeJsonParse<WebinarCategories>(
+      webinar.categories,
+      'categories'
+    );
     if (!categoriesResult.success && categoriesResult.errors) {
       logValidationErrors(categoriesResult.errors, 'Webinar Categories');
     }
@@ -60,7 +66,10 @@ export async function GET(
       logValidationWarnings(guestSpeakersResult.warnings, 'Guest Speakers');
     }
 
-    const materialsResult = safeJsonParse<WebinarMaterial[]>(webinar.materials, 'materials');
+    const materialsResult = safeJsonParse<WebinarMaterial[]>(
+      webinar.materials,
+      'materials'
+    );
     if (!materialsResult.success && materialsResult.errors) {
       logValidationErrors(materialsResult.errors, 'Webinar Materials');
     }

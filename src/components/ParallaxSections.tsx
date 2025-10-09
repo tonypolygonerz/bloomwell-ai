@@ -10,11 +10,13 @@ export default function ParallaxSections() {
           <div className='order-2 lg:order-1 animate-slide-in-left'>
             <div className='bg-white p-8 rounded-3xl shadow-2xl'>
               <div className='text-6xl font-bold text-green-600 mb-4'>
-                <span className='counter' data-target='73582'>
+                <span className='counter' data-target='907'>
                   0
                 </span>
               </div>
-              <p className='text-2xl text-gray-700 mb-6'>grants and counting</p>
+              <p className='text-2xl text-gray-700 mb-6'>
+                active grants accepting applications
+              </p>
               <h3 className='text-3xl font-bold text-gray-900 mb-6'>
                 Comprehensive Grant Database
               </h3>
@@ -22,7 +24,8 @@ export default function ParallaxSections() {
                 Our AI-powered system continuously updates our database with the
                 latest federal grant opportunities. Advanced filtering and
                 matching algorithms help you find grants that align perfectly
-                with your organization&apos;s mission, programs, and funding needs.
+                with your organization&apos;s mission, programs, and funding
+                needs.
               </p>
               <Link
                 href='/chat?prompt=find-grants'

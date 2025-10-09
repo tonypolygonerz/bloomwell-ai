@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { OllamaCloudClient } from '@/lib/ollama-cloud-client';
-import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+
+import { OllamaCloudClient } from '@/lib/ollama-cloud-client';
 
 interface WebSearchRequest {
   query: string;
@@ -32,22 +32,24 @@ export async function POST(req: NextRequest) {
     // Check daily rate limit (10 searches per day on free tier)
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     const searchCount = await prisma.webSearchLog.count({
       where: {
         userId: session.user.id,
-        timestamp: { gte: today }
-      }
+        timestamp: { gte: today },
+      },
     });
 
     const DAILY_LIMIT = 10;
     if (searchCount >= DAILY_LIMIT) {
       return NextResponse.json(
-        { 
+        {
           error: 'Daily search limit reached',
           limit: DAILY_LIMIT,
           remaining: 0,
-          resetAt: new Date(today.getTime() + 24 * 60 * 60 * 1000).toISOString()
+          resetAt: new Date(
+            today.getTime() + 24 * 60 * 60 * 1000
+          ).toISOString(),
         },
         { status: 429 }
       );
@@ -55,7 +57,10 @@ export async function POST(req: NextRequest) {
 
     // Initialize Ollama client
     if (!process.env.OLLAMA_API_KEY) {
-      return NextResponse.json({ error: 'Ollama API key not configured' }, { status: 500 });
+      return NextResponse.json(
+        { error: 'Ollama API key not configured' },
+        { status: 500 }
+      );
     }
 
     const ollamaCloud = new OllamaCloudClient(process.env.OLLAMA_API_KEY);
@@ -73,8 +78,8 @@ export async function POST(req: NextRequest) {
         category,
         resultsCount: searchResults.results.length,
         processingTime,
-        timestamp: new Date()
-      }
+        timestamp: new Date(),
+      },
     });
 
     return NextResponse.json({
@@ -85,17 +90,16 @@ export async function POST(req: NextRequest) {
         resultsCount: searchResults.results.length,
         processingTime,
         remaining: DAILY_LIMIT - searchCount - 1,
-        dailyLimit: DAILY_LIMIT
+        dailyLimit: DAILY_LIMIT,
       },
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
-
   } catch (error) {
     console.error('Web search API error:', error);
     return NextResponse.json(
-      { 
-        error: 'Search failed', 
-        details: error instanceof Error ? error.message : 'Unknown error' 
+      {
+        error: 'Search failed',
+        details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );

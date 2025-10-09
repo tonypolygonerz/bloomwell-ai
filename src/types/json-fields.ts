@@ -232,14 +232,17 @@ export interface TemplateWorkflowProgress {
   totalSteps: number;
   completedSteps: number[];
   skippedSteps: number[];
-  stepProgress: Record<string, {
-    status: 'not_started' | 'in_progress' | 'completed' | 'skipped';
-    startedAt?: Date;
-    completedAt?: Date;
-    timeSpent?: number; // in minutes
-    attempts: number;
-    lastResponse?: string;
-  }>;
+  stepProgress: Record<
+    string,
+    {
+      status: 'not_started' | 'in_progress' | 'completed' | 'skipped';
+      startedAt?: Date;
+      completedAt?: Date;
+      timeSpent?: number; // in minutes
+      attempts: number;
+      lastResponse?: string;
+    }
+  >;
   overallProgress: number; // 0-100
   estimatedTimeRemaining: number; // in minutes
   lastActiveAt: Date;
@@ -250,7 +253,12 @@ export interface TemplateWorkflowProgress {
 export interface IntelligenceUpdate {
   id: string;
   stepId: string;
-  updateType: 'focus_area' | 'skill_level' | 'preference' | 'knowledge' | 'capability';
+  updateType:
+    | 'focus_area'
+    | 'skill_level'
+    | 'preference'
+    | 'knowledge'
+    | 'capability';
   field: string;
   oldValue: any;
   newValue: any;

@@ -1,28 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { PrismaClient } from '@prisma/client';
-import { 
-  TemplateDashboardData, 
-  TemplateSelectionIntelligence,
-  UserIntelligence 
-} from '@/types/json-fields';
-import { 
-  getUserIntelligenceProfile, 
-  createDefaultUserIntelligenceProfile,
-  validateUserIntelligenceProfile 
-} from '@/lib/user-intelligence-utils';
-import { 
-  calculateTemplateRecommendationScore,
-  parseTemplateSelectionIntelligence 
-} from '@/lib/template-system-utils';
 
-const prisma = new PrismaClient();
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+
+import {
+  TemplateDashboardData,
+  TemplateSelectionIntelligence,
+  UserIntelligence,
+} from '@/types/json-fields';
+import {
+  getUserIntelligenceProfile,
+  createDefaultUserIntelligenceProfile,
+  validateUserIntelligenceProfile,
+} from '@/lib/user-intelligence-utils';
+import {
+  calculateTemplateRecommendationScore,
+  parseTemplateSelectionIntelligence,
+} from '@/lib/template-system-utils';
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -68,22 +68,31 @@ export async function GET(request: NextRequest) {
     // Get user's project history
     const userProjects = user.userProjects;
     const activeProjects = userProjects.filter(p => p.status === 'ACTIVE');
-    const completedProjects = userProjects.filter(p => p.status === 'COMPLETED');
+    const completedProjects = userProjects.filter(
+      p => p.status === 'COMPLETED'
+    );
 
     // Calculate template selection intelligence
     const completedTemplateIds = completedProjects.map(p => p.templateId);
     const inProgressTemplateIds = activeProjects.map(p => p.templateId);
-    
+
     // Calculate success rate and average completion time
-    const successRate = completedProjects.length > 0 ? 
-      completedProjects.filter(p => p.progress >= 0.8).length / completedProjects.length : 0;
-    
-    const averageCompletionTime = completedProjects.length > 0 ?
-      completedProjects.reduce((sum, p) => {
-        const duration = p.completedAt && p.startedAt ? 
-          p.completedAt.getTime() - p.startedAt.getTime() : 0;
-        return sum + (duration / (1000 * 60 * 60)); // Convert to hours
-      }, 0) / completedProjects.length : 0;
+    const successRate =
+      completedProjects.length > 0
+        ? completedProjects.filter(p => p.progress >= 0.8).length /
+          completedProjects.length
+        : 0;
+
+    const averageCompletionTime =
+      completedProjects.length > 0
+        ? completedProjects.reduce((sum, p) => {
+            const duration =
+              p.completedAt && p.startedAt
+                ? p.completedAt.getTime() - p.startedAt.getTime()
+                : 0;
+            return sum + duration / (1000 * 60 * 60); // Convert to hours
+          }, 0) / completedProjects.length
+        : 0;
 
     // Determine skill level based on completed projects and success rate
     let skillLevel: 'beginner' | 'intermediate' | 'advanced' = 'beginner';
@@ -95,20 +104,26 @@ export async function GET(request: NextRequest) {
     }
 
     // Determine preferred categories
-    const categoryCounts = completedProjects.reduce((acc, project) => {
-      const category = project.template.category;
-      acc[category] = (acc[category] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-    
+    const categoryCounts = completedProjects.reduce(
+      (acc, project) => {
+        const category = project.template.category;
+        acc[category] = (acc[category] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
+
     const preferredCategories = Object.entries(categoryCounts)
-      .sort(([,a], [,b]) => b - a)
+      .sort(([, a], [, b]) => b - a)
       .slice(0, 3)
       .map(([category]) => category);
 
     // Determine time availability based on user activity
-    const timeAvailability = user.lastActiveDate ? 
-      (Date.now() - user.lastActiveDate.getTime()) < (24 * 60 * 60 * 1000) ? 'high' : 'medium' : 'low';
+    const timeAvailability = user.lastActiveDate
+      ? Date.now() - user.lastActiveDate.getTime() < 24 * 60 * 60 * 1000
+        ? 'high'
+        : 'medium'
+      : 'low';
 
     const templateSelectionIntelligence: TemplateSelectionIntelligence = {
       userProfile: userIntelligence,
@@ -118,37 +133,43 @@ export async function GET(request: NextRequest) {
       preferredCategories,
       timeAvailability,
       learningStyle: 'guided', // Default, could be determined from user behavior
-      lastTemplateCompleted: completedProjects.length > 0 ? 
-        completedProjects.sort((a, b) => b.completedAt!.getTime() - a.completedAt!.getTime())[0].completedAt : undefined,
+      lastTemplateCompleted:
+        completedProjects.length > 0
+          ? completedProjects.sort(
+              (a, b) => b.completedAt!.getTime() - a.completedAt!.getTime()
+            )[0].completedAt
+          : undefined,
       successRate,
       averageCompletionTime,
     };
 
     // Calculate recommendation scores for each template
-    const availableTemplates = templates.map(template => {
-      const recommendationScore = calculateTemplateRecommendationScore(
-        template.id,
-        templateSelectionIntelligence,
-        {
-          difficulty: template.difficulty,
-          category: template.category,
-          estimatedTime: template.estimatedTime,
-        }
-      );
+    const availableTemplates = templates
+      .map(template => {
+        const recommendationScore = calculateTemplateRecommendationScore(
+          template.id,
+          templateSelectionIntelligence,
+          {
+            difficulty: template.difficulty,
+            category: template.category,
+            estimatedTime: template.estimatedTime,
+          }
+        );
 
-      return {
-        id: template.id,
-        name: template.name,
-        description: template.description,
-        category: template.category,
-        difficulty: template.difficulty,
-        estimatedTime: template.estimatedTime,
-        recommendationScore: recommendationScore.score,
-        isRecommended: recommendationScore.score >= 70,
-        prerequisites: template.prerequisites || [],
-        outcomes: template.outcomes || [],
-      };
-    }).sort((a, b) => b.recommendationScore - a.recommendationScore);
+        return {
+          id: template.id,
+          name: template.name,
+          description: template.description,
+          category: template.category,
+          difficulty: template.difficulty,
+          estimatedTime: template.estimatedTime,
+          recommendationScore: recommendationScore.score,
+          isRecommended: recommendationScore.score >= 70,
+          prerequisites: template.prerequisites || [],
+          outcomes: template.outcomes || [],
+        };
+      })
+      .sort((a, b) => b.recommendationScore - a.recommendationScore);
 
     // Format active projects
     const activeProjectsFormatted = activeProjects.map(project => ({
@@ -156,7 +177,9 @@ export async function GET(request: NextRequest) {
       templateName: project.template.name,
       progress: Math.round(project.progress * 100),
       currentStep: `Step ${project.currentStep}`,
-      estimatedTimeRemaining: Math.round((1 - project.progress) * project.template.estimatedTime * 60), // Convert to minutes
+      estimatedTimeRemaining: Math.round(
+        (1 - project.progress) * project.template.estimatedTime * 60
+      ), // Convert to minutes
       lastActiveAt: project.lastActiveAt,
     }));
 
@@ -194,7 +217,6 @@ export async function GET(request: NextRequest) {
     };
 
     return NextResponse.json(dashboardData);
-
   } catch (error) {
     console.error('Error fetching template dashboard:', error);
     return NextResponse.json(
@@ -205,5 +227,3 @@ export async function GET(request: NextRequest) {
     await prisma.$disconnect();
   }
 }
-
-
