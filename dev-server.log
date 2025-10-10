@@ -1,0 +1,853 @@
+
+> bloomwell-ai@0.1.0 dev
+> next dev
+
+   ▲ Next.js 15.5.2
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.1.116:3000
+   - Environments: .env.local, .env
+
+ ✓ Starting...
+ ✓ Ready in 5s
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 879ms (114 modules)
+ ○ Compiling /api/admin/maintenance ...
+ ✓ Compiled /api/admin/maintenance in 6.9s (532 modules)
+📡 GET maintenance status request
+   Environment param: null
+   Fetching ALL environments for admin dashboard
+✅ All maintenance modes fetched: 2 records
+ GET /api/admin/maintenance 200 in 9056ms
+ ✓ Compiled in 471ms (104 modules)
+ ✓ Compiled in 25ms
+ ○ Compiling /admin/login ...
+ ✓ Compiled /admin/login in 7.1s (738 modules)
+ GET /admin/login 200 in 8241ms
+ ○ Compiling /admin/maintenance ...
+ ✓ Compiled /admin/maintenance in 2.6s (733 modules)
+ GET /admin/login 200 in 2863ms
+ ○ Compiling /favicon.ico ...
+ ✓ Compiled /favicon.ico in 2.6s (757 modules)
+ GET /favicon.ico 200 in 2563ms
+ GET /admin 200 in 4438ms
+ GET /favicon.ico 200 in 170ms
+ ○ Compiling /api/auth/[...nextauth] ...
+ ✓ Compiled /api/auth/[...nextauth] in 1748ms (994 modules)
+ GET /admin/login 200 in 2316ms
+ GET /favicon.ico 200 in 229ms
+ GET /api/auth/session 200 in 3957ms
+ ○ Compiling /api/admin/auth ...
+ ✓ Compiled /api/admin/auth in 919ms (1072 modules)
+ POST /api/admin/auth 200 in 1488ms
+ GET /admin 200 in 664ms
+ GET /favicon.ico 200 in 292ms
+ ○ Compiling /api/admin/user-stats ...
+ ✓ Compiled /api/admin/user-stats in 1378ms (1079 modules)
+ GET /api/admin/stats 200 in 1660ms
+prisma:error 
+Invalid `prisma.user.count()` invocation:
+
+{
+  select: {
+    _count: {
+      select: {
+        _all: true
+      }
+    }
+  },
+  where: {
+    accounts: {
+    ~~~~~~~~
+      some: {}
+    },
+?   AND?: UserWhereInput | UserWhereInput[],
+?   OR?: UserWhereInput[],
+?   NOT?: UserWhereInput | UserWhereInput[],
+?   id?: StringFilter | String,
+?   email?: StringFilter | String,
+?   password?: StringNullableFilter | String | Null,
+?   name?: StringNullableFilter | String | Null,
+?   image?: StringNullableFilter | String | Null,
+?   organizationId?: StringNullableFilter | String | Null,
+?   createdAt?: DateTimeFilter | DateTime,
+?   updatedAt?: DateTimeFilter | DateTime,
+?   trialStartDate?: DateTimeNullableFilter | DateTime | Null,
+?   trialEndDate?: DateTimeNullableFilter | DateTime | Null,
+?   subscriptionStatus?: StringFilter | String,
+?   subscriptionType?: StringNullableFilter | String | Null,
+?   lastActiveDate?: DateTimeNullableFilter | DateTime | Null,
+?   Account?: AccountListRelationFilter,
+?   Conversation?: ConversationListRelationFilter,
+?   Session?: SessionListRelationFilter,
+?   Organization?: OrganizationNullableScalarRelationFilter | OrganizationWhereInput | Null,
+?   UserNotification?: UserNotificationListRelationFilter,
+?   WebinarRSVP?: WebinarRSVPListRelationFilter,
+?   pdf_processings?: Pdf_processingsListRelationFilter,
+?   user_projects?: User_projectsListRelationFilter,
+?   web_search_logs?: Web_search_logsListRelationFilter
+  }
+}
+
+Unknown argument `accounts`. Did you mean `Account`? Available options are marked with ?.
+User stats API error: Error [PrismaClientValidationError]: 
+Invalid `prisma.user.count()` invocation:
+
+{
+  select: {
+    _count: {
+      select: {
+        _all: true
+      }
+    }
+  },
+  where: {
+    accounts: {
+    ~~~~~~~~
+      some: {}
+    },
+?   AND?: UserWhereInput | UserWhereInput[],
+?   OR?: UserWhereInput[],
+?   NOT?: UserWhereInput | UserWhereInput[],
+?   id?: StringFilter | String,
+?   email?: StringFilter | String,
+?   password?: StringNullableFilter | String | Null,
+?   name?: StringNullableFilter | String | Null,
+?   image?: StringNullableFilter | String | Null,
+?   organizationId?: StringNullableFilter | String | Null,
+?   createdAt?: DateTimeFilter | DateTime,
+?   updatedAt?: DateTimeFilter | DateTime,
+?   trialStartDate?: DateTimeNullableFilter | DateTime | Null,
+?   trialEndDate?: DateTimeNullableFilter | DateTime | Null,
+?   subscriptionStatus?: StringFilter | String,
+?   subscriptionType?: StringNullableFilter | String | Null,
+?   lastActiveDate?: DateTimeNullableFilter | DateTime | Null,
+?   Account?: AccountListRelationFilter,
+?   Conversation?: ConversationListRelationFilter,
+?   Session?: SessionListRelationFilter,
+?   Organization?: OrganizationNullableScalarRelationFilter | OrganizationWhereInput | Null,
+?   UserNotification?: UserNotificationListRelationFilter,
+?   WebinarRSVP?: WebinarRSVPListRelationFilter,
+?   pdf_processings?: Pdf_processingsListRelationFilter,
+?   user_projects?: User_projectsListRelationFilter,
+?   web_search_logs?: Web_search_logsListRelationFilter
+  }
+}
+
+Unknown argument `accounts`. Did you mean `Account`? Available options are marked with ?.
+    at async GET (src/app/api/admin/user-stats/route.ts:21:9)
+  19 |       recentUsers,
+  20 |       activeUsers,
+> 21 |     ] = await Promise.all([
+     |         ^
+  22 |       // Total users
+  23 |       prisma.user.count(),
+  24 | {
+  clientVersion: '6.15.0'
+}
+prisma:error 
+Invalid `prisma.user.count()` invocation:
+
+{
+  select: {
+    _count: {
+      select: {
+        _all: true
+      }
+    }
+  },
+  where: {
+    accounts: {
+    ~~~~~~~~
+      none: {}
+    },
+?   AND?: UserWhereInput | UserWhereInput[],
+?   OR?: UserWhereInput[],
+?   NOT?: UserWhereInput | UserWhereInput[],
+?   id?: StringFilter | String,
+?   email?: StringFilter | String,
+?   password?: StringNullableFilter | String | Null,
+?   name?: StringNullableFilter | String | Null,
+?   image?: StringNullableFilter | String | Null,
+?   organizationId?: StringNullableFilter | String | Null,
+?   createdAt?: DateTimeFilter | DateTime,
+?   updatedAt?: DateTimeFilter | DateTime,
+?   trialStartDate?: DateTimeNullableFilter | DateTime | Null,
+?   trialEndDate?: DateTimeNullableFilter | DateTime | Null,
+?   subscriptionStatus?: StringFilter | String,
+?   subscriptionType?: StringNullableFilter | String | Null,
+?   lastActiveDate?: DateTimeNullableFilter | DateTime | Null,
+?   Account?: AccountListRelationFilter,
+?   Conversation?: ConversationListRelationFilter,
+?   Session?: SessionListRelationFilter,
+?   Organization?: OrganizationNullableScalarRelationFilter | OrganizationWhereInput | Null,
+?   UserNotification?: UserNotificationListRelationFilter,
+?   WebinarRSVP?: WebinarRSVPListRelationFilter,
+?   pdf_processings?: Pdf_processingsListRelationFilter,
+?   user_projects?: User_projectsListRelationFilter,
+?   web_search_logs?: Web_search_logsListRelationFilter
+  }
+}
+
+Unknown argument `accounts`. Did you mean `Account`? Available options are marked with ?.
+prisma:error 
+Invalid `prisma.user.count()` invocation:
+
+{
+  select: {
+    _count: {
+      select: {
+        _all: true
+      }
+    }
+  },
+  where: {
+    OR: [
+      {
+        conversations: {
+          some: {
+            createdAt: {
+              gte: new Date("2025-09-10T00:34:41.523Z")
+            }
+          }
+        }
+      },
+      {
+        rsvps: {
+          some: {
+            rsvpDate: {
+              gte: new Date("2025-09-10T00:34:41.523Z")
+            }
+          }
+        }
+      }
+    ]
+  }
+}
+
+Unknown argument `conversations`. Did you mean `Conversation`? Available options are marked with ?.
+prisma:error 
+Invalid `prisma.webinar.findMany()` invocation:
+
+{
+  include: {
+    _count: {
+      select: {
+        rsvps: true,
+        ~~~~~
+?       UserNotification?: true,
+?       WebinarNotification?: true,
+?       WebinarRSVP?: true
+      }
+    }
+  },
+  orderBy: {
+    createdAt: "desc"
+  }
+}
+
+Unknown field `rsvps` for select statement on model `WebinarCountOutputType`. Available options are marked with ?.
+Error fetching webinars: Error [PrismaClientValidationError]: 
+Invalid `prisma.webinar.findMany()` invocation:
+
+{
+  include: {
+    _count: {
+      select: {
+        rsvps: true,
+        ~~~~~
+?       UserNotification?: true,
+?       WebinarNotification?: true,
+?       WebinarRSVP?: true
+      }
+    }
+  },
+  orderBy: {
+    createdAt: "desc"
+  }
+}
+
+Unknown field `rsvps` for select statement on model `WebinarCountOutputType`. Available options are marked with ?.
+    at async GET (src/app/api/admin/webinars/route.ts:16:22)
+  14 |     }
+  15 |
+> 16 |     const webinars = await prisma.webinar.findMany({
+     |                      ^
+  17 |       include: {
+  18 |         _count: {
+  19 |           select: { {
+  clientVersion: '6.15.0'
+}
+ GET /api/admin/webinars 500 in 2397ms
+ GET /api/admin/user-stats 500 in 2404ms
+ GET /api/admin/stats 200 in 123ms
+prisma:error 
+Invalid `prisma.webinar.findMany()` invocation:
+
+{
+  include: {
+    _count: {
+      select: {
+        rsvps: true,
+        ~~~~~
+?       UserNotification?: true,
+?       WebinarNotification?: true,
+?       WebinarRSVP?: true
+      }
+    }
+  },
+  orderBy: {
+    createdAt: "desc"
+  }
+}
+
+Unknown field `rsvps` for select statement on model `WebinarCountOutputType`. Available options are marked with ?.
+Error fetching webinars: Error [PrismaClientValidationError]: 
+Invalid `prisma.webinar.findMany()` invocation:
+
+{
+  include: {
+    _count: {
+      select: {
+        rsvps: true,
+        ~~~~~
+?       UserNotification?: true,
+?       WebinarNotification?: true,
+?       WebinarRSVP?: true
+      }
+    }
+  },
+  orderBy: {
+    createdAt: "desc"
+  }
+}
+
+Unknown field `rsvps` for select statement on model `WebinarCountOutputType`. Available options are marked with ?.
+    at async GET (src/app/api/admin/webinars/route.ts:16:22)
+  14 |     }
+  15 |
+> 16 |     const webinars = await prisma.webinar.findMany({
+     |                      ^
+  17 |       include: {
+  18 |         _count: {
+  19 |           select: { {
+  clientVersion: '6.15.0'
+}
+ GET /api/admin/webinars 500 in 392ms
+prisma:error 
+Invalid `prisma.user.count()` invocation:
+
+{
+  select: {
+    _count: {
+      select: {
+        _all: true
+      }
+    }
+  },
+  where: {
+    accounts: {
+    ~~~~~~~~
+      some: {}
+    },
+?   AND?: UserWhereInput | UserWhereInput[],
+?   OR?: UserWhereInput[],
+?   NOT?: UserWhereInput | UserWhereInput[],
+?   id?: StringFilter | String,
+?   email?: StringFilter | String,
+?   password?: StringNullableFilter | String | Null,
+?   name?: StringNullableFilter | String | Null,
+?   image?: StringNullableFilter | String | Null,
+?   organizationId?: StringNullableFilter | String | Null,
+?   createdAt?: DateTimeFilter | DateTime,
+?   updatedAt?: DateTimeFilter | DateTime,
+?   trialStartDate?: DateTimeNullableFilter | DateTime | Null,
+?   trialEndDate?: DateTimeNullableFilter | DateTime | Null,
+?   subscriptionStatus?: StringFilter | String,
+?   subscriptionType?: StringNullableFilter | String | Null,
+?   lastActiveDate?: DateTimeNullableFilter | DateTime | Null,
+?   Account?: AccountListRelationFilter,
+?   Conversation?: ConversationListRelationFilter,
+?   Session?: SessionListRelationFilter,
+?   Organization?: OrganizationNullableScalarRelationFilter | OrganizationWhereInput | Null,
+?   UserNotification?: UserNotificationListRelationFilter,
+?   WebinarRSVP?: WebinarRSVPListRelationFilter,
+?   pdf_processings?: Pdf_processingsListRelationFilter,
+?   user_projects?: User_projectsListRelationFilter,
+?   web_search_logs?: Web_search_logsListRelationFilter
+  }
+}
+
+Unknown argument `accounts`. Did you mean `Account`? Available options are marked with ?.
+User stats API error: Error [PrismaClientValidationError]: 
+Invalid `prisma.user.count()` invocation:
+
+{
+  select: {
+    _count: {
+      select: {
+        _all: true
+      }
+    }
+  },
+  where: {
+    accounts: {
+    ~~~~~~~~
+      some: {}
+    },
+?   AND?: UserWhereInput | UserWhereInput[],
+?   OR?: UserWhereInput[],
+?   NOT?: UserWhereInput | UserWhereInput[],
+?   id?: StringFilter | String,
+?   email?: StringFilter | String,
+?   password?: StringNullableFilter | String | Null,
+?   name?: StringNullableFilter | String | Null,
+?   image?: StringNullableFilter | String | Null,
+?   organizationId?: StringNullableFilter | String | Null,
+?   createdAt?: DateTimeFilter | DateTime,
+?   updatedAt?: DateTimeFilter | DateTime,
+?   trialStartDate?: DateTimeNullableFilter | DateTime | Null,
+?   trialEndDate?: DateTimeNullableFilter | DateTime | Null,
+?   subscriptionStatus?: StringFilter | String,
+?   subscriptionType?: StringNullableFilter | String | Null,
+?   lastActiveDate?: DateTimeNullableFilter | DateTime | Null,
+?   Account?: AccountListRelationFilter,
+?   Conversation?: ConversationListRelationFilter,
+?   Session?: SessionListRelationFilter,
+?   Organization?: OrganizationNullableScalarRelationFilter | OrganizationWhereInput | Null,
+?   UserNotification?: UserNotificationListRelationFilter,
+?   WebinarRSVP?: WebinarRSVPListRelationFilter,
+?   pdf_processings?: Pdf_processingsListRelationFilter,
+?   user_projects?: User_projectsListRelationFilter,
+?   web_search_logs?: Web_search_logsListRelationFilter
+  }
+}
+
+Unknown argument `accounts`. Did you mean `Account`? Available options are marked with ?.
+    at async GET (src/app/api/admin/user-stats/route.ts:21:9)
+  19 |       recentUsers,
+  20 |       activeUsers,
+> 21 |     ] = await Promise.all([
+     |         ^
+  22 |       // Total users
+  23 |       prisma.user.count(),
+  24 | {
+  clientVersion: '6.15.0'
+}
+prisma:error 
+Invalid `prisma.user.count()` invocation:
+
+{
+  select: {
+    _count: {
+      select: {
+        _all: true
+      }
+    }
+  },
+  where: {
+    accounts: {
+    ~~~~~~~~
+      none: {}
+    },
+?   AND?: UserWhereInput | UserWhereInput[],
+?   OR?: UserWhereInput[],
+?   NOT?: UserWhereInput | UserWhereInput[],
+?   id?: StringFilter | String,
+?   email?: StringFilter | String,
+?   password?: StringNullableFilter | String | Null,
+?   name?: StringNullableFilter | String | Null,
+?   image?: StringNullableFilter | String | Null,
+?   organizationId?: StringNullableFilter | String | Null,
+?   createdAt?: DateTimeFilter | DateTime,
+?   updatedAt?: DateTimeFilter | DateTime,
+?   trialStartDate?: DateTimeNullableFilter | DateTime | Null,
+?   trialEndDate?: DateTimeNullableFilter | DateTime | Null,
+?   subscriptionStatus?: StringFilter | String,
+?   subscriptionType?: StringNullableFilter | String | Null,
+?   lastActiveDate?: DateTimeNullableFilter | DateTime | Null,
+?   Account?: AccountListRelationFilter,
+?   Conversation?: ConversationListRelationFilter,
+?   Session?: SessionListRelationFilter,
+?   Organization?: OrganizationNullableScalarRelationFilter | OrganizationWhereInput | Null,
+?   UserNotification?: UserNotificationListRelationFilter,
+?   WebinarRSVP?: WebinarRSVPListRelationFilter,
+?   pdf_processings?: Pdf_processingsListRelationFilter,
+?   user_projects?: User_projectsListRelationFilter,
+?   web_search_logs?: Web_search_logsListRelationFilter
+  }
+}
+
+Unknown argument `accounts`. Did you mean `Account`? Available options are marked with ?.
+prisma:error 
+Invalid `prisma.user.count()` invocation:
+
+{
+  select: {
+    _count: {
+      select: {
+        _all: true
+      }
+    }
+  },
+  where: {
+    OR: [
+      {
+        conversations: {
+          some: {
+            createdAt: {
+              gte: new Date("2025-09-10T00:34:42.446Z")
+            }
+          }
+        }
+      },
+      {
+        rsvps: {
+          some: {
+            rsvpDate: {
+              gte: new Date("2025-09-10T00:34:42.446Z")
+            }
+          }
+        }
+      }
+    ]
+  }
+}
+
+Unknown argument `conversations`. Did you mean `Conversation`? Available options are marked with ?.
+ GET /api/admin/user-stats 500 in 560ms
+ GET /admin/maintenance 200 in 141ms
+ GET /favicon.ico 200 in 119ms
+ ○ Compiling /api/admin/maintenance ...
+ ✓ Compiled /api/admin/maintenance in 920ms (794 modules)
+📡 GET maintenance status request
+   Environment param: null
+   Fetching ALL environments for admin dashboard
+✅ All maintenance modes fetched: 2 records
+ GET /api/admin/maintenance 200 in 1089ms
+📡 GET maintenance status request
+   Environment param: null
+   Fetching ALL environments for admin dashboard
+✅ All maintenance modes fetched: 2 records
+ GET /api/admin/maintenance 200 in 358ms
+ GET /admin/maintenance 200 in 447ms
+📡 POST maintenance mode update request received
+👤 Admin user: admin
+🔐 Admin authenticated: {
+  id: 'cmg0fzsrq000040otuwpcoi6e',
+  username: 'admin',
+  role: 'super_admin'
+}
+📦 Request body: { environment: 'staging', isEnabled: true, message: 'test message' }
+🔧 Admin admin attempting to ENABLE maintenance mode for staging
+✅ Maintenance mode ENABLED for staging: {
+  id: 'cmgk36lgt000140m87e2zng2g',
+  environment: 'staging',
+  isEnabled: true,
+  message: 'test message',
+  enabledAt: 2025-10-10T00:34:55.103Z,
+  enabledBy: 'cmg0fzsrq000040otuwpcoi6e',
+  updatedAt: 2025-10-10T00:34:55.103Z
+}
+ POST /api/admin/maintenance 200 in 51ms
+📡 GET maintenance status request
+   Environment param: null
+   Fetching ALL environments for admin dashboard
+✅ All maintenance modes fetched: 2 records
+ GET /api/admin/maintenance 200 in 50ms
+ ○ Compiling /api/maintenance/status ...
+ ✓ Compiled /api/maintenance/status in 1801ms (842 modules)
+ GET /api/maintenance/status 200 in 2355ms
+ ○ Compiling /maintenance ...
+ ✓ Compiled /maintenance in 1421ms (849 modules)
+ GET /maintenance?from=%2F 200 in 2026ms
+ ✓ Compiled /favicon.ico in 286ms (562 modules)
+ GET /favicon.ico 200 in 495ms
+ GET /api/maintenance/status 200 in 77ms
+ ○ Compiling /api/auth/[...nextauth] ...
+ ✓ Compiled /api/auth/[...nextauth] in 704ms (793 modules)
+ GET /api/auth/session 200 in 1141ms
+ GET /api/auth/session 200 in 68ms
+ GET /api/maintenance/status 200 in 69ms
+ GET /api/maintenance/status 200 in 39ms
+ GET /api/maintenance/status 200 in 38ms
+ GET /api/maintenance/status 200 in 42ms
+ GET /api/maintenance/status 200 in 39ms
+ GET /api/maintenance/status 200 in 36ms
+ GET /api/maintenance/status 200 in 35ms
+ GET /api/maintenance/status 200 in 43ms
+ GET /api/maintenance/status 200 in 58ms
+ GET /api/maintenance/status 200 in 56ms
+ GET /api/maintenance/status 200 in 48ms
+ GET /api/maintenance/status 200 in 38ms
+ GET /api/maintenance/status 200 in 38ms
+ GET /api/maintenance/status 200 in 66ms
+ GET /api/maintenance/status 200 in 39ms
+ GET /api/maintenance/status 200 in 30ms
+ GET /api/maintenance/status 200 in 32ms
+ GET /api/maintenance/status 200 in 39ms
+ GET /api/maintenance/status 200 in 36ms
+ GET /api/maintenance/status 200 in 40ms
+ GET /api/maintenance/status 200 in 58ms
+ GET /api/maintenance/status 200 in 76ms
+ GET /api/maintenance/status 200 in 52ms
+ GET /api/maintenance/status 200 in 76ms
+ GET /api/maintenance/status 200 in 36ms
+ GET /api/maintenance/status 200 in 86ms
+ GET /api/maintenance/status 200 in 39ms
+ GET /api/maintenance/status 200 in 58ms
+ GET /api/maintenance/status 200 in 36ms
+ GET /api/maintenance/status 200 in 44ms
+ GET /api/maintenance/status 200 in 38ms
+ GET /api/maintenance/status 200 in 45ms
+ GET /api/maintenance/status 200 in 38ms
+ GET /api/maintenance/status 200 in 33ms
+ GET /api/maintenance/status 200 in 31ms
+ GET /api/maintenance/status 200 in 33ms
+ GET /api/maintenance/status 200 in 30ms
+ GET /api/maintenance/status 200 in 32ms
+ GET /api/maintenance/status 200 in 44ms
+ GET /api/maintenance/status 200 in 36ms
+ GET /api/maintenance/status 200 in 38ms
+ GET /api/maintenance/status 200 in 38ms
+ GET /api/maintenance/status 200 in 43ms
+ GET /api/maintenance/status 200 in 175ms
+ GET /api/maintenance/status 200 in 61ms
+ GET /api/maintenance/status 200 in 49ms
+ GET /api/maintenance/status 200 in 39ms
+ GET /api/maintenance/status 200 in 45ms
+ GET /api/maintenance/status 200 in 43ms
+ GET /api/maintenance/status 200 in 40ms
+ GET /api/maintenance/status 200 in 36ms
+ GET /api/maintenance/status 200 in 39ms
+ GET /api/maintenance/status 200 in 41ms
+ GET /api/maintenance/status 200 in 40ms
+ GET /api/maintenance/status 200 in 51ms
+ GET /api/maintenance/status 200 in 34ms
+ GET /api/maintenance/status 200 in 37ms
+ GET /api/maintenance/status 200 in 35ms
+ GET /api/maintenance/status 200 in 35ms
+ GET /api/maintenance/status 200 in 45ms
+ GET /api/maintenance/status 200 in 39ms
+ GET /api/maintenance/status 200 in 35ms
+ GET /api/maintenance/status 200 in 37ms
+ GET /api/maintenance/status 200 in 38ms
+ GET /api/maintenance/status 200 in 37ms
+ GET /api/maintenance/status 200 in 37ms
+ GET /api/maintenance/status 200 in 39ms
+ GET /api/maintenance/status 200 in 41ms
+ GET /api/maintenance/status 200 in 37ms
+ GET /api/maintenance/status 200 in 42ms
+ GET /api/maintenance/status 200 in 39ms
+ GET /api/maintenance/status 200 in 46ms
+ GET /api/maintenance/status 200 in 43ms
+ GET /api/maintenance/status 200 in 40ms
+ GET /api/maintenance/status 200 in 37ms
+ GET /api/maintenance/status 200 in 37ms
+ GET /api/maintenance/status 200 in 38ms
+ GET /api/maintenance/status 200 in 32ms
+ GET /api/maintenance/status 200 in 36ms
+ GET /api/maintenance/status 200 in 37ms
+ GET /api/maintenance/status 200 in 40ms
+ GET /api/maintenance/status 200 in 36ms
+ GET /api/maintenance/status 200 in 40ms
+ GET /api/maintenance/status 200 in 35ms
+ GET /api/maintenance/status 200 in 35ms
+ GET /api/maintenance/status 200 in 43ms
+ GET /api/maintenance/status 200 in 45ms
+ GET /api/maintenance/status 200 in 44ms
+ GET /api/maintenance/status 200 in 33ms
+ GET /api/maintenance/status 200 in 36ms
+ GET /api/maintenance/status 200 in 39ms
+ GET /api/maintenance/status 200 in 40ms
+ GET /api/maintenance/status 200 in 35ms
+ GET /api/maintenance/status 200 in 40ms
+ GET /api/maintenance/status 200 in 35ms
+ GET /api/maintenance/status 200 in 31ms
+ GET /api/maintenance/status 200 in 34ms
+ GET /api/maintenance/status 200 in 34ms
+ GET /api/maintenance/status 200 in 41ms
+ GET /api/maintenance/status 200 in 31ms
+ GET /api/maintenance/status 200 in 33ms
+ GET /api/maintenance/status 200 in 32ms
+ GET /api/maintenance/status 200 in 31ms
+ GET /api/maintenance/status 200 in 32ms
+ GET /api/maintenance/status 200 in 32ms
+ GET /api/maintenance/status 200 in 30ms
+ GET /api/maintenance/status 200 in 36ms
+ GET /api/maintenance/status 200 in 33ms
+ GET /api/maintenance/status 200 in 32ms
+ GET /api/maintenance/status 200 in 31ms
+ GET /api/maintenance/status 200 in 32ms
+ GET /api/maintenance/status 200 in 32ms
+ GET /api/maintenance/status 200 in 31ms
+ GET /api/maintenance/status 200 in 29ms
+ GET /api/maintenance/status 200 in 32ms
+ GET /api/maintenance/status 200 in 32ms
+ GET /api/maintenance/status 200 in 30ms
+ GET /api/maintenance/status 200 in 30ms
+ GET /api/maintenance/status 200 in 28ms
+ GET /api/maintenance/status 200 in 31ms
+ GET /api/maintenance/status 200 in 31ms
+ GET /api/maintenance/status 200 in 32ms
+ GET /api/maintenance/status 200 in 33ms
+ GET /api/maintenance/status 200 in 32ms
+ GET /api/maintenance/status 200 in 32ms
+ GET /api/maintenance/status 200 in 31ms
+ GET /api/maintenance/status 200 in 30ms
+ GET /api/maintenance/status 200 in 34ms
+ GET /api/maintenance/status 200 in 46ms
+ GET /api/maintenance/status 200 in 40ms
+ GET /api/maintenance/status 200 in 33ms
+ GET /api/maintenance/status 200 in 48ms
+ GET /api/maintenance/status 200 in 42ms
+ GET /api/maintenance/status 200 in 50ms
+ GET /api/maintenance/status 200 in 32ms
+ GET /api/maintenance/status 200 in 32ms
+ GET /api/maintenance/status 200 in 33ms
+ GET /api/maintenance/status 200 in 32ms
+ GET /api/maintenance/status 200 in 42ms
+ GET /api/maintenance/status 200 in 34ms
+ GET /api/maintenance/status 200 in 40ms
+ GET /api/maintenance/status 200 in 37ms
+ GET /api/maintenance/status 200 in 42ms
+ GET /api/maintenance/status 200 in 44ms
+ GET /api/maintenance/status 200 in 31ms
+ GET /api/maintenance/status 200 in 33ms
+ GET /api/maintenance/status 200 in 33ms
+ GET /api/maintenance/status 200 in 32ms
+ GET /api/maintenance/status 200 in 46ms
+ GET /api/maintenance/status 200 in 33ms
+ GET /api/maintenance/status 200 in 36ms
+ GET /api/maintenance/status 200 in 38ms
+ GET /api/maintenance/status 200 in 39ms
+ GET /api/maintenance/status 200 in 32ms
+ GET /api/maintenance/status 200 in 32ms
+ GET /api/maintenance/status 200 in 32ms
+ GET /api/maintenance/status 200 in 31ms
+ GET /api/maintenance/status 200 in 32ms
+ GET /api/maintenance/status 200 in 30ms
+ GET /api/maintenance/status 200 in 38ms
+ GET /api/maintenance/status 200 in 36ms
+ GET /api/maintenance/status 200 in 37ms
+ GET /api/maintenance/status 200 in 38ms
+ GET /api/maintenance/status 200 in 39ms
+ GET /api/maintenance/status 200 in 31ms
+ GET /api/maintenance/status 200 in 32ms
+ GET /api/maintenance/status 200 in 34ms
+ GET /api/maintenance/status 200 in 33ms
+ GET /api/maintenance/status 200 in 32ms
+ GET /api/maintenance/status 200 in 40ms
+ GET /api/maintenance/status 200 in 39ms
+ GET /api/maintenance/status 200 in 35ms
+ GET /api/maintenance/status 200 in 37ms
+ GET /api/maintenance/status 200 in 34ms
+ GET /api/maintenance/status 200 in 33ms
+ GET /api/maintenance/status 200 in 33ms
+ GET /api/maintenance/status 200 in 31ms
+ GET /api/maintenance/status 200 in 41ms
+ GET /api/maintenance/status 200 in 38ms
+ GET /api/maintenance/status 200 in 35ms
+ GET /api/maintenance/status 200 in 35ms
+ GET /api/maintenance/status 200 in 35ms
+ GET /api/maintenance/status 200 in 32ms
+ GET /api/maintenance/status 200 in 32ms
+ GET /api/maintenance/status 200 in 32ms
+ GET /api/maintenance/status 200 in 31ms
+ GET /api/maintenance/status 200 in 33ms
+ GET /api/maintenance/status 200 in 32ms
+ GET /api/maintenance/status 200 in 33ms
+ GET /api/maintenance/status 200 in 32ms
+ GET /api/maintenance/status 200 in 41ms
+ GET /api/maintenance/status 200 in 126ms
+ GET /api/maintenance/status 200 in 34ms
+ GET /api/maintenance/status 200 in 39ms
+ GET /api/maintenance/status 200 in 37ms
+ GET /api/maintenance/status 200 in 30ms
+ GET /api/maintenance/status 200 in 32ms
+ GET /api/maintenance/status 200 in 32ms
+ GET /api/maintenance/status 200 in 34ms
+ GET /api/maintenance/status 200 in 63ms
+ GET /api/maintenance/status 200 in 115ms
+ GET /api/maintenance/status 200 in 51ms
+ GET /api/maintenance/status 200 in 48ms
+ GET /api/maintenance/status 200 in 49ms
+ GET /api/maintenance/status 200 in 42ms
+ GET /api/maintenance/status 200 in 151ms
+ GET /api/maintenance/status 200 in 58ms
+ GET /api/maintenance/status 200 in 81ms
+ GET /api/maintenance/status 200 in 70ms
+ GET /api/maintenance/status 200 in 170ms
+ GET /api/maintenance/status 200 in 45ms
+ GET /api/maintenance/status 200 in 57ms
+ GET /api/maintenance/status 200 in 337ms
+ GET /api/maintenance/status 200 in 76ms
+ GET /api/maintenance/status 200 in 61ms
+ GET /api/maintenance/status 200 in 54ms
+ GET /api/maintenance/status 200 in 43ms
+ GET /api/maintenance/status 200 in 57ms
+ GET /api/maintenance/status 200 in 42ms
+ GET /api/maintenance/status 200 in 42ms
+ GET /api/maintenance/status 200 in 55ms
+ GET /api/maintenance/status 200 in 235ms
+ GET /api/maintenance/status 200 in 90ms
+ GET /api/maintenance/status 200 in 211ms
+ GET /api/maintenance/status 200 in 66ms
+ GET /api/maintenance/status 200 in 42ms
+ GET /api/maintenance/status 200 in 46ms
+ GET /api/maintenance/status 200 in 53ms
+ GET /api/maintenance/status 200 in 37ms
+ GET /api/maintenance/status 200 in 54ms
+ GET /api/maintenance/status 200 in 67ms
+ GET /api/maintenance/status 200 in 64ms
+ GET /api/maintenance/status 200 in 109ms
+ GET /api/maintenance/status 200 in 54ms
+ GET /api/maintenance/status 200 in 474ms
+ GET /api/maintenance/status 200 in 58ms
+ GET /api/maintenance/status 200 in 62ms
+ GET /api/maintenance/status 200 in 133ms
+ GET /api/maintenance/status 200 in 49ms
+ GET /api/maintenance/status 200 in 45ms
+ GET /api/maintenance/status 200 in 43ms
+ GET /api/maintenance/status 200 in 116ms
+ GET /api/maintenance/status 200 in 63ms
+ GET /api/maintenance/status 200 in 50ms
+ GET /api/maintenance/status 200 in 44ms
+ GET /api/maintenance/status 200 in 71ms
+ GET /api/maintenance/status 200 in 54ms
+ GET /api/maintenance/status 200 in 39ms
+ GET /api/maintenance/status 200 in 97ms
+ GET /api/maintenance/status 200 in 50ms
+ GET /api/maintenance/status 200 in 43ms
+ GET /api/maintenance/status 200 in 72ms
+ GET /api/maintenance/status 200 in 56ms
+ GET /api/maintenance/status 200 in 39ms
+ GET /api/maintenance/status 200 in 85ms
+ GET /api/maintenance/status 200 in 46ms
+ GET /api/maintenance/status 200 in 1023ms
+ GET /api/maintenance/status 200 in 41ms
+ GET /api/maintenance/status 200 in 71ms
+ GET /api/maintenance/status 200 in 42ms
+ GET /api/maintenance/status 200 in 94ms
+ GET /api/maintenance/status 200 in 47ms
+ GET /api/maintenance/status 200 in 40ms
+ GET /api/maintenance/status 200 in 111ms
+ GET /api/maintenance/status 200 in 41ms
+ GET /api/maintenance/status 200 in 44ms
+ GET /api/maintenance/status 200 in 56ms
+ GET /api/maintenance/status 200 in 107ms
+ GET /api/maintenance/status 200 in 65ms
+ GET /api/maintenance/status 200 in 128ms
+ GET /api/maintenance/status 200 in 51ms
+ GET /api/maintenance/status 200 in 72ms
+ GET /api/maintenance/status 200 in 86ms
+ GET /api/maintenance/status 200 in 54ms
+ ✓ Compiled in 35.5s (896 modules)
+ GET /api/maintenance/status 200 in 16447ms
+ GET /maintenance?from=%2F 200 in 762ms
+ GET /admin/maintenance 200 in 1097ms
+ GET /api/maintenance/status 200 in 72ms
+ GET /api/maintenance/status 200 in 50ms
+ ✓ Compiled in 7.2s (782 modules)
+ GET /maintenance?from=%2F 200 in 842ms
+ GET /admin/maintenance 200 in 987ms
+ GET /api/maintenance/status 200 in 81ms

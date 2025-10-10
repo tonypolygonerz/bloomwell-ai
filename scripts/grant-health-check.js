@@ -13,10 +13,7 @@ async function healthCheck() {
     });
     const expired = await prisma.grant.count({
       where: {
-        AND: [
-          { closeDate: { not: null } },
-          { closeDate: { lt: new Date() } },
-        ],
+        AND: [{ closeDate: { not: null } }, { closeDate: { lt: new Date() } }],
       },
     });
     const noCloseDate = await prisma.grant.count({
@@ -97,4 +94,3 @@ async function healthCheck() {
 }
 
 healthCheck();
-

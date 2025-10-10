@@ -144,8 +144,8 @@ export default function Home() {
               <p className='text-gray-600 mb-6 leading-relaxed'>
                 Curated database of active federal grants, updated weekly from
                 grants.gov. AI-powered matching finds perfect funding
-                opportunities for your organization&apos;s mission - all actively
-                accepting applications.
+                opportunities for your organization&apos;s mission - all
+                actively accepting applications.
               </p>
               <Link
                 href='/chat?prompt=find-grants'

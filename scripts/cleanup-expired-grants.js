@@ -22,7 +22,9 @@ async function cleanupExpiredGrants() {
 
     // Delete expired grants
     console.log('🔄 Deleting expired grants...');
-    console.log(`   Removing grants with closeDate < ${new Date().toISOString()}`);
+    console.log(
+      `   Removing grants with closeDate < ${new Date().toISOString()}`
+    );
     console.log('');
 
     const deleteResult = await prisma.grant.deleteMany({
@@ -34,7 +36,9 @@ async function cleanupExpiredGrants() {
       },
     });
 
-    console.log(`✅ Deleted ${deleteResult.count.toLocaleString()} expired grants`);
+    console.log(
+      `✅ Deleted ${deleteResult.count.toLocaleString()} expired grants`
+    );
     console.log('');
 
     // Get counts after cleanup
@@ -46,7 +50,9 @@ async function cleanupExpiredGrants() {
     console.log('📊 AFTER CLEANUP:');
     console.log(`   Total grants: ${afterTotal.toLocaleString()}`);
     console.log(`   Active grants: ${afterActive.toLocaleString()}`);
-    console.log(`   Space saved: ${deleteResult.count.toLocaleString()} records`);
+    console.log(
+      `   Space saved: ${deleteResult.count.toLocaleString()} records`
+    );
     console.log('');
     console.log('═══════════════════════════════════════════════');
     console.log('✅ CLEANUP COMPLETE!');
@@ -68,4 +74,3 @@ async function cleanupExpiredGrants() {
 }
 
 cleanupExpiredGrants();
-
