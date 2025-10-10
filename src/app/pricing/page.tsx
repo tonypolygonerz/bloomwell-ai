@@ -19,7 +19,7 @@ export default function PricingPage() {
   return (
     <div className='min-h-screen bg-gray-50'>
       {/* Hero Section */}
-      <section className='relative py-12 bg-gradient-to-br from-gray-50 to-white overflow-hidden'>
+      <section className='relative pt-12 pb-6 bg-gradient-to-br from-gray-50 to-white overflow-hidden'>
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-5"></div>
         <div className='max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10'>
           <h1 className='text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight'>
@@ -40,7 +40,7 @@ export default function PricingPage() {
       </section>
 
       {/* Main Pricing Card */}
-      <section className='py-8 bg-white'>
+      <section className='pt-6 pb-8 bg-white'>
         <div className='max-w-4xl mx-auto px-4 sm:px-6 lg:px-8'>
           <PricingCard />
         </div>

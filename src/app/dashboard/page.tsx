@@ -20,7 +20,7 @@ export default async function Dashboard() {
   // Check if user has an organization
   const user = await prisma.user.findUnique({
     where: { email: session.user?.email || '' },
-    include: { organization: true },
+    include: { Organization: true },
   });
 
   if (!user?.organizationId) {

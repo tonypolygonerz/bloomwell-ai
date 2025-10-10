@@ -88,7 +88,8 @@ export default function MaintenancePage() {
           ) : (
             <div className='text-center'>
               <p className='text-gray-700 mb-4'>
-                We&apos;re performing important updates to improve your experience.
+                We&apos;re performing important updates to improve your
+                experience.
               </p>
               <p className='text-gray-600'>
                 We expect to be back shortly. Thank you for your patience!

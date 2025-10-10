@@ -28,16 +28,16 @@ export async function GET(request: NextRequest) {
       whereConditions.OR = [
         { name: { contains: search } },
         { email: { contains: search } },
-        { organization: { name: { contains: search } } },
+        { Organization: { name: { contains: search } } },
       ];
     }
 
     // Add account type filter
     if (accountType) {
       if (accountType === 'oauth') {
-        whereConditions.accounts = { some: {} };
+        whereConditions.Account = { some: {} };
       } else if (accountType === 'email') {
-        whereConditions.accounts = { none: {} };
+        whereConditions.Account = { none: {} };
       }
     }
 
@@ -49,14 +49,14 @@ export async function GET(request: NextRequest) {
         case 'active':
           whereConditions.OR = [
             {
-              conversations: {
+              Conversation: {
                 some: {
                   createdAt: { gte: thirtyDaysAgo },
                 },
               },
             },
             {
-              webinarRSVPs: {
+              WebinarRSVP: {
                 some: {
                   rsvpDate: { gte: thirtyDaysAgo },
                 },
@@ -67,14 +67,14 @@ export async function GET(request: NextRequest) {
         case 'inactive':
           whereConditions.AND = [
             {
-              conversations: {
+              Conversation: {
                 none: {
                   createdAt: { gte: thirtyDaysAgo },
                 },
               },
             },
             {
-              webinarRSVPs: {
+              WebinarRSVP: {
                 none: {
                   rsvpDate: { gte: thirtyDaysAgo },
                 },
@@ -83,8 +83,8 @@ export async function GET(request: NextRequest) {
           ];
           break;
         case 'never_logged_in':
-          whereConditions.conversations = { none: {} };
-          whereConditions.webinarRSVPs = { none: {} };
+          whereConditions.Conversation = { none: {} };
+          whereConditions.WebinarRSVP = { none: {} };
           break;
       }
     }
@@ -92,7 +92,7 @@ export async function GET(request: NextRequest) {
     // Build sort conditions
     const orderBy: any = {};
     if (sortBy === 'organization') {
-      orderBy.organization = { name: sortOrder };
+      orderBy.Organization = { name: sortOrder };
     } else if (sortBy === 'lastLogin') {
       // For now, we'll use updatedAt as a proxy for last login
       // In a real app, you'd track actual login times
@@ -106,7 +106,7 @@ export async function GET(request: NextRequest) {
       prisma.user.findMany({
         where: whereConditions,
         include: {
-          organization: {
+          Organization: {
             select: {
               id: true,
               name: true,
@@ -115,13 +115,13 @@ export async function GET(request: NextRequest) {
               staffSize: true,
             },
           },
-          accounts: {
+          Account: {
             select: {
               provider: true,
               type: true,
             },
           },
-          conversations: {
+          Conversation: {
             select: {
               id: true,
               createdAt: true,
@@ -131,7 +131,7 @@ export async function GET(request: NextRequest) {
             },
             take: 1,
           },
-          rsvps: {
+          WebinarRSVP: {
             select: {
               id: true,
               rsvpDate: true,
@@ -143,8 +143,8 @@ export async function GET(request: NextRequest) {
           },
           _count: {
             select: {
-              conversations: true,
-              rsvps: true,
+              Conversation: true,
+              WebinarRSVP: true,
             },
           },
         },
@@ -163,24 +163,23 @@ export async function GET(request: NextRequest) {
       name: user.name || 'No name',
       email: user.email,
       image: user.image,
-      organization: user.organization
+      organization: user.Organization
         ? {
-            id: user.organization.id,
-            name: user.organization.name,
-            mission: user.organization.mission,
-            budget: user.organization.budget,
-            staffSize: user.organization.staffSize,
+            id: user.Organization.id,
+            name: user.Organization.name,
+            mission: user.Organization.mission,
+            budget: user.Organization.budget,
+            staffSize: user.Organization.staffSize,
           }
         : null,
-      accountType:
-        user.accounts.length > 0 ? user.accounts[0].provider : 'email',
+      accountType: user.Account.length > 0 ? user.Account[0].provider : 'email',
       lastLogin: user.updatedAt, // Using updatedAt as proxy
       createdAt: user.createdAt,
       status: 'active', // All users are active for now
-      conversationCount: user._count.conversations,
-      rsvpCount: user._count.rsvps,
-      lastConversation: user.conversations[0]?.createdAt || null,
-      lastRSVP: user.rsvps[0]?.rsvpDate || null,
+      conversationCount: user._count.Conversation,
+      rsvpCount: user._count.WebinarRSVP,
+      lastConversation: user.Conversation[0]?.createdAt || null,
+      lastRSVP: user.WebinarRSVP[0]?.rsvpDate || null,
     }));
 
     return NextResponse.json({
@@ -202,7 +201,5 @@ export async function GET(request: NextRequest) {
       },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

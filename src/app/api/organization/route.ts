@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
     // Get the current user with organization
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
-      include: { organization: true },
+      include: { Organization: true },
     });
 
     if (!user) {

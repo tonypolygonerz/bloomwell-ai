@@ -69,7 +69,7 @@ export async function POST(
     // Get user details for email
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      include: { organization: true },
+      include: { Organization: true },
     });
 
     if (user) {

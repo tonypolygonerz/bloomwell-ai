@@ -435,7 +435,7 @@ export async function POST(request: NextRequest) {
     // Fetch user data for guideline selection
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
-      include: { organization: true },
+      include: { Organization: true },
     });
 
     // Select appropriate cloud model

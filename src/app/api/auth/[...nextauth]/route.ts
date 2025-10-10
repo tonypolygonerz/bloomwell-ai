@@ -1,14 +1,11 @@
-import NextAuth from 'next-auth';
+import NextAuth, { AuthOptions } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 import CredentialsProvider from 'next-auth/providers/credentials';
-
 import GoogleProvider from 'next-auth/providers/google';
-
 import AzureADProvider from 'next-auth/providers/azure-ad';
-
 import bcrypt from 'bcryptjs';
 
-export const authOptions = {
+export const authOptions: AuthOptions = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -34,7 +31,7 @@ export const authOptions = {
           where: { email: credentials.email },
         });
 
-        if (!user) {
+        if (!user || !user.password) {
           return null;
         }
 
@@ -55,7 +52,9 @@ export const authOptions = {
       },
     }),
   ],
-  session: { strategy: 'jwt' },
+  session: {
+    strategy: 'jwt' as const,
+  },
   pages: {
     signIn: '/auth/login',
   },
@@ -72,9 +71,11 @@ export const authOptions = {
             // Create new user for OAuth
             await prisma.user.create({
               data: {
+                id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
                 email: user.email!,
-                name: user.name,
-                image: user.image,
+                name: user.name || null,
+                image: user.image || null,
+                updatedAt: new Date(),
                 // No password for OAuth users
               },
             });
