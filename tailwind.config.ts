@@ -22,6 +22,16 @@ const config: Config = {
           900: '#1e3a8a',
         },
       },
+      keyframes: {
+        'marquee-vertical': {
+          '0%': { transform: 'translateY(0%)' },
+          '100%': { transform: 'translateY(-50%)' },
+        },
+      },
+      animation: {
+        'marquee-vertical':
+          'marquee-vertical var(--duration, 40s) linear infinite',
+      },
     },
   },
   plugins: [],

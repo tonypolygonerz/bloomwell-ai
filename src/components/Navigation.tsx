@@ -27,8 +27,17 @@ export function Navigation() {
     }
   }, []);
 
-  // Don't show navigation on admin pages (they have their own header)
-  if (pathname?.startsWith('/admin')) {
+  // Don't show navigation on admin pages, dashboard pages, or home page (they have their own header)
+  if (
+    pathname === '/' ||
+    pathname?.startsWith('/admin') ||
+    pathname?.startsWith('/dashboard') ||
+    pathname?.startsWith('/chat') ||
+    pathname?.startsWith('/profile') ||
+    pathname?.startsWith('/templates') ||
+    pathname?.startsWith('/notifications') ||
+    pathname?.startsWith('/documents')
+  ) {
     return null;
   }
 
@@ -105,7 +114,7 @@ export function Navigation() {
                 href='/chat'
                 className='text-white hover:text-green-100 px-3 py-2 rounded-md text-sm font-medium'
               >
-                AI Chat
+                New Chat
               </Link>
               <Link
                 href='/profile'

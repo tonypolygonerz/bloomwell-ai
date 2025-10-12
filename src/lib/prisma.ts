@@ -20,6 +20,7 @@ if (!globalForPrisma.prisma) {
     })
     .catch(err => {
       console.error('❌ Failed to connect to database:', err);
+      console.error('Database URL:', process.env.DATABASE_URL);
     });
 }
 

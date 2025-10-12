@@ -46,6 +46,11 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
 
+    console.log(
+      'POST /api/conversations - Session:',
+      session?.user?.email ? 'Authenticated' : 'Not authenticated'
+    );
+
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -57,13 +62,26 @@ export async function POST(request: NextRequest) {
       include: { Organization: true },
     });
 
+    console.log(
+      'POST /api/conversations - User found:',
+      !!user,
+      'Organization:',
+      !!user?.Organization
+    );
+
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
+    const conversationId = `conv-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    console.log(
+      'POST /api/conversations - Creating conversation with ID:',
+      conversationId
+    );
+
     const conversation = await prisma.conversation.create({
       data: {
-        id: `conv-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        id: conversationId,
         title: title || 'New Conversation',
         userId: user.id,
         organizationId: user.Organization?.id,
@@ -71,6 +89,10 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    console.log(
+      'POST /api/conversations - Conversation created successfully:',
+      conversation.id
+    );
     return NextResponse.json({ conversation });
   } catch (error) {
     console.error('Error creating conversation:', error);
