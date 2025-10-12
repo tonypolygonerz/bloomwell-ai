@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getAdminFromRequest } from '@/lib/admin-auth';
 
-// Cloud model configuration
-const CLOUD_MODELS = {
+// Cloud model configuration with dynamic state
+let CLOUD_MODELS = {
   'deepseek-v3.1:671b-cloud': {
     modelName: 'deepseek-v3.1:671b-cloud',
     enabled: true,
@@ -162,17 +163,9 @@ async function getModelPerformance() {
 
 export async function GET(request: NextRequest) {
   try {
-    // Check admin authentication - look for session or admin token
-    const authHeader = request.headers.get('authorization');
-    const cookieHeader = request.headers.get('cookie');
-
-    // Allow access if we have admin in authorization header OR if we're in development
-    const isAuthorized =
-      authHeader?.includes('admin') ||
-      process.env.NODE_ENV === 'development' ||
-      cookieHeader?.includes('admin');
-
-    if (!isAuthorized) {
+    // Check admin authentication
+    const admin = getAdminFromRequest(request);
+    if (!admin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -220,17 +213,19 @@ export async function GET(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     // Check admin authentication
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader || !authHeader.includes('admin')) {
+    const admin = getAdminFromRequest(request);
+    if (!admin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { action, modelName, enabled, overrideRules } = await request.json();
 
     if (action === 'toggleModel') {
-      // In a real implementation, this would update a configuration store
-      // For now, we'll just return success
-      console.log(`Model ${modelName} ${enabled ? 'enabled' : 'disabled'}`);
+      // Update the model status in memory
+      if (CLOUD_MODELS[modelName as keyof typeof CLOUD_MODELS]) {
+        CLOUD_MODELS[modelName as keyof typeof CLOUD_MODELS].enabled = enabled;
+        console.log(`Model ${modelName} ${enabled ? 'enabled' : 'disabled'}`);
+      }
 
       return NextResponse.json({
         success: true,

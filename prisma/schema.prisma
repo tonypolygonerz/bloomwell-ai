@@ -115,6 +115,8 @@ model Organization {
   updatedAt        DateTime
   organizationType String?
   state            String?
+  ein              String?
+  isVerified       Boolean        @default(false)
   Conversation     Conversation[]
   User             User[]
 }

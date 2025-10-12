@@ -53,16 +53,16 @@ export function Navigation() {
                   Features
                 </Link>
                 <Link
-                  href='/pricing'
-                  className='text-white hover:text-green-100 px-3 py-2 rounded-md text-sm font-medium'
-                >
-                  Pricing
-                </Link>
-                <Link
                   href='/webinars'
                   className='text-white hover:text-green-100 px-3 py-2 rounded-md text-sm font-medium'
                 >
                   Webinars
+                </Link>
+                <Link
+                  href='/pricing'
+                  className='text-white hover:text-green-100 px-3 py-2 rounded-md text-sm font-medium'
+                >
+                  Pricing
                 </Link>
               </div>
             </div>

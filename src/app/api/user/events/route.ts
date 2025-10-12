@@ -21,7 +21,7 @@ export async function GET(_request: NextRequest) {
         userId: session.user.id,
       },
       include: {
-        webinar: {
+        Webinar: {
           select: {
             id: true,
             title: true,
@@ -45,14 +45,14 @@ export async function GET(_request: NextRequest) {
       id: rsvp.id,
       rsvpDate: rsvp.rsvpDate.toISOString(),
       webinar: {
-        id: rsvp.webinar.id,
-        title: rsvp.webinar.title,
-        description: rsvp.webinar.description,
-        scheduledDate: rsvp.webinar.scheduledDate.toISOString(),
-        duration: rsvp.webinar.duration,
-        slug: rsvp.webinar.slug || rsvp.webinar.uniqueSlug,
-        jitsiRoomUrl: rsvp.webinar.jitsiRoomUrl,
-        thumbnailUrl: rsvp.webinar.thumbnailUrl,
+        id: rsvp.Webinar.id,
+        title: rsvp.Webinar.title,
+        description: rsvp.Webinar.description,
+        scheduledDate: rsvp.Webinar.scheduledDate.toISOString(),
+        duration: rsvp.Webinar.duration,
+        slug: rsvp.Webinar.slug || rsvp.Webinar.uniqueSlug,
+        jitsiRoomUrl: rsvp.Webinar.jitsiRoomUrl,
+        thumbnailUrl: rsvp.Webinar.thumbnailUrl,
       },
     }));
 

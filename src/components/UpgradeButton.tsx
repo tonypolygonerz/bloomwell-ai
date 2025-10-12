@@ -1,16 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 
 interface UpgradeButtonProps {
-  priceId: string;
+  priceId: string | undefined;
   planType: 'monthly' | 'annual';
   label: string;
   className?: string;
 }
 
-export default function UpgradeButton({
+const UpgradeButton = React.memo(function UpgradeButton({
   priceId,
   planType,
   label,
@@ -19,7 +19,7 @@ export default function UpgradeButton({
   const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
 
-  const handleUpgrade = async () => {
+  const handleUpgrade = useCallback(async () => {
     if (!session) {
       // Redirect to login
       window.location.href = '/auth/login';
@@ -52,7 +52,7 @@ export default function UpgradeButton({
       alert('Error processing upgrade. Please try again.');
       setLoading(false);
     }
-  };
+  }, [session, priceId, planType]);
 
   return (
     <button
@@ -63,4 +63,6 @@ export default function UpgradeButton({
       {loading ? 'Redirecting to Stripe...' : label}
     </button>
   );
-}
+});
+
+export default UpgradeButton;

@@ -1,40 +1,33 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import UpgradeButton from './UpgradeButton';
+import { usePricing } from '@/contexts/PricingContext';
 
-export default function PricingCard() {
+const PricingCard = React.memo(function PricingCard() {
   const { data: session, status } = useSession();
-  const [isAnnual, setIsAnnual] = useState(false);
-
-  useEffect(() => {
-    // Listen for toggle changes from parent component
-    const handleToggle = (event: CustomEvent) => {
-      setIsAnnual(event.detail.isAnnual);
-    };
-
-    window.addEventListener('pricingToggle', handleToggle as EventListener);
-    return () => {
-      window.removeEventListener(
-        'pricingToggle',
-        handleToggle as EventListener
-      );
-    };
-  }, []);
+  const { isAnnual } = usePricing();
 
   const monthlyPrice = 24.99;
   const annualPrice = 20.99;
   const annualTotal = 251.88;
 
-  // Get Stripe price IDs from environment variables
+  // Get Stripe price IDs from environment variables (memoized)
   const monthlyPriceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_MONTHLY;
   const annualPriceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_ANNUAL;
 
-  // Debug logging to verify environment variables
-  console.log('PricingCard - Monthly Price ID:', monthlyPriceId);
-  console.log('PricingCard - Annual Price ID:', annualPriceId);
+  // Memoize the selected price ID to prevent unnecessary re-renders
+  const selectedPriceId = useMemo(
+    () => (isAnnual ? annualPriceId : monthlyPriceId),
+    [isAnnual, annualPriceId, monthlyPriceId]
+  );
+
+  const selectedPlanType = useMemo(
+    () => (isAnnual ? 'annual' : 'monthly') as 'annual' | 'monthly',
+    [isAnnual]
+  );
 
   return (
     <div className='flex justify-center'>
@@ -68,8 +61,8 @@ export default function PricingCard() {
           {status === 'authenticated' ? (
             // Show upgrade button for logged-in users
             <UpgradeButton
-              priceId={isAnnual ? annualPriceId : monthlyPriceId}
-              planType={isAnnual ? 'annual' : 'monthly'}
+              priceId={selectedPriceId}
+              planType={selectedPlanType}
               label={`Upgrade to ${isAnnual ? 'Annual' : 'Monthly'} Plan`}
               className='w-full py-4 px-6 rounded-xl font-semibold'
             />
@@ -162,4 +155,6 @@ export default function PricingCard() {
       </div>
     </div>
   );
-}
+});
+
+export default PricingCard;

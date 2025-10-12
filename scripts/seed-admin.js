@@ -13,9 +13,11 @@ async function main() {
     where: { username: 'admin' },
     update: {},
     create: {
+      id: 'admin-user-' + Date.now(),
       username: 'admin',
       password: hashedPassword,
       role: 'super_admin',
+      updatedAt: new Date(),
     },
   });
 

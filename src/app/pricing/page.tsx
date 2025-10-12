@@ -6,6 +6,7 @@ import ROICalculator from '@/components/ROICalculator';
 import CompetitiveComparison from '@/components/CompetitiveComparison';
 import FAQSection from '@/components/FAQSection';
 import HomeFooter from '@/components/HomeFooter';
+import { PricingProvider } from '@/contexts/PricingContext';
 
 export const metadata = {
   title: 'Transparent Pricing Built for Nonprofits | Bloomwell AI',
@@ -17,7 +18,8 @@ export const metadata = {
 
 export default function PricingPage() {
   return (
-    <div className='min-h-screen bg-gray-50'>
+    <PricingProvider>
+      <div className='min-h-screen bg-gray-50'>
       {/* Hero Section */}
       <section className='relative pt-12 pb-6 bg-gradient-to-br from-gray-50 to-white overflow-hidden'>
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-5"></div>
@@ -112,6 +114,7 @@ export default function PricingPage() {
 
       {/* Footer */}
       <HomeFooter />
-    </div>
+      </div>
+    </PricingProvider>
   );
 }

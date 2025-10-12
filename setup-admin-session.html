@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Setup Admin Session</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        button { margin: 10px; padding: 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .status { margin: 10px 0; padding: 10px; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+    </style>
+</head>
+<body>
+    <h1>Setup Admin Session for Testing</h1>
+    
+    <button onclick="setupAdminSession()">1. Login as Admin & Store Session</button>
+    <button onclick="testAIModelsPage()">2. Test AI Models Page</button>
+    <button onclick="clearSession()">Clear Session</button>
+    
+    <div id="status"></div>
+    <div id="details"></div>
+
+    <script>
+        function log(message, type = 'info') {
+            const status = document.getElementById('status');
+            status.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        function logDetails(message) {
+            const details = document.getElementById('details');
+            details.innerHTML += `<p>${new Date().toLocaleTimeString()}: ${message}</p>`;
+        }
+
+        async function setupAdminSession() {
+            log('Logging in as admin...', 'info');
+            
+            try {
+                const response = await fetch('/api/admin/auth', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: 'admin',
+                        password: 'admin123'
+                    }),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // Store the session in localStorage
+                    localStorage.setItem('adminSession', JSON.stringify(data));
+                    
+                    log('✅ Admin session created and stored!', 'success');
+                    logDetails(`Token: ${data.token.substring(0, 50)}...`);
+                    logDetails(`Admin: ${data.admin.username} (${data.admin.role})`);
+                    
+                    // Test the AI models API
+                    setTimeout(testAIModelsAPI, 1000);
+                } else {
+                    const error = await response.json();
+                    log(`❌ Login failed: ${error.error}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAIModelsAPI() {
+            log('Testing AI Models API...', 'info');
+            
+            const adminSession = localStorage.getItem('adminSession');
+            if (!adminSession) {
+                log('❌ No admin session found', 'error');
+                return;
+            }
+
+            try {
+                const sessionData = JSON.parse(adminSession);
+                const response = await fetch('/api/admin/ai-models', {
+                    headers: {
+                        'Authorization': `Bearer ${sessionData.token}`,
+                    },
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    log('✅ AI Models API working!', 'success');
+                    logDetails(`Found ${data.availableModels.length} models`);
+                    data.availableModels.forEach(model => {
+                        logDetails(`- ${model.modelName} (${model.enabled ? 'enabled' : 'disabled'})`);
+                    });
+                } else {
+                    const error = await response.json();
+                    log(`❌ AI Models API failed: ${error.error}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ API Error: ${error.message}`, 'error');
+            }
+        }
+
+        function testAIModelsPage() {
+            const adminSession = localStorage.getItem('adminSession');
+            if (!adminSession) {
+                log('❌ No admin session found. Please login first.', 'error');
+                return;
+            }
+
+            log('Opening AI Models page...', 'info');
+            window.open('/admin/ai-models', '_blank');
+        }
+
+        function clearSession() {
+            localStorage.removeItem('adminSession');
+            log('Session cleared', 'info');
+            document.getElementById('details').innerHTML = '';
+        }
+
+        // Check if session already exists
+        window.onload = function() {
+            const adminSession = localStorage.getItem('adminSession');
+            if (adminSession) {
+                try {
+                    const sessionData = JSON.parse(adminSession);
+                    log('✅ Existing admin session found', 'success');
+                    logDetails(`Admin: ${sessionData.admin.username} (${sessionData.admin.role})`);
+                } catch (error) {
+                    log('❌ Invalid session data, clearing...', 'error');
+                    localStorage.removeItem('adminSession');
+                }
+            } else {
+                log('No admin session found. Please login first.', 'info');
+            }
+        };
+    </script>
+</body>
+</html>

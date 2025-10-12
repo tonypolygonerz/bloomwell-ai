@@ -1,20 +1,31 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 
-export default function ROICalculator() {
+const ROICalculator = React.memo(function ROICalculator() {
   const [grantAmount, setGrantAmount] = useState(25000);
-  const [annualCost] = useState(251.88);
-  const [roi, setRoi] = useState(0);
+  const annualCost = 251.88;
 
-  useEffect(() => {
-    const calculatedROI = Math.round((grantAmount / annualCost) * 100) / 100;
-    setRoi(calculatedROI);
-  }, [grantAmount, annualCost]);
+  const roi = useMemo(
+    () => Math.round((grantAmount / annualCost) * 100) / 100,
+    [grantAmount, annualCost]
+  );
 
-  const formatNumber = (num: number) => {
+  const monthsCovered = useMemo(
+    () => Math.round(grantAmount / annualCost),
+    [grantAmount, annualCost]
+  );
+
+  const formatNumber = useCallback((num: number) => {
     return num.toLocaleString();
-  };
+  }, []);
+
+  const handleAmountChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setGrantAmount(Number(e.target.value));
+    },
+    []
+  );
 
   return (
     <div className='text-center'>
@@ -41,7 +52,7 @@ export default function ROICalculator() {
               id='grant-amount'
               type='number'
               value={grantAmount}
-              onChange={e => setGrantAmount(Number(e.target.value))}
+              onChange={handleAmountChange}
               className='w-full pl-8 pr-4 py-4 text-xl border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 text-center'
               placeholder='25000'
               min='1000'
@@ -59,8 +70,7 @@ export default function ROICalculator() {
             return on annual investment
           </div>
           <div className='text-sm text-gray-600'>
-            One grant typically covers {Math.round(grantAmount / annualCost)}{' '}
-            months of Bloomwell AI
+            One grant typically covers {monthsCovered} months of Bloomwell AI
           </div>
         </div>
 
@@ -89,4 +99,6 @@ export default function ROICalculator() {
       </div>
     </div>
   );
-}
+});
+
+export default ROICalculator;

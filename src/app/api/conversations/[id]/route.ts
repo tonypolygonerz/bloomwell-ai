@@ -6,10 +6,11 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 // GET - Fetch a specific conversation with messages
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
+    const resolvedParams = await params;
 
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -26,11 +27,11 @@ export async function GET(
 
     const conversation = await prisma.conversation.findFirst({
       where: {
-        id: params.id,
+        id: resolvedParams.id,
         userId: user.id,
       },
       include: {
-        messages: {
+        Message: {
           orderBy: { createdAt: 'asc' },
         },
       },
@@ -56,10 +57,11 @@ export async function GET(
 // PUT - Update conversation title
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
+    const resolvedParams = await params;
 
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -78,7 +80,7 @@ export async function PUT(
 
     const conversation = await prisma.conversation.updateMany({
       where: {
-        id: params.id,
+        id: resolvedParams.id,
         userId: user.id,
       },
       data: {
@@ -106,10 +108,11 @@ export async function PUT(
 // DELETE - Delete a conversation
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
+    const resolvedParams = await params;
 
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -127,17 +130,14 @@ export async function DELETE(
     // Delete messages first (due to foreign key constraint)
     await prisma.message.deleteMany({
       where: {
-        conversation: {
-          id: params.id,
-          userId: user.id,
-        },
+        conversationId: resolvedParams.id,
       },
     });
 
     // Then delete the conversation
     const conversation = await prisma.conversation.deleteMany({
       where: {
-        id: params.id,
+        id: resolvedParams.id,
         userId: user.id,
       },
     });

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
 type ModelConfig = {
@@ -45,35 +45,83 @@ export default function AIModelsAdminPage() {
   const [autoRoutingDisabled, setAutoRoutingDisabled] = useState(false);
   const [emergencyFallback, setEmergencyFallback] =
     useState('gpt-oss:20b-cloud');
+  const [adminToken, setAdminToken] = useState<string | null>(null);
+  const [updatingModel, setUpdatingModel] = useState<string | null>(null);
+  const [updateError, setUpdateError] = useState<string | null>(null);
+
+  const fetchModelControls = useCallback(
+    async (token: string) => {
+      try {
+        const response = await fetch('/api/admin/ai-models', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) {
+          if (response.status === 401) {
+            localStorage.removeItem('adminSession');
+            router.push('/admin/login');
+            return;
+          }
+          throw new Error('Failed to fetch model controls');
+        }
+        const data = await response.json();
+        setModelControls(data);
+        setError(null);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Unknown error');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [router]
+  );
 
   useEffect(() => {
-    fetchModelControls();
-    // Refresh every 30 seconds for real-time updates
-    const interval = setInterval(fetchModelControls, 30000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const fetchModelControls = async () => {
-    try {
-      const response = await fetch('/api/admin/ai-models');
-      if (!response.ok) {
-        throw new Error('Failed to fetch model controls');
-      }
-      const data = await response.json();
-      setModelControls(data);
-      setError(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
-    } finally {
-      setLoading(false);
+    // Check for admin session
+    const adminSession = localStorage.getItem('adminSession');
+    if (!adminSession) {
+      router.push('/admin/login');
+      return;
     }
-  };
+
+    try {
+      const sessionData = JSON.parse(adminSession);
+      setAdminToken(sessionData.token);
+      fetchModelControls(sessionData.token);
+      // Refresh every 30 seconds for real-time updates
+      const interval = setInterval(
+        () => fetchModelControls(sessionData.token),
+        30000
+      );
+      return () => clearInterval(interval);
+    } catch {
+      localStorage.removeItem('adminSession');
+      router.push('/admin/login');
+    }
+  }, [router, fetchModelControls]);
 
   const updateModelStatus = async (modelName: string, enabled: boolean) => {
+    if (!adminToken) {
+      setUpdateError('Not authenticated');
+      return;
+    }
+
+    // Prevent multiple simultaneous updates
+    if (updatingModel) {
+      return;
+    }
+
+    setUpdatingModel(modelName);
+    setUpdateError(null);
+
     try {
       const response = await fetch('/api/admin/ai-models', {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${adminToken}`,
+        },
         body: JSON.stringify({
           action: 'toggleModel',
           modelName,
@@ -82,20 +130,41 @@ export default function AIModelsAdminPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update model status');
+        if (response.status === 401) {
+          localStorage.removeItem('adminSession');
+          router.push('/admin/login');
+          return;
+        }
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update model status');
       }
 
-      await fetchModelControls();
+      // Refresh model controls after successful update
+      await fetchModelControls(adminToken);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update model');
+      setUpdateError(
+        err instanceof Error ? err.message : 'Failed to update model'
+      );
+      // Revert the UI by refetching current state
+      await fetchModelControls(adminToken);
+    } finally {
+      setUpdatingModel(null);
     }
   };
 
   const updateOverrideRules = async () => {
+    if (!adminToken) {
+      setError('Not authenticated');
+      return;
+    }
+
     try {
       const response = await fetch('/api/admin/ai-models', {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${adminToken}`,
+        },
         body: JSON.stringify({
           action: 'updateOverrideRules',
           overrideRules: {
@@ -107,10 +176,15 @@ export default function AIModelsAdminPage() {
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          localStorage.removeItem('adminSession');
+          router.push('/admin/login');
+          return;
+        }
         throw new Error('Failed to update override rules');
       }
 
-      await fetchModelControls();
+      await fetchModelControls(adminToken);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : 'Failed to update override rules'
@@ -160,7 +234,7 @@ export default function AIModelsAdminPage() {
           <div className='text-red-600 text-xl mb-4'>⚠️ Error</div>
           <p className='text-gray-600 mb-4'>{error}</p>
           <button
-            onClick={fetchModelControls}
+            onClick={() => adminToken && fetchModelControls(adminToken)}
             className='px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700'
           >
             Retry
@@ -242,64 +316,85 @@ export default function AIModelsAdminPage() {
               <p className='text-sm text-gray-600'>
                 Toggle models on/off and monitor usage
               </p>
+              {updateError && (
+                <div className='mt-2 p-2 bg-red-50 border border-red-200 rounded text-sm text-red-600'>
+                  {updateError}
+                </div>
+              )}
             </div>
             <div className='p-6'>
               <div className='space-y-4'>
-                {modelControls.availableModels.map(model => (
-                  <div
-                    key={model.modelName}
-                    className='border border-gray-200 rounded-lg p-4'
-                  >
-                    <div className='flex items-center justify-between mb-3'>
-                      <div>
-                        <h3 className='font-medium text-gray-900'>
-                          {model.modelName}
-                        </h3>
-                        <p className='text-sm text-gray-600'>
-                          {model.description}
-                        </p>
+                {modelControls.availableModels.map(model => {
+                  const isUpdating = updatingModel === model.modelName;
+                  return (
+                    <div
+                      key={model.modelName}
+                      className={`border border-gray-200 rounded-lg p-4 transition-opacity ${isUpdating ? 'opacity-60' : ''}`}
+                    >
+                      <div className='flex items-center justify-between mb-3'>
+                        <div className='flex-1'>
+                          <h3 className='font-medium text-gray-900'>
+                            {model.modelName}
+                            {isUpdating && (
+                              <span className='ml-2 text-xs text-purple-600'>
+                                Updating...
+                              </span>
+                            )}
+                          </h3>
+                          <p className='text-sm text-gray-600'>
+                            {model.description}
+                          </p>
+                        </div>
+                        <label
+                          className={`relative inline-flex items-center ${isUpdating ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                        >
+                          <input
+                            type='checkbox'
+                            checked={model.enabled}
+                            disabled={isUpdating}
+                            onChange={e =>
+                              updateModelStatus(
+                                model.modelName,
+                                e.target.checked
+                              )
+                            }
+                            className='sr-only peer'
+                          />
+                          <div
+                            className={`w-11 h-6 bg-gray-200 rounded-full peer peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600 ${isUpdating ? 'peer-disabled:opacity-50' : ''}`}
+                          ></div>
+                        </label>
                       </div>
-                      <label className='relative inline-flex items-center cursor-pointer'>
-                        <input
-                          type='checkbox'
-                          checked={model.enabled}
-                          onChange={e =>
-                            updateModelStatus(model.modelName, e.target.checked)
-                          }
-                          className='sr-only peer'
-                        />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
-                      </label>
-                    </div>
-                    <div className='flex flex-wrap gap-2 mb-3'>
-                      <span
-                        className={`px-2 py-1 text-xs font-medium rounded-full ${getTierColor(model.tier)}`}
-                      >
-                        {model.tier.toUpperCase()}
-                      </span>
-                      <span
-                        className={`px-2 py-1 text-xs font-medium rounded-full ${getCostTierColor(model.costTier)}`}
-                      >
-                        {model.costTier.toUpperCase()}
-                      </span>
-                      <span className='px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600'>
-                        {model.contextLength.toLocaleString()} context
-                      </span>
-                    </div>
-                    <div className='text-sm text-gray-600'>
-                      Usage: {model.usageToday}/{model.limitToday} requests
-                      today
-                      <div className='w-full bg-gray-200 rounded-full h-2 mt-1'>
-                        <div
-                          className='bg-purple-600 h-2 rounded-full'
-                          style={{
-                            width: `${(model.usageToday / model.limitToday) * 100}%`,
-                          }}
-                        ></div>
+                      <div className='flex flex-wrap gap-2 mb-3'>
+                        <span
+                          className={`px-2 py-1 text-xs font-medium rounded-full ${getTierColor(model.tier)}`}
+                        >
+                          {model.tier.toUpperCase()}
+                        </span>
+                        <span
+                          className={`px-2 py-1 text-xs font-medium rounded-full ${getCostTierColor(model.costTier)}`}
+                        >
+                          {model.costTier.toUpperCase()}
+                        </span>
+                        <span className='px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600'>
+                          {model.contextLength.toLocaleString()} context
+                        </span>
+                      </div>
+                      <div className='text-sm text-gray-600'>
+                        Usage: {model.usageToday}/{model.limitToday} requests
+                        today
+                        <div className='w-full bg-gray-200 rounded-full h-2 mt-1'>
+                          <div
+                            className='bg-purple-600 h-2 rounded-full'
+                            style={{
+                              width: `${(model.usageToday / model.limitToday) * 100}%`,
+                            }}
+                          ></div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>

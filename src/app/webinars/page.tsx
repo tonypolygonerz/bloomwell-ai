@@ -1,5 +1,8 @@
 import { Metadata } from 'next';
 import { prisma } from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import WebinarCalendar from '@/components/WebinarCalendar';
 
 export const metadata: Metadata = {
   title: 'Upcoming Webinars for Nonprofit Leaders | Bloomwell AI',
@@ -51,7 +54,7 @@ async function getWebinars() {
       include: {
         _count: {
           select: {
-            rsvps: true,
+            WebinarRSVP: true,
           },
         },
       },
@@ -70,7 +73,7 @@ async function getWebinars() {
       thumbnailUrl: webinar.thumbnailUrl,
       slug: webinar.slug || webinar.uniqueSlug,
       status: webinar.status,
-      rsvpCount: webinar._count.rsvps,
+      rsvpCount: webinar._count.WebinarRSVP,
       maxAttendees: webinar.maxAttendees,
       categories: webinar.categories ? JSON.parse(webinar.categories) : [],
       guestSpeakers: webinar.guestSpeakers
@@ -87,8 +90,49 @@ async function getWebinars() {
   }
 }
 
+async function getUserRSVPs(userId: string) {
+  try {
+    const rsvps = await prisma.webinarRSVP.findMany({
+      where: {
+        userId,
+      },
+      include: {
+        Webinar: {
+          select: {
+            id: true,
+            title: true,
+            scheduledDate: true,
+            slug: true,
+            uniqueSlug: true,
+          },
+        },
+      },
+      orderBy: {
+        rsvpDate: 'desc',
+      },
+    });
+
+    return rsvps
+      .filter(rsvp => new Date(rsvp.Webinar.scheduledDate) > new Date())
+      .map(rsvp => ({
+        id: rsvp.id,
+        webinarId: rsvp.Webinar.id,
+        title: rsvp.Webinar.title,
+        scheduledDate: rsvp.Webinar.scheduledDate.toISOString(),
+        slug: rsvp.Webinar.slug || rsvp.Webinar.uniqueSlug,
+      }));
+  } catch (error) {
+    console.error('Error fetching user RSVPs:', error);
+    return [];
+  }
+}
+
 export default async function WebinarsPage() {
+  const session = await getServerSession(authOptions);
   const webinars = await getWebinars();
+  const userRSVPs = session?.user?.id
+    ? await getUserRSVPs(session.user.id)
+    : [];
 
   return (
     <div className='min-h-screen bg-gray-50'>
@@ -112,71 +156,14 @@ export default async function WebinarsPage() {
           {/* Calendar Sidebar */}
           <div className='lg:col-span-1'>
             <div className='bg-white rounded-lg shadow-sm border p-6 sticky top-6'>
-              {/* Calendar */}
-              <div className='mb-6'>
-                <div className='flex items-center justify-between mb-4'>
-                  <h3 className='text-lg font-semibold text-gray-900'>
-                    September 2025
-                  </h3>
-                  <div className='flex space-x-1'>
-                    <button className='p-1 hover:bg-gray-100 rounded'>
-                      <svg
-                        className='w-4 h-4 text-gray-600'
-                        fill='none'
-                        stroke='currentColor'
-                        viewBox='0 0 24 24'
-                      >
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          strokeWidth={2}
-                          d='M15 19l-7-7 7-7'
-                        />
-                      </svg>
-                    </button>
-                    <button className='p-1 hover:bg-gray-100 rounded'>
-                      <svg
-                        className='w-4 h-4 text-gray-600'
-                        fill='none'
-                        stroke='currentColor'
-                        viewBox='0 0 24 24'
-                      >
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          strokeWidth={2}
-                          d='M9 5l7 7-7 7'
-                        />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Calendar Grid */}
-                <div className='grid grid-cols-7 gap-1 mb-2'>
-                  {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => (
-                    <div
-                      key={day}
-                      className='text-center text-sm font-medium text-gray-500 py-2'
-                    >
-                      {day}
-                    </div>
-                  ))}
-                </div>
-
-                <div className='grid grid-cols-7 gap-1'>
-                  {Array.from({ length: 30 }, (_, i) => i + 1).map(day => (
-                    <button
-                      key={day}
-                      className={`text-center py-2 text-sm rounded hover:bg-gray-100 ${
-                        day === 20 ? 'bg-green-500 text-white' : 'text-gray-700'
-                      }`}
-                    >
-                      {day}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              {/* Interactive Calendar */}
+              <WebinarCalendar
+                webinars={webinars.map(w => ({
+                  id: w.id,
+                  scheduledDate: w.scheduledDate,
+                  title: w.title,
+                }))}
+              />
 
               {/* Your Next Events */}
               <div>
@@ -184,25 +171,28 @@ export default async function WebinarsPage() {
                   <h3 className='text-lg font-semibold text-gray-900'>
                     Your next events
                   </h3>
-                  <a
-                    href='#'
-                    className='text-sm text-green-600 hover:text-green-700'
-                  >
-                    View all
-                  </a>
+                  {userRSVPs.length > 3 && (
+                    <a
+                      href='/dashboard'
+                      className='text-sm text-green-600 hover:text-green-700'
+                    >
+                      View all
+                    </a>
+                  )}
                 </div>
 
-                {webinars.length > 0 ? (
+                {userRSVPs.length > 0 ? (
                   <div className='space-y-3'>
-                    {webinars.slice(0, 3).map(webinar => (
-                      <div
-                        key={webinar.id}
-                        className='flex items-start space-x-3'
+                    {userRSVPs.slice(0, 3).map(rsvp => (
+                      <a
+                        key={rsvp.id}
+                        href={`/webinar/${rsvp.slug}`}
+                        className='flex items-start space-x-3 hover:bg-gray-50 p-2 rounded-md transition-colors'
                       >
                         <div className='w-2 h-2 bg-green-500 rounded-full mt-2'></div>
                         <div className='flex-1 min-w-0'>
                           <p className='text-xs text-gray-500 uppercase tracking-wide'>
-                            {new Date(webinar.scheduledDate).toLocaleDateString(
+                            {new Date(rsvp.scheduledDate).toLocaleDateString(
                               'en-US',
                               {
                                 weekday: 'short',
@@ -211,7 +201,7 @@ export default async function WebinarsPage() {
                               }
                             )}{' '}
                             -{' '}
-                            {new Date(webinar.scheduledDate).toLocaleTimeString(
+                            {new Date(rsvp.scheduledDate).toLocaleTimeString(
                               'en-US',
                               {
                                 hour: 'numeric',
@@ -221,15 +211,34 @@ export default async function WebinarsPage() {
                             )}
                           </p>
                           <p className='text-sm font-medium text-gray-900 truncate'>
-                            {webinar.title}
+                            {rsvp.title}
                           </p>
                           <p className='text-xs text-gray-500'>Bloomwell AI</p>
                         </div>
-                      </div>
+                      </a>
                     ))}
                   </div>
                 ) : (
-                  <p className='text-sm text-gray-500'>No upcoming events</p>
+                  <div className='text-center py-4'>
+                    <svg
+                      className='mx-auto h-8 w-8 text-gray-400 mb-2'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'
+                    >
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'
+                      />
+                    </svg>
+                    <p className='text-sm text-gray-500'>
+                      {session?.user
+                        ? 'No upcoming events yet'
+                        : 'Sign in to RSVP to events'}
+                    </p>
+                  </div>
                 )}
               </div>
             </div>

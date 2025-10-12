@@ -68,6 +68,12 @@ export const authOptions: AuthOptions = {
           });
 
           if (!existingUser) {
+            // Calculate trial dates (14 days from now)
+            const trialStartDate = new Date();
+            const trialEndDate = new Date(
+              trialStartDate.getTime() + 14 * 24 * 60 * 60 * 1000
+            );
+
             // Create new user for OAuth
             await prisma.user.create({
               data: {
@@ -76,6 +82,9 @@ export const authOptions: AuthOptions = {
                 name: user.name || null,
                 image: user.image || null,
                 updatedAt: new Date(),
+                trialStartDate,
+                trialEndDate,
+                subscriptionStatus: 'TRIAL',
                 // No password for OAuth users
               },
             });

@@ -1,26 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useCallback } from 'react';
+import { usePricing } from '@/contexts/PricingContext';
 
-interface PricingToggleProps {
-  onToggle?: (isAnnual: boolean) => void;
-}
+const PricingToggle = React.memo(function PricingToggle() {
+  const { isAnnual, setIsAnnual } = usePricing();
 
-export default function PricingToggle({ onToggle }: PricingToggleProps) {
-  const [isAnnual, setIsAnnual] = useState(false);
-
-  const handleToggle = () => {
-    const newValue = !isAnnual;
-    setIsAnnual(newValue);
-    onToggle?.(newValue);
-
-    // Dispatch custom event for other components to listen to
-    window.dispatchEvent(
-      new CustomEvent('pricingToggle', {
-        detail: { isAnnual: newValue },
-      })
-    );
-  };
+  const handleToggle = useCallback(() => {
+    setIsAnnual(!isAnnual);
+  }, [isAnnual, setIsAnnual]);
 
   return (
     <div className='flex items-center justify-center space-x-4'>
@@ -58,4 +46,6 @@ export default function PricingToggle({ onToggle }: PricingToggleProps) {
       </div>
     </div>
   );
-}
+});
+
+export default PricingToggle;

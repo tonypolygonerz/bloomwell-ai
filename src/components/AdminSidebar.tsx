@@ -12,7 +12,10 @@ export default function AdminSidebar() {
 
   return (
     <aside className='w-64 bg-purple-600 text-white flex flex-col'>
-      <div className='p-4 flex items-center justify-center h-16 border-b border-purple-700'>
+      <Link
+        href='/admin'
+        className='p-4 flex items-center justify-center h-16 border-b border-purple-700 hover:bg-purple-700 transition-colors'
+      >
         <div className='flex items-center space-x-2'>
           <svg
             className='w-6 h-6 text-white'
@@ -27,9 +30,9 @@ export default function AdminSidebar() {
               d='M13 10V3L4 14h7v7l9-11h-7z'
             />
           </svg>
-          <span className='text-xl font-semibold'>Brand Name</span>
+          <span className='text-xl font-semibold'>Bloomwell AI</span>
         </div>
-      </div>
+      </Link>
 
       <nav className='flex-1 p-4'>
         <ul className='space-y-2'>

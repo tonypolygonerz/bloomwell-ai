@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -50,6 +50,27 @@ export default function WebinarDetailClient({
   const [error, setError] = useState('');
   const [showShareModal, setShowShareModal] = useState(false);
   const [hasRSVPed, setHasRSVPed] = useState(false);
+
+  // Check if user has already RSVPed
+  useEffect(() => {
+    const checkRSVPStatus = async () => {
+      if (!session?.user) return;
+
+      try {
+        const response = await fetch(
+          `/api/webinars/${webinar.slug || webinar.uniqueSlug}/has-rsvp`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setHasRSVPed(data.hasRSVPed);
+        }
+      } catch (error) {
+        console.error('Error checking RSVP status:', error);
+      }
+    };
+
+    checkRSVPStatus();
+  }, [session, webinar.slug, webinar.uniqueSlug]);
 
   // Function to convert timezone to user-friendly format
   const getTimezoneDisplay = (timezone: string) => {
@@ -111,6 +132,8 @@ export default function WebinarDetailClient({
       if (response.ok) {
         setHasRSVPed(true);
         alert("You're registered! Check your email for details.");
+        // Refresh the page to update RSVP counts and user's events list
+        router.refresh();
       } else {
         const errorData = await response.json();
         setError(errorData.error || 'Failed to RSVP');

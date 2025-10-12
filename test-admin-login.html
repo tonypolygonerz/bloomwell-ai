@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Login Test</title>
+</head>
+<body>
+    <h1>Admin Login Test</h1>
+    <button onclick="testLogin()">Test Admin Login</button>
+    <button onclick="testAIModels()">Test AI Models API</button>
+    <button onclick="clearSession()">Clear Session</button>
+    <div id="output"></div>
+
+    <script>
+        async function testLogin() {
+            try {
+                const response = await fetch('/api/admin/auth', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: 'admin',
+                        password: 'admin123'
+                    }),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    localStorage.setItem('adminSession', JSON.stringify(data));
+                    document.getElementById('output').innerHTML = '<p style="color: green;">Login successful! Token: ' + data.token.substring(0, 50) + '...</p>';
+                } else {
+                    const error = await response.json();
+                    document.getElementById('output').innerHTML = '<p style="color: red;">Login failed: ' + error.error + '</p>';
+                }
+            } catch (error) {
+                document.getElementById('output').innerHTML = '<p style="color: red;">Error: ' + error.message + '</p>';
+            }
+        }
+
+        async function testAIModels() {
+            const adminSession = localStorage.getItem('adminSession');
+            if (!adminSession) {
+                document.getElementById('output').innerHTML = '<p style="color: red;">No admin session found. Please login first.</p>';
+                return;
+            }
+
+            try {
+                const sessionData = JSON.parse(adminSession);
+                const response = await fetch('/api/admin/ai-models', {
+                    headers: {
+                        'Authorization': 'Bearer ' + sessionData.token,
+                    },
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('output').innerHTML = '<p style="color: green;">AI Models API successful! Models: ' + data.availableModels.length + '</p>';
+                } else {
+                    const error = await response.json();
+                    document.getElementById('output').innerHTML = '<p style="color: red;">AI Models API failed: ' + error.error + '</p>';
+                }
+            } catch (error) {
+                document.getElementById('output').innerHTML = '<p style="color: red;">Error: ' + error.message + '</p>';
+            }
+        }
+
+        function clearSession() {
+            localStorage.removeItem('adminSession');
+            document.getElementById('output').innerHTML = '<p style="color: blue;">Session cleared.</p>';
+        }
+    </script>
+</body>
+</html>

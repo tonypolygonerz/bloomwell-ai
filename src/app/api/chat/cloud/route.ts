@@ -537,7 +537,7 @@ INSTRUCTIONS: You have access to current web information above. Use these source
     if (user) {
       try {
         // Fetch active guidelines from database
-        const guidelines = await (prisma as any).aIGuideline.findMany({
+        const guidelines = await prisma.ai_guidelines.findMany({
           where: { isActive: true },
         });
 
@@ -604,6 +604,7 @@ INSTRUCTIONS: You have access to current web information above. Use these source
       // Save user message
       await prisma.message.create({
         data: {
+          id: `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
           content: message,
           role: 'user',
           conversationId: conversationId,
@@ -614,6 +615,7 @@ INSTRUCTIONS: You have access to current web information above. Use these source
       // Save assistant response with cloud tracking
       await prisma.message.create({
         data: {
+          id: `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
           content: aiResponse,
           role: 'assistant',
           conversationId: conversationId,

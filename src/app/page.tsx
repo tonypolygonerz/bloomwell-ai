@@ -25,22 +25,16 @@ export default function Home() {
                 Features
               </Link>
               <Link
-                href='/pricing'
-                className='text-white hover:text-green-100 transition-colors'
-              >
-                Pricing
-              </Link>
-              <Link
                 href='/webinars'
                 className='text-white hover:text-green-100 transition-colors'
               >
                 Webinars
               </Link>
               <Link
-                href='#about'
+                href='/pricing'
                 className='text-white hover:text-green-100 transition-colors'
               >
-                About
+                Pricing
               </Link>
             </nav>
 

@@ -8,94 +8,223 @@
    - Environments: .env.local, .env
 
  ✓ Starting...
- ✓ Ready in 6.5s
+ ✓ Ready in 4.1s
  ○ Compiling /middleware ...
- ✓ Compiled /middleware in 1148ms (114 modules)
- ○ Compiling /admin/users ...
- ✓ Compiled /admin/users in 16.3s (738 modules)
- HEAD /admin/users 200 in 19197ms
- ✓ Compiled in 3.1s (296 modules)
- ○ Compiling /api/admin/auth ...
- ✓ Compiled /api/admin/auth in 4s (825 modules)
- POST /api/admin/auth 200 in 7625ms
- ○ Compiling /api/admin/users ...
- ✓ Compiled /api/admin/users in 1632ms (828 modules)
- GET /api/admin/users?page=1&limit=5 200 in 1935ms
- GET /api/admin/users?search=tony&page=1&limit=10 200 in 155ms
- GET /api/admin/users?sortBy=createdAt&sortOrder=asc&limit=3 200 in 205ms
- GET /admin/users?sortBy=createdAt&sortOrder=desc 200 in 2930ms
- ○ Compiling /favicon.ico ...
- ✓ Compiled /api/auth/[...nextauth] in 2s (547 modules)
- ✓ Compiled in 6.3s (283 modules)
- GET /favicon.ico 200 in 10887ms
- GET /api/admin/users?page=1&limit=20 200 in 10298ms
- GET /api/admin/users?page=1&limit=20 200 in 946ms
- GET /api/admin/users?page=1&limit=20&sortBy=createdAt&sortOrder=desc 200 in 75ms
- GET /admin/users?sortBy=createdAt&sortOrder=desc 200 in 1634ms
- GET /api/auth/session 200 in 14706ms
- ✓ Compiled in 2.9s (1072 modules)
- GET /admin/users?sortBy=createdAt&sortOrder=desc 200 in 1469ms
+ ✓ Compiled /middleware in 1504ms (114 modules)
  ○ Compiling /api/maintenance/status ...
- ✓ Compiled /api/maintenance/status in 4s (760 modules)
- GET /api/maintenance/status 200 in 5305ms
- ○ Compiling /pricing ...
- ✓ Compiled /pricing in 6.7s (767 modules)
-PricingCard - Monthly Price ID: price_1SAas1GpZiQKTBAtcgtB71u4
-PricingCard - Annual Price ID: price_1SAatSGpZiQKTBAtmOVcBQZG
- GET /pricing 200 in 9310ms
- GET /admin/users?sortBy=createdAt&sortOrder=desc 200 in 9322ms
- ✓ Compiled in 1322ms (781 modules)
- GET /admin/users?sortBy=createdAt&sortOrder=desc 200 in 275ms
- ✓ Compiled in 1669ms (781 modules)
- GET /admin/users?sortBy=createdAt&sortOrder=desc 200 in 429ms
- GET /api/maintenance/status 200 in 104ms
-PricingCard - Monthly Price ID: price_1SAas1GpZiQKTBAtcgtB71u4
-PricingCard - Annual Price ID: price_1SAatSGpZiQKTBAtmOVcBQZG
- GET /pricing 200 in 605ms
- GET /api/maintenance/status 200 in 75ms
-PricingCard - Monthly Price ID: price_1SAas1GpZiQKTBAtcgtB71u4
-PricingCard - Annual Price ID: price_1SAatSGpZiQKTBAtmOVcBQZG
- GET /pricing 200 in 385ms
- ○ Compiling /admin/login ...
- ✓ Compiled /admin/login in 9.3s (775 modules)
- GET /admin/login 200 in 10288ms
- ○ Compiling /favicon.ico ...
- ✓ Compiled /favicon.ico in 2.6s (487 modules)
- GET /favicon.ico 200 in 2839ms
- GET /api/maintenance/status 200 in 195ms
- ○ Compiling / ...
- ✓ Compiled / in 750ms (783 modules)
- GET / 200 in 2519ms
- GET /api/maintenance/status 200 in 200ms
-PricingCard - Monthly Price ID: price_1SAas1GpZiQKTBAtcgtB71u4
-PricingCard - Annual Price ID: price_1SAatSGpZiQKTBAtmOVcBQZG
- HEAD /pricing 200 in 3054ms
- GET /favicon.ico 200 in 1614ms
- GET /favicon.ico 200 in 850ms
+ ✓ Compiled /api/maintenance/status in 5.3s (298 modules)
+✅ Prisma connected successfully
+ GET /api/maintenance/status 200 in 7420ms
+ ○ Compiling /api/notifications ...
+ ✓ Compiled /api/notifications in 3s (534 modules)
+prisma:error 
+Invalid `prisma.userNotification.findMany()` invocation:
+
+{
+  where: {
+    userId: "117256655695246480413"
+  },
+  include: {
+    webinar: {
+    ~~~~~~~
+      select: {
+        id: true,
+        title: true,
+        uniqueSlug: true,
+        scheduledDate: true
+      }
+    },
+?   Webinar?: true,
+?   AdminNotification?: true,
+?   User?: true
+  },
+  orderBy: {
+    createdAt: "desc"
+  },
+  skip: 0,
+  take: 10
+}
+
+Unknown field `webinar` for include statement on model `UserNotification`. Available options are marked with ?.
+User notifications API error: Error [PrismaClientValidationError]: 
+Invalid `prisma.userNotification.findMany()` invocation:
+
+{
+  where: {
+    userId: "117256655695246480413"
+  },
+  include: {
+    webinar: {
+    ~~~~~~~
+      select: {
+        id: true,
+        title: true,
+        uniqueSlug: true,
+        scheduledDate: true
+      }
+    },
+?   Webinar?: true,
+?   AdminNotification?: true,
+?   User?: true
+  },
+  orderBy: {
+    createdAt: "desc"
+  },
+  skip: 0,
+  take: 10
+}
+
+Unknown field `webinar` for include statement on model `UserNotification`. Available options are marked with ?.
+    at async GET (src/app/api/notifications/route.ts:32:54)
+  30 |
+  31 |     // Get user notifications
+> 32 |     const [notifications, totalCount, unreadCount] = await Promise.all([
+     |                                                      ^
+  33 |       prisma.userNotification.findMany({
+  34 |         where: whereConditions,
+  35 |         include: { {
+  clientVersion: '6.15.0'
+}
+ GET /api/notifications?limit=10&unreadOnly=false 500 in 4617ms
+ GET /api/maintenance/status 200 in 48ms
+prisma:error 
+Invalid `prisma.userNotification.findMany()` invocation:
+
+{
+  where: {
+    userId: "117256655695246480413"
+  },
+  include: {
+    webinar: {
+    ~~~~~~~
+      select: {
+        id: true,
+        title: true,
+        uniqueSlug: true,
+        scheduledDate: true
+      }
+    },
+?   Webinar?: true,
+?   AdminNotification?: true,
+?   User?: true
+  },
+  orderBy: {
+    createdAt: "desc"
+  },
+  skip: 0,
+  take: 10
+}
+
+Unknown field `webinar` for include statement on model `UserNotification`. Available options are marked with ?.
+User notifications API error: Error [PrismaClientValidationError]: 
+Invalid `prisma.userNotification.findMany()` invocation:
+
+{
+  where: {
+    userId: "117256655695246480413"
+  },
+  include: {
+    webinar: {
+    ~~~~~~~
+      select: {
+        id: true,
+        title: true,
+        uniqueSlug: true,
+        scheduledDate: true
+      }
+    },
+?   Webinar?: true,
+?   AdminNotification?: true,
+?   User?: true
+  },
+  orderBy: {
+    createdAt: "desc"
+  },
+  skip: 0,
+  take: 10
+}
+
+Unknown field `webinar` for include statement on model `UserNotification`. Available options are marked with ?.
+    at async GET (src/app/api/notifications/route.ts:32:54)
+  30 |
+  31 |     // Get user notifications
+> 32 |     const [notifications, totalCount, unreadCount] = await Promise.all([
+     |                                                      ^
+  33 |       prisma.userNotification.findMany({
+  34 |         where: whereConditions,
+  35 |         include: { {
+  clientVersion: '6.15.0'
+}
+ GET /api/notifications?limit=10&unreadOnly=false 500 in 279ms
+ GET /api/maintenance/status 200 in 84ms
+prisma:error 
+Invalid `prisma.userNotification.findMany()` invocation:
+
+{
+  where: {
+    userId: "117256655695246480413"
+  },
+  include: {
+    webinar: {
+    ~~~~~~~
+      select: {
+        id: true,
+        title: true,
+        uniqueSlug: true,
+        scheduledDate: true
+      }
+    },
+?   Webinar?: true,
+?   AdminNotification?: true,
+?   User?: true
+  },
+  orderBy: {
+    createdAt: "desc"
+  },
+  skip: 0,
+  take: 10
+}
+
+Unknown field `webinar` for include statement on model `UserNotification`. Available options are marked with ?.
+User notifications API error: Error [PrismaClientValidationError]: 
+Invalid `prisma.userNotification.findMany()` invocation:
+
+{
+  where: {
+    userId: "117256655695246480413"
+  },
+  include: {
+    webinar: {
+    ~~~~~~~
+      select: {
+        id: true,
+        title: true,
+        uniqueSlug: true,
+        scheduledDate: true
+      }
+    },
+?   Webinar?: true,
+?   AdminNotification?: true,
+?   User?: true
+  },
+  orderBy: {
+    createdAt: "desc"
+  },
+  skip: 0,
+  take: 10
+}
+
+Unknown field `webinar` for include statement on model `UserNotification`. Available options are marked with ?.
+    at async GET (src/app/api/notifications/route.ts:32:54)
+  30 |
+  31 |     // Get user notifications
+> 32 |     const [notifications, totalCount, unreadCount] = await Promise.all([
+     |                                                      ^
+  33 |       prisma.userNotification.findMany({
+  34 |         where: whereConditions,
+  35 |         include: { {
+  clientVersion: '6.15.0'
+}
+ GET /api/notifications?limit=10&unreadOnly=false 500 in 302ms
  ○ Compiling /api/auth/[...nextauth] ...
- ✓ Compiled /api/auth/[...nextauth] in 5.2s (725 modules)
- GET /favicon.ico 200 in 7896ms
- GET /api/maintenance/status 200 in 8033ms
- GET /api/auth/session 200 in 8851ms
- GET /api/auth/session 200 in 1208ms
- GET /api/maintenance/status 200 in 200ms
- GET /pricing 200 in 1926ms
- GET /pricing 200 in 890ms
- GET /api/maintenance/status 200 in 545ms
- GET /favicon.ico 200 in 90ms
-PricingCard - Monthly Price ID: price_1SAas1GpZiQKTBAtcgtB71u4
-PricingCard - Annual Price ID: price_1SAatSGpZiQKTBAtmOVcBQZG
- GET /pricing 200 in 5159ms
- GET /favicon.ico 200 in 1194ms
- GET /favicon.ico 200 in 273ms
- GET /api/auth/session 200 in 784ms
- GET /api/auth/session 200 in 348ms
- GET /api/maintenance/status 200 in 161ms
- ✓ Compiled in 15.1s (774 modules)
- ○ Compiling /api/maintenance/status ...
- ✓ Compiled /api/maintenance/status in 2.6s (490 modules)
- GET /api/maintenance/status 200 in 4932ms
- GET /pricing 200 in 6578ms
- ✓ Compiled in 4.2s (490 modules)
- GET /api/maintenance/status 200 in 383ms
- GET /pricing 200 in 823ms
+[?25h

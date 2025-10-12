@@ -21,12 +21,21 @@ export async function POST(request: NextRequest) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
 
+    // Calculate trial dates (14 days from now)
+    const trialStartDate = new Date();
+    const trialEndDate = new Date(
+      trialStartDate.getTime() + 14 * 24 * 60 * 60 * 1000
+    );
+
     // Create user
     const user = await prisma.user.create({
       data: {
         name,
         email,
         password: hashedPassword,
+        trialStartDate,
+        trialEndDate,
+        subscriptionStatus: 'TRIAL',
       },
     });
 

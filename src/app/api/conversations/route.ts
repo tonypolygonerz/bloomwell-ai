@@ -15,10 +15,10 @@ export async function GET(_request: NextRequest) {
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
       include: {
-        conversations: {
+        Conversation: {
           orderBy: { updatedAt: 'desc' },
           include: {
-            messages: {
+            Message: {
               orderBy: { createdAt: 'asc' },
               take: 1, // Get first message for preview
             },
@@ -31,7 +31,7 @@ export async function GET(_request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ conversations: user.conversations });
+    return NextResponse.json({ conversations: user.Conversation });
   } catch (error) {
     console.error('Error fetching conversations:', error);
     return NextResponse.json(
@@ -63,9 +63,11 @@ export async function POST(request: NextRequest) {
 
     const conversation = await prisma.conversation.create({
       data: {
+        id: `conv-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         title: title || 'New Conversation',
         userId: user.id,
-        organizationId: user.organization?.id,
+        organizationId: user.Organization?.id,
+        updatedAt: new Date(),
       },
     });
 

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Full Admin Flow Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        button { margin: 10px; padding: 10px; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+    </style>
+</head>
+<body>
+    <h1>Full Admin Flow Test</h1>
+    
+    <div>
+        <button onclick="step1()">1. Login as Admin</button>
+        <button onclick="step2()">2. Test AI Models API</button>
+        <button onclick="step3()">3. Open AI Models Page</button>
+        <button onclick="clearAll()">Clear All</button>
+    </div>
+    
+    <div id="output"></div>
+
+    <script>
+        let adminToken = null;
+
+        function log(message, type = 'info') {
+            const output = document.getElementById('output');
+            const color = type === 'success' ? 'green' : type === 'error' ? 'red' : 'blue';
+            output.innerHTML += `<p style="color: ${color};">${new Date().toLocaleTimeString()}: ${message}</p>`;
+        }
+
+        async function step1() {
+            log('Starting admin login...', 'info');
+            try {
+                const response = await fetch('/api/admin/auth', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: 'admin',
+                        password: 'admin123'
+                    }),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    adminToken = data.token;
+                    localStorage.setItem('adminSession', JSON.stringify(data));
+                    log(`Login successful! Token: ${data.token.substring(0, 50)}...`, 'success');
+                } else {
+                    const error = await response.json();
+                    log(`Login failed: ${error.error}`, 'error');
+                }
+            } catch (error) {
+                log(`Login error: ${error.message}`, 'error');
+            }
+        }
+
+        async function step2() {
+            if (!adminToken) {
+                log('Please login first!', 'error');
+                return;
+            }
+
+            log('Testing AI Models API...', 'info');
+            try {
+                const response = await fetch('/api/admin/ai-models', {
+                    headers: {
+                        'Authorization': `Bearer ${adminToken}`,
+                    },
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`AI Models API successful! Found ${data.availableModels.length} models`, 'success');
+                    log(`Models: ${data.availableModels.map(m => m.modelName).join(', ')}`, 'info');
+                } else {
+                    const error = await response.json();
+                    log(`AI Models API failed: ${error.error}`, 'error');
+                }
+            } catch (error) {
+                log(`AI Models API error: ${error.message}`, 'error');
+            }
+        }
+
+        function step3() {
+            if (!adminToken) {
+                log('Please login first!', 'error');
+                return;
+            }
+
+            log('Opening AI Models page...', 'info');
+            window.open('/admin/ai-models', '_blank');
+        }
+
+        function clearAll() {
+            adminToken = null;
+            localStorage.removeItem('adminSession');
+            document.getElementById('output').innerHTML = '';
+            log('All data cleared.', 'info');
+        }
+
+        // Check if we already have a session
+        window.onload = function() {
+            const adminSession = localStorage.getItem('adminSession');
+            if (adminSession) {
+                try {
+                    const sessionData = JSON.parse(adminSession);
+                    adminToken = sessionData.token;
+                    log('Found existing admin session', 'success');
+                } catch (error) {
+                    log('Invalid session data, clearing...', 'error');
+                    localStorage.removeItem('adminSession');
+                }
+            }
+        };
+    </script>
+</body>
+</html>

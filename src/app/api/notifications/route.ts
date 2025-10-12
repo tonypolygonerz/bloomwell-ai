@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
       prisma.userNotification.findMany({
         where: whereConditions,
         include: {
-          webinar: {
+          Webinar: {
             select: {
               id: true,
               title: true,

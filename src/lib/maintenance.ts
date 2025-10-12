@@ -75,3 +75,4 @@ export const maintenanceBypassRoutes = [
 export function shouldBypassMaintenance(pathname: string): boolean {
   return maintenanceBypassRoutes.some(route => pathname.startsWith(route));
 }
+

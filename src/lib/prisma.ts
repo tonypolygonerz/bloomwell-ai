@@ -10,11 +10,17 @@ export const prisma =
     log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
   });
 
-// Explicitly connect to the database
+// Ensure connection is established immediately
 if (!globalForPrisma.prisma) {
-  prisma.$connect().catch(err => {
-    console.error('Failed to connect to database:', err);
-  });
+  // Connect synchronously in development to avoid timing issues
+  prisma
+    .$connect()
+    .then(() => {
+      console.log('✅ Prisma connected successfully');
+    })
+    .catch(err => {
+      console.error('❌ Failed to connect to database:', err);
+    });
 }
 
 if (process.env.NODE_ENV !== 'production') {

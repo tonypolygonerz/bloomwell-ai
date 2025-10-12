@@ -61,6 +61,7 @@ export async function POST(
     // Create RSVP
     const rsvp = await prisma.webinarRSVP.create({
       data: {
+        id: `rsvp-${webinar.id}-${session.user.id}-${Date.now()}`,
         webinarId: webinar.id,
         userId: session.user.id,
       },
