@@ -150,6 +150,17 @@ export function LoginForm() {
               />
             </div>
 
+            <div className='flex items-center justify-end'>
+              <div className='text-sm'>
+                <Link
+                  href='/auth/forgot-password'
+                  className='font-medium text-blue-600 hover:text-blue-500'
+                >
+                  Forgot your password?
+                </Link>
+              </div>
+            </div>
+
             {error && (
               <div className='rounded-md bg-red-50 p-3'>
                 <p className='text-sm text-red-800 text-center'>{error}</p>

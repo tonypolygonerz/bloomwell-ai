@@ -1,181 +1,222 @@
-import { RegisterForm } from '@/components/register-form';
+'use client';
 
-export const metadata = {
-  title: 'Start Your Free Trial | Bloomwell AI',
-  description:
-    'Join hundreds of nonprofits accessing 900+ grants and AI-powered guidance. Start your 14-day free trial today - no credit card required.',
-  keywords:
-    'nonprofit registration, grant access, AI nonprofit tools, free trial, nonprofit software',
-};
+import { Suspense } from 'react';
+import Link from 'next/link';
+import ProgressiveRegistrationForm from '@/components/auth/ProgressiveRegistrationForm';
+import { 
+  CheckCircleIcon, 
+  SparklesIcon, 
+  CurrencyDollarIcon,
+  ClockIcon,
+  UserGroupIcon 
+} from '@heroicons/react/24/outline';
 
-export default function RegisterPage() {
+function RegistrationContent() {
   return (
-    <div className='min-h-screen bg-gray-50'>
-      {/* Two-column layout: Marketing content + Registration form */}
-      <div className='flex min-h-screen'>
-        {/* Left Column - Marketing Content */}
-        <div className='hidden lg:flex lg:w-1/2 bg-gradient-to-br from-green-600 to-emerald-700 relative overflow-hidden'>
-          <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10"></div>
-          <div className='relative z-10 flex flex-col justify-center px-12 xl:px-16 text-white'>
-            {/* Hero Section */}
-            <div className='mb-8'>
-              <h1 className='text-4xl xl:text-5xl font-bold mb-4 leading-tight'>
-                Start Your
-                <span className='block'>14-Day Free Trial</span>
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-gray-50">
+      <div className="flex min-h-screen">
+        {/* Left Side: Value Proposition */}
+        <div className="hidden lg:flex lg:w-5/12 bg-gradient-to-br from-emerald-600 to-emerald-800 p-12 flex-col justify-between">
+          <div>
+            {/* Logo */}
+            <Link href="/" className="flex items-center space-x-2">
+              <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+                <SparklesIcon className="h-6 w-6 text-emerald-600" />
+              </div>
+              <span className="text-2xl font-bold text-white">Bloomwell AI</span>
+            </Link>
+
+            {/* Headline */}
+            <div className="mt-16">
+              <h1 className="text-4xl font-bold text-white leading-tight mb-4">
+                Start your 14-day
+                <br />
+                free trial
               </h1>
-              <p className='text-xl text-green-100 mb-2'>
-                No credit card required
-              </p>
-              <p className='text-lg text-green-200'>
-                Join hundreds of nonprofits securing funding with AI-powered
-                guidance
+              <p className="text-emerald-100 text-lg leading-relaxed">
+                Join thousands of nonprofits discovering funding opportunities
+                with AI-powered grant matching.
               </p>
             </div>
 
-            {/* Key Benefits */}
-            <div className='space-y-6'>
-              <div className='flex items-start space-x-4'>
-                <div className='flex-shrink-0 w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center backdrop-blur-sm'>
-                  <svg
-                    className='w-6 h-6 text-white'
-                    fill='none'
-                    stroke='currentColor'
-                    viewBox='0 0 24 24'
-                  >
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'
-                    />
-                  </svg>
+            {/* Benefits */}
+            <div className="mt-12 space-y-6">
+              <div className="flex items-start space-x-4">
+                <div className="flex-shrink-0">
+                  <div className="w-10 h-10 bg-emerald-500 rounded-lg flex items-center justify-center">
+                    <CurrencyDollarIcon className="h-6 w-6 text-white" />
+                  </div>
                 </div>
                 <div>
-                  <h3 className='text-xl font-semibold mb-1'>
-                    900+ Current Grant Opportunities
+                  <h3 className="text-white font-semibold text-lg mb-1">
+                    1,200+ Grant Opportunities
                   </h3>
-                  <p className='text-green-100'>
-                    Access federal grants updated weekly, filtered specifically
-                    for nonprofits under $3M budget
+                  <p className="text-emerald-100 text-sm leading-relaxed">
+                    Access federal and state grants worth billions in funding
                   </p>
                 </div>
               </div>
 
-              <div className='flex items-start space-x-4'>
-                <div className='flex-shrink-0 w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center backdrop-blur-sm'>
-                  <svg
-                    className='w-6 h-6 text-white'
-                    fill='none'
-                    stroke='currentColor'
-                    viewBox='0 0 24 24'
-                  >
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z'
-                    />
-                  </svg>
+              <div className="flex items-start space-x-4">
+                <div className="flex-shrink-0">
+                  <div className="w-10 h-10 bg-emerald-500 rounded-lg flex items-center justify-center">
+                    <SparklesIcon className="h-6 w-6 text-white" />
+                  </div>
                 </div>
                 <div>
-                  <h3 className='text-xl font-semibold mb-1'>
-                    AI-Powered Nonprofit Guidance
+                  <h3 className="text-white font-semibold text-lg mb-1">
+                    AI-Powered Matching
                   </h3>
-                  <p className='text-green-100'>
-                    Get instant answers to grant questions, program planning,
-                    and fundraising strategies
+                  <p className="text-emerald-100 text-sm leading-relaxed">
+                    Get personalized grant recommendations based on your mission
                   </p>
                 </div>
               </div>
 
-              <div className='flex items-start space-x-4'>
-                <div className='flex-shrink-0 w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center backdrop-blur-sm'>
-                  <svg
-                    className='w-6 h-6 text-white'
-                    fill='none'
-                    stroke='currentColor'
-                    viewBox='0 0 24 24'
-                  >
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253'
-                    />
-                  </svg>
+              <div className="flex items-start space-x-4">
+                <div className="flex-shrink-0">
+                  <div className="w-10 h-10 bg-emerald-500 rounded-lg flex items-center justify-center">
+                    <ClockIcon className="h-6 w-6 text-white" />
+                  </div>
                 </div>
                 <div>
-                  <h3 className='text-xl font-semibold mb-1'>
-                    Expert-Led Webinars & Training
+                  <h3 className="text-white font-semibold text-lg mb-1">
+                    Save Hours Every Week
                   </h3>
-                  <p className='text-green-100'>
-                    Learn from successful nonprofit leaders on grant writing and
-                    organizational growth
+                  <p className="text-emerald-100 text-sm leading-relaxed">
+                    Let AI handle research while you focus on writing proposals
                   </p>
                 </div>
               </div>
 
-              <div className='flex items-start space-x-4'>
-                <div className='flex-shrink-0 w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center backdrop-blur-sm'>
-                  <svg
-                    className='w-6 h-6 text-white'
-                    fill='none'
-                    stroke='currentColor'
-                    viewBox='0 0 24 24'
-                  >
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
-                    />
-                  </svg>
+              <div className="flex items-start space-x-4">
+                <div className="flex-shrink-0">
+                  <div className="w-10 h-10 bg-emerald-500 rounded-lg flex items-center justify-center">
+                    <UserGroupIcon className="h-6 w-6 text-white" />
+                  </div>
                 </div>
                 <div>
-                  <h3 className='text-xl font-semibold mb-1'>
-                    Save Time, Win More Grants
+                  <h3 className="text-white font-semibold text-lg mb-1">
+                    Built for Nonprofits
                   </h3>
-                  <p className='text-green-100'>
-                    Replace expensive grant consultants with affordable AI tools
-                    designed for small nonprofits
+                  <p className="text-emerald-100 text-sm leading-relaxed">
+                    Designed specifically for organizations under $3M budget
                   </p>
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* Trust Indicators */}
-            <div className='mt-12 pt-8 border-t border-white/20'>
-              <p className='text-sm text-green-200 mb-3'>
-                After your trial, continue for just:
-              </p>
-              <div className='flex items-baseline space-x-2'>
-                <span className='text-4xl font-bold'>$29.99</span>
-                <span className='text-xl text-green-100'>/month</span>
+          {/* Social Proof */}
+          <div className="mt-12">
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+              <div className="flex items-center mb-3">
+                <div className="flex -space-x-2">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div
+                      key={i}
+                      className="w-8 h-8 bg-gradient-to-br from-emerald-300 to-emerald-400 rounded-full border-2 border-white"
+                    />
+                  ))}
+                </div>
+                <span className="ml-3 text-white font-medium">2,000+ nonprofits</span>
               </div>
-              <p className='text-sm text-green-200 mt-2'>
-                or $209/year (save 42%) • Cancel anytime
+              <p className="text-emerald-100 text-sm italic">
+                &ldquo;Bloomwell AI helped us discover $500K in grants we didn&rsquo;t know existed. 
+                The AI assistant feels like having a dedicated grant researcher.&rdquo;
               </p>
+              <p className="text-emerald-200 text-xs mt-2 font-medium">
+                — Sarah M., Executive Director
+              </p>
+            </div>
+          </div>
+
+          {/* Trust Badges */}
+          <div className="mt-8 pt-8 border-t border-white/20">
+            <div className="flex items-center space-x-6">
+              <div className="flex items-center space-x-2">
+                <CheckCircleIcon className="h-5 w-5 text-emerald-300" />
+                <span className="text-emerald-100 text-sm">No credit card required</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <CheckCircleIcon className="h-5 w-5 text-emerald-300" />
+                <span className="text-emerald-100 text-sm">Cancel anytime</span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Right Column - Registration Form */}
-        <div className='flex-1 lg:w-1/2 flex items-center justify-center px-6 py-12 sm:px-8 lg:px-12'>
-          <div className='w-full max-w-md'>
-            {/* Mobile Marketing Header */}
-            <div className='lg:hidden mb-8 text-center'>
-              <h1 className='text-3xl font-bold text-gray-900 mb-2'>
-                Start Your Free Trial
-              </h1>
-              <p className='text-gray-600'>
-                14 days free • No credit card required
+        {/* Right Side: Registration Form */}
+        <div className="flex-1 flex items-center justify-center p-8 lg:p-12">
+          <div className="w-full max-w-md">
+            {/* Mobile Logo */}
+            <div className="lg:hidden mb-8">
+              <Link href="/" className="flex items-center space-x-2">
+                <div className="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center">
+                  <SparklesIcon className="h-6 w-6 text-white" />
+                </div>
+                <span className="text-2xl font-bold text-gray-900">Bloomwell AI</span>
+              </Link>
+            </div>
+
+            {/* Form Header */}
+            <div className="mb-8">
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                Create your account
+              </h2>
+              <p className="text-gray-600">
+                Start discovering grants in under 2 minutes
               </p>
             </div>
 
-            <RegisterForm />
+            {/* Progressive Form */}
+            <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+              <ProgressiveRegistrationForm />
+            </div>
+
+            {/* Sign In Link */}
+            <p className="mt-6 text-center text-sm text-gray-600">
+              Already have an account?{' '}
+              <Link
+                href="/auth/signin"
+                className="font-semibold text-emerald-600 hover:text-emerald-700"
+              >
+                Sign in
+              </Link>
+            </p>
+
+            {/* Mobile Benefits (shown on smaller screens) */}
+            <div className="lg:hidden mt-8 space-y-4">
+              <div className="flex items-center space-x-3">
+                <CheckCircleIcon className="h-6 w-6 text-emerald-600 flex-shrink-0" />
+                <span className="text-sm text-gray-700">1,200+ federal & state grants</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <CheckCircleIcon className="h-6 w-6 text-emerald-600 flex-shrink-0" />
+                <span className="text-sm text-gray-700">AI-powered grant matching</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <CheckCircleIcon className="h-6 w-6 text-emerald-600 flex-shrink-0" />
+                <span className="text-sm text-gray-700">14-day free trial, no credit card</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin h-12 w-12 border-4 border-emerald-600 border-t-transparent rounded-full"></div>
+        </div>
+      }
+    >
+      <RegistrationContent />
+    </Suspense>
   );
 }

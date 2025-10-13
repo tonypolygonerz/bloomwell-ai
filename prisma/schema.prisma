@@ -130,28 +130,30 @@ model Session {
 }
 
 model User {
-  id                 String             @id
-  email              String             @unique
-  password           String?
-  name               String?
-  image              String?
-  organizationId     String?
-  createdAt          DateTime           @default(now())
-  updatedAt          DateTime
-  trialStartDate     DateTime?          @default(now())
-  trialEndDate       DateTime?
-  subscriptionStatus String             @default("TRIAL")
-  subscriptionType   String?
-  lastActiveDate     DateTime?          @default(now())
-  Account            Account[]
-  Conversation       Conversation[]
-  Session            Session[]
-  Organization       Organization?      @relation(fields: [organizationId], references: [id])
-  UserNotification   UserNotification[]
-  WebinarRSVP        WebinarRSVP[]
-  pdf_processings    pdf_processings[]
-  user_projects      user_projects[]
-  web_search_logs    web_search_logs[]
+  id                    String             @id
+  email                 String             @unique
+  password              String?
+  name                  String?
+  image                 String?
+  organizationId        String?
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime
+  trialStartDate        DateTime?          @default(now())
+  trialEndDate          DateTime?
+  subscriptionStatus    String             @default("TRIAL")
+  subscriptionType      String?
+  lastActiveDate        DateTime?          @default(now())
+  resetPasswordToken    String?
+  resetPasswordExpires  DateTime?
+  Account               Account[]
+  Conversation          Conversation[]
+  Session               Session[]
+  Organization          Organization?      @relation(fields: [organizationId], references: [id])
+  UserNotification      UserNotification[]
+  WebinarRSVP           WebinarRSVP[]
+  pdf_processings       pdf_processings[]
+  user_projects         user_projects[]
+  web_search_logs       web_search_logs[]
 }
 
 model UserNotification {
