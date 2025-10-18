@@ -1,10 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import AdminBreadcrumb from '@/components/AdminBreadcrumb';
 import AdminSearchFilters from '@/components/AdminSearchFilters';
+
+interface AdminUser {
+  id: string;
+  email: string;
+  name?: string;
+  role: string;
+}
 
 interface Webinar {
   id: string;
@@ -25,35 +32,10 @@ export default function WebinarSearch() {
   const router = useRouter();
   const [webinars, setWebinars] = useState<Webinar[]>([]);
   const [loading, setLoading] = useState(true);
-  const [adminUser, setAdminUser] = useState<any>(null);
+  const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
   const [searchParams, setSearchParams] = useState<Record<string, string>>({});
 
-  useEffect(() => {
-    // Check for admin session
-    const adminSession = localStorage.getItem('adminSession');
-    if (!adminSession) {
-      router.push('/admin/login');
-      return;
-    }
-
-    try {
-      const sessionData = JSON.parse(adminSession);
-      setAdminUser(sessionData.admin);
-      fetchWebinars(sessionData.token);
-    } catch (error) {
-      console.error('Error loading admin session:', error);
-      localStorage.removeItem('adminSession');
-      router.push('/admin/login');
-    }
-  }, [router]);
-
-  useEffect(() => {
-    if (adminUser) {
-      fetchWebinars();
-    }
-  }, [searchParams]);
-
-  const fetchWebinars = async (token?: string) => {
+  const fetchWebinars = useCallback(async (token?: string) => {
     if (!token) {
       const adminSession = localStorage.getItem('adminSession');
       if (!adminSession) return;
@@ -83,7 +65,32 @@ export default function WebinarSearch() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [router, searchParams]);
+
+  useEffect(() => {
+    // Check for admin session
+    const adminSession = localStorage.getItem('adminSession');
+    if (!adminSession) {
+      router.push('/admin/login');
+      return;
+    }
+
+    try {
+      const sessionData = JSON.parse(adminSession);
+      setAdminUser(sessionData.admin);
+      fetchWebinars(sessionData.token);
+    } catch (error) {
+      console.error('Error loading admin session:', error);
+      localStorage.removeItem('adminSession');
+      router.push('/admin/login');
+    }
+  }, [router, fetchWebinars]);
+
+  useEffect(() => {
+    if (adminUser) {
+      fetchWebinars();
+    }
+  }, [adminUser, fetchWebinars]);
 
   const handleSearch = (params: Record<string, string>) => {
     setSearchParams(params);
