@@ -75,13 +75,13 @@ export default function AdminWebinarsPage() {
         // Calculate stats from the webinars data
         const totalWebinars = webinarsData.length;
         const publishedWebinars = webinarsData.filter(
-          w => w.status === 'published'
+          (w: any) => w.status === 'published'
         ).length;
         const draftWebinars = webinarsData.filter(
-          w => w.status === 'draft'
+          (w: any) => w.status === 'draft'
         ).length;
         const totalAttendees = webinarsData.reduce(
-          (sum, w) => sum + (w.rsvpCount || 0),
+          (sum: any, w: any) => sum + (w.rsvpCount || 0),
           0
         );
         const averageAttendance =

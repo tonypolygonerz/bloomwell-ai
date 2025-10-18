@@ -26,9 +26,9 @@ export async function POST(request: NextRequest) {
     const webinar = await prisma.webinar.findUnique({
       where: { id: webinarId },
       include: {
-        rsvps: {
+        WebinarRSVP: {
           include: {
-            user: true,
+            User: true,
           },
         },
       },
@@ -88,10 +88,13 @@ async function scheduleWebinarNotifications(webinar: any) {
   if (dayBefore > new Date()) {
     const notification = await prisma.webinarNotification.create({
       data: {
+        id: `notif-${webinar.id}-24h-${Date.now()}`,
         type: '24_hours',
         scheduledAt: dayBefore,
         status: 'scheduled',
         webinarId: webinar.id,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
     });
     notifications.push(notification);
@@ -102,10 +105,13 @@ async function scheduleWebinarNotifications(webinar: any) {
   if (hourBefore > new Date()) {
     const notification = await prisma.webinarNotification.create({
       data: {
+        id: `notif-${webinar.id}-1h-${Date.now()}`,
         type: '1_hour',
         scheduledAt: hourBefore,
         status: 'scheduled',
         webinarId: webinar.id,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
     });
     notifications.push(notification);
@@ -116,10 +122,13 @@ async function scheduleWebinarNotifications(webinar: any) {
   if (startingNow > new Date()) {
     const notification = await prisma.webinarNotification.create({
       data: {
+        id: `notif-${webinar.id}-now-${Date.now()}`,
         type: 'starting_now',
         scheduledAt: startingNow,
         status: 'scheduled',
         webinarId: webinar.id,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
     });
     notifications.push(notification);
@@ -129,10 +138,13 @@ async function scheduleWebinarNotifications(webinar: any) {
   const followUp = new Date(scheduledDate.getTime() + 60 * 60 * 1000);
   const notification = await prisma.webinarNotification.create({
     data: {
+      id: `notif-${webinar.id}-followup-${Date.now()}`,
       type: 'followup',
       scheduledAt: followUp,
       status: 'scheduled',
       webinarId: webinar.id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     },
   });
   notifications.push(notification);
@@ -153,17 +165,17 @@ export async function processScheduledNotifications() {
           lte: now,
         },
       },
-      include: {
-        webinar: {
-          include: {
-            rsvps: {
-              include: {
-                user: true,
+        include: {
+          Webinar: {
+            include: {
+              WebinarRSVP: {
+                include: {
+                  User: true,
+                },
               },
             },
           },
         },
-      },
     });
 
     for (const notification of dueNotifications) {

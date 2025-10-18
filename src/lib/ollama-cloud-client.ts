@@ -18,6 +18,7 @@ export interface CloudResponse {
 }
 
 export interface CloudError {
+  name: string;
   code: string;
   message: string;
   retryable: boolean;
@@ -123,6 +124,7 @@ export class OllamaCloudClient {
   private parseError(error: any, response?: Response): CloudError {
     if (response?.status === 401) {
       return {
+        name: 'CloudError',
         code: 'AUTH_ERROR',
         message: 'Invalid API key or authentication failed',
         retryable: false,
@@ -131,6 +133,7 @@ export class OllamaCloudClient {
 
     if (response?.status === 429) {
       return {
+        name: 'CloudError',
         code: 'RATE_LIMIT',
         message: 'Rate limit exceeded. Please try again later.',
         retryable: true,
@@ -139,6 +142,7 @@ export class OllamaCloudClient {
 
     if (response?.status === 503) {
       return {
+        name: 'CloudError',
         code: 'SERVICE_UNAVAILABLE',
         message: 'Ollama Cloud service temporarily unavailable',
         retryable: true,
@@ -147,6 +151,7 @@ export class OllamaCloudClient {
 
     if (response?.status === 500) {
       return {
+        name: 'CloudError',
         code: 'SERVER_ERROR',
         message: 'Internal server error',
         retryable: true,
@@ -155,6 +160,7 @@ export class OllamaCloudClient {
 
     if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
       return {
+        name: 'CloudError',
         code: 'NETWORK_ERROR',
         message: 'Network connection failed',
         retryable: true,
@@ -162,6 +168,7 @@ export class OllamaCloudClient {
     }
 
     return {
+      name: 'CloudError',
       code: 'UNKNOWN_ERROR',
       message: error.message || 'An unknown error occurred',
       retryable: true,
@@ -183,16 +190,18 @@ export class OllamaCloudClient {
     // Check rate limits
     if (!this.checkRateLimit(model)) {
       throw new CloudError({
+        name: 'CloudError',
         code: 'RATE_LIMIT',
         message: 'Rate limit exceeded for this model',
         retryable: true,
-        fallbackModel: FALLBACK_HIERARCHY[model]?.[0],
+        fallbackModel: (FALLBACK_HIERARCHY as any)[model]?.[0],
       });
     }
 
     const modelConfig = CLOUD_MODELS[model];
     if (!modelConfig) {
       throw new CloudError({
+        name: 'CloudError',
         code: 'INVALID_MODEL',
         message: `Unknown model: ${model}`,
         retryable: false,
@@ -270,7 +279,7 @@ export class OllamaCloudClient {
   ): Promise<CloudResponse> {
     const modelsToTry = [
       primaryModel,
-      ...(FALLBACK_HIERARCHY[primaryModel] || []),
+      ...((FALLBACK_HIERARCHY as any)[primaryModel] || []),
     ];
 
     for (let i = 0; i < modelsToTry.length; i++) {
@@ -288,11 +297,12 @@ export class OllamaCloudClient {
           throw error;
         }
 
-        console.warn(`Model ${model} failed, trying fallback:`, error.message);
+        console.warn(`Model ${model} failed, trying fallback:`, error instanceof Error ? error.message : String(error));
       }
     }
 
     throw new CloudError({
+      name: 'CloudError',
       code: 'ALL_MODELS_FAILED',
       message: 'All available models failed to generate a response',
       retryable: false,

@@ -542,7 +542,7 @@ INSTRUCTIONS: You have access to current web information above. Use these source
         });
 
         // Build guideline context using organization data
-        const org = user.organization as any; // Type assertion for new fields
+        const org = user.Organization as any; // Type assertion for new fields
         const guidelineContext: GuidelineContext = {
           user: {
             organizationType: org?.organizationType || undefined,

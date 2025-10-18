@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '10');
 
     // Get recent sync history
-    const syncHistory = await prisma.grant_syncs.findMany({
+    const syncHistory = await prisma.grantSync.findMany({
       orderBy: { createdAt: 'desc' },
       take: limit,
     });
@@ -22,8 +22,8 @@ export async function GET(request: NextRequest) {
     // Get current grants statistics
     const now = new Date();
     const [totalGrants, activeGrants, lastSync] = await Promise.all([
-      prisma.grants.count(),
-      prisma.grants.count({
+      prisma.grant.count(),
+      prisma.grant.count({
         where: {
           isActive: true,
           OR: [
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
           ],
         },
       }),
-      prisma.grant_syncs.findFirst({
+      prisma.grantSync.findFirst({
         orderBy: { createdAt: 'desc' },
       }),
     ]);
@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
     console.log(`Starting grants sync triggered by admin: ${admin.username}`);
 
     // Check if there's already a sync in progress
-    const activeSync = await prisma.grant_syncs.findFirst({
+    const activeSync = await prisma.grantSync.findFirst({
       where: { syncStatus: 'processing' },
       orderBy: { createdAt: 'desc' },
     });
@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
         );
       } else {
         // Mark the old sync as failed due to timeout
-        await prisma.grant_syncs.update({
+        await prisma.grantSync.update({
           where: { id: activeSync.id },
           data: {
             syncStatus: 'failed',

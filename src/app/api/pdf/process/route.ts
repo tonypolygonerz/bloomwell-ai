@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
-    const todayProcessingCount = await prisma.pDFProcessing.count({
+    const todayProcessingCount = await prisma.pdf_processings.count({
       where: {
         userId,
         createdAt: {
@@ -118,9 +118,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Create PDF processing record
-    const pdfProcessing = await prisma.pDFProcessing.create({
+    const pdfProcessing = await prisma.pdf_processings.create({
       data: {
-        userId,
+        id: `pdf_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        updatedAt: new Date(),
+        User: {
+          connect: { id: userId },
+        },
         fileName: file.name,
         fileSize: file.size,
         pageCount: 0, // Will be updated after processing
@@ -142,7 +146,7 @@ export async function POST(request: NextRequest) {
       const extractionResult = await pdfProcessor.extractTextFromPDF(buffer);
 
       if (!extractionResult.success) {
-        await prisma.pDFProcessing.update({
+        await prisma.pdf_processings.update({
           where: { id: pdfProcessing.id },
           data: {
             status: 'FAILED',
@@ -186,7 +190,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Update processing record with results
-      const updatedProcessing = await prisma.pDFProcessing.update({
+      const updatedProcessing = await prisma.pdf_processings.update({
         where: { id: pdfProcessing.id },
         data: {
           pageCount: extractionResult.pageCount,
@@ -226,7 +230,7 @@ export async function POST(request: NextRequest) {
       });
     } catch (error) {
       // Update processing record with error
-      await prisma.pDFProcessing.update({
+      await prisma.pdf_processings.update({
         where: { id: pdfProcessing.id },
         data: {
           status: 'FAILED',
@@ -274,7 +278,7 @@ export async function GET(request: NextRequest) {
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
-    const todayProcessingCount = await prisma.pDFProcessing.count({
+    const todayProcessingCount = await prisma.pdf_processings.count({
       where: {
         userId,
         createdAt: {
@@ -285,7 +289,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Get recent processing history
-    const recentProcessings = await prisma.pDFProcessing.findMany({
+    const recentProcessings = await prisma.pdf_processings.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
       take: 10,

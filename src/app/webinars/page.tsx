@@ -76,11 +76,11 @@ async function getWebinars() {
       status: webinar.status,
       rsvpCount: webinar._count.WebinarRSVP,
       maxAttendees: webinar.maxAttendees,
-      categories: webinar.categories ? JSON.parse(webinar.categories) : [],
+      categories: webinar.categories ? (typeof webinar.categories === 'string' ? JSON.parse(webinar.categories) : webinar.categories) : [],
       guestSpeakers: webinar.guestSpeakers
-        ? JSON.parse(webinar.guestSpeakers)
+        ? (typeof webinar.guestSpeakers === 'string' ? JSON.parse(webinar.guestSpeakers) : webinar.guestSpeakers)
         : [],
-      materials: webinar.materials ? JSON.parse(webinar.materials) : [],
+      materials: webinar.materials ? (typeof webinar.materials === 'string' ? JSON.parse(webinar.materials) : webinar.materials) : [],
       jitsiRoomUrl: webinar.jitsiRoomUrl,
       metaDescription: webinar.metaDescription,
       socialImageUrl: webinar.socialImageUrl,

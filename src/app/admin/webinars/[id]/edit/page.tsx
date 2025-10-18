@@ -229,7 +229,7 @@ export default function EditWebinar() {
     } catch (error) {
       console.error('Webinar update error:', error);
       setError(
-        'An error occurred while updating the webinar: ' + error.message
+        'An error occurred while updating the webinar: ' + (error instanceof Error ? error.message : 'Unknown error')
       );
     } finally {
       setSaving(false);

@@ -24,7 +24,7 @@ import {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { projectId: string } }
+  { params }: { params: Promise<{ projectId: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -33,24 +33,24 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { projectId } = params;
+    const { projectId } = await params;
 
     // Get user project with template and steps
-    const userProject = await prisma.userProject.findFirst({
+    const userProject = await prisma.user_projects.findFirst({
       where: {
         id: projectId,
         userId: session.user.id,
       },
       include: {
-        template: {
+        project_templates: {
           include: {
-            steps: {
+            project_steps: {
               where: { isActive: true },
               orderBy: { order: 'asc' },
             },
           },
         },
-        responses: {
+        template_responses: {
           orderBy: { submittedAt: 'desc' },
         },
       },
@@ -78,8 +78,8 @@ export async function GET(
     const progress = progressResult.data!;
 
     // Get current step
-    const currentStep = userProject.template.steps.find(
-      step => step.stepNumber === userProject.currentStep
+    const currentStep = userProject.project_templates.project_steps.find(
+      (step: any) => step.stepNumber === userProject.currentStep
     );
 
     if (!currentStep) {
@@ -96,13 +96,13 @@ export async function GET(
     // Create workflow state
     const workflowState: TemplateWorkflowState = {
       projectId: userProject.id,
-      templateId: userProject.template.id,
+      templateId: userProject.project_templates.id,
       userId: userProject.userId,
       status: userProject.status.toLowerCase() as any,
       progress,
       intelligenceProfile:
         getUserIntelligenceProfile(userProject.intelligenceProfile) || {},
-      responses: userProject.responses.map(response => ({
+      responses: userProject.template_responses.map((response: any) => ({
         stepId: response.stepId,
         questionKey: response.stepId, // This should be mapped properly
         rawAnswer: response.rawAnswer,

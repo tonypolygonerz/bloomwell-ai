@@ -105,20 +105,60 @@ model NotificationTemplate {
 }
 
 model Organization {
-  id               String         @id
+  id               String   @id
   name             String
   mission          String?
   budget           String?
   staffSize        String?
   focusAreas       String?
-  createdAt        DateTime       @default(now())
+  createdAt        DateTime @default(now())
   updatedAt        DateTime
   organizationType String?
   state            String?
   ein              String?
-  isVerified       Boolean        @default(false)
-  Conversation     Conversation[]
-  User             User[]
+  isVerified       Boolean  @default(false)
+
+  // NEW FIELDS for comprehensive profiling
+
+  // Step 3: Team details
+  fullTimeStaff Int?
+  partTimeStaff Int?
+  contractors   Int?
+  volunteers    Int?
+  boardSize     Int?
+  keyRoles      Json?
+
+  // Step 4: Budget details
+  budgetPriorities Json? // Array of top 3 priorities
+
+  // Step 5: Funding history flags
+  hasReceivedGrants Boolean?
+
+  // Step 7: Grant goals
+  fundingGoals  Json? // Array of top 3 goals
+  seekingAmount String? // Funding range
+  timeline      String? // When they need funding
+
+  // Step 8: Story
+  successStory   String?
+  problemSolving String?
+  beneficiaries  String?
+  dreamScenario  String?
+
+  // Step 9: Communication
+  emailPreferences Json?
+  preferredContact String?
+  bestTimeToReach  String?
+
+  // Metadata
+  profileCompleteness Int @default(0) // 0-100
+
+  Conversation   Conversation[]
+  User           User[]
+  programs       Program[]
+  teamMembers    TeamMember[]
+  fundingHistory FundingHistory[]
+  documents      Document[]
 }
 
 model Session {
@@ -130,30 +170,31 @@ model Session {
 }
 
 model User {
-  id                    String             @id
-  email                 String             @unique
-  password              String?
-  name                  String?
-  image                 String?
-  organizationId        String?
-  createdAt             DateTime           @default(now())
-  updatedAt             DateTime
-  trialStartDate        DateTime?          @default(now())
-  trialEndDate          DateTime?
-  subscriptionStatus    String             @default("TRIAL")
-  subscriptionType      String?
-  lastActiveDate        DateTime?          @default(now())
-  resetPasswordToken    String?
-  resetPasswordExpires  DateTime?
-  Account               Account[]
-  Conversation          Conversation[]
-  Session               Session[]
-  Organization          Organization?      @relation(fields: [organizationId], references: [id])
-  UserNotification      UserNotification[]
-  WebinarRSVP           WebinarRSVP[]
-  pdf_processings       pdf_processings[]
-  user_projects         user_projects[]
-  web_search_logs       web_search_logs[]
+  id                   String              @id
+  email                String              @unique
+  password             String?
+  name                 String?
+  image                String?
+  organizationId       String?
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime
+  trialStartDate       DateTime?           @default(now())
+  trialEndDate         DateTime?
+  subscriptionStatus   String              @default("TRIAL")
+  subscriptionType     String?
+  lastActiveDate       DateTime?           @default(now())
+  resetPasswordToken   String?
+  resetPasswordExpires DateTime?
+  Account              Account[]
+  Conversation         Conversation[]
+  Session              Session[]
+  Organization         Organization?       @relation(fields: [organizationId], references: [id])
+  UserNotification     UserNotification[]
+  WebinarRSVP          WebinarRSVP[]
+  pdf_processings      pdf_processings[]
+  user_projects        user_projects[]
+  web_search_logs      web_search_logs[]
+  onboardingProgress   OnboardingProgress?
 }
 
 model UserNotification {
@@ -410,4 +451,107 @@ model web_search_logs {
   @@index([category])
   @@index([timestamp])
   @@index([userId])
+}
+
+// NEW: Track user's onboarding progress
+model OnboardingProgress {
+  id     String @id @default(cuid())
+  userId String @unique
+
+  // Track by section name instead of step numbers (initialize on API side)
+  completedSections Json // Array: ["basics", "programs", "team", etc.]
+  sectionScores     Json // Object: { "basics": 100, "programs": 60, ... }
+
+  overallScore   Int       @default(0) // 0-100 percentage
+  lastActiveDate DateTime  @default(now())
+  completedAt    DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("onboarding_progress")
+}
+
+// NEW: Store program details
+model Program {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  description    String?
+  whoServed      String? // "Youth ages 12-18", "Homeless families"
+  location       String? // "South Central LA", "Online nationwide"
+  frequency      String? // "Weekly", "Monthly", "Annual"
+  peopleServed   Int? // Annual count
+  goals          String?
+  successMetrics String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@map("programs")
+}
+
+// NEW: Store team member details
+model TeamMember {
+  id              String   @id @default(cuid())
+  organizationId  String
+  type            String // "staff", "volunteer", "board"
+  name            String
+  title           String?
+  bio             String?
+  livedExperience String? // Handled sensitively per Sara's approach
+  email           String?
+  phone           String?
+  isPrimary       Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@map("team_members")
+}
+
+// NEW: Track funding history
+model FundingHistory {
+  id             String   @id @default(cuid())
+  organizationId String
+  type           String // "received", "applied", "rejected"
+  funderName     String
+  amount         Float? // Stored as float for SQLite compatibility
+  year           Int?
+  purpose        String?
+  status         String? // "active", "completed", "pending"
+  notes          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@map("funding_history")
+}
+
+// NEW: Store uploaded documents
+model Document {
+  id             String   @id @default(cuid())
+  organizationId String
+  userId         String
+  category       String   @default("legal") // "legal", "financial", "program"
+  documentType   String // "990", "501c3", "bylaws", "articles", etc.
+  fileName       String
+  fileSize       Int
+  fileUrl        String
+  processedByAI  Boolean  @default(false)
+  extractedData  Json? // Any data extracted from the document by AI
+  notes          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([documentType])
+  @@map("documents")
 }

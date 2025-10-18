@@ -19,21 +19,21 @@ export async function GET(
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: {
-        organization: true,
-        accounts: {
+        Organization: true,
+        Account: {
           select: {
             provider: true,
             type: true,
           },
         },
-        conversations: {
+        Conversation: {
           select: {
             id: true,
             title: true,
             createdAt: true,
             _count: {
               select: {
-                messages: true,
+                Message: true,
               },
             },
           },
@@ -42,9 +42,9 @@ export async function GET(
           },
           take: 10,
         },
-        rsvps: {
+        WebinarRSVP: {
           include: {
-            webinar: {
+            Webinar: {
               select: {
                 id: true,
                 title: true,
@@ -60,8 +60,8 @@ export async function GET(
         },
         _count: {
           select: {
-            conversations: true,
-            rsvps: true,
+            Conversation: true,
+            WebinarRSVP: true,
           },
         },
       },
@@ -77,39 +77,39 @@ export async function GET(
       name: user.name || 'No name',
       email: user.email,
       image: user.image,
-      organization: user.organization
+      organization: user.Organization
         ? {
-            id: user.organization.id,
-            name: user.organization.name,
-            mission: user.organization.mission,
-            budget: user.organization.budget,
-            staffSize: user.organization.staffSize,
-            focusAreas: user.organization.focusAreas,
+            id: user.Organization.id,
+            name: user.Organization.name,
+            mission: user.Organization.mission,
+            budget: user.Organization.budget,
+            staffSize: user.Organization.staffSize,
+            focusAreas: user.Organization.focusAreas,
           }
         : null,
       accountType:
-        user.accounts.length > 0 ? user.accounts[0].provider : 'email',
+        user.Account.length > 0 ? user.Account[0].provider : 'email',
       lastLogin: user.updatedAt, // Using updatedAt as proxy
       createdAt: user.createdAt,
       status: 'active', // All users are active for now
-      conversationCount: user._count.conversations,
-      rsvpCount: user._count.rsvps,
-      lastConversation: user.conversations[0]?.createdAt || null,
-      lastRSVP: user.rsvps[0]?.rsvpDate || null,
+      conversationCount: user._count.Conversation,
+      rsvpCount: user._count.WebinarRSVP,
+      lastConversation: user.Conversation[0]?.createdAt || null,
+      lastRSVP: user.WebinarRSVP[0]?.rsvpDate || null,
     };
 
     // Transform conversations
-    const transformedConversations = user.conversations.map(conv => ({
+    const transformedConversations = user.Conversation.map((conv: any) => ({
       id: conv.id,
       title: conv.title,
       createdAt: conv.createdAt,
-      messageCount: conv._count.messages,
+      messageCount: conv._count.Message,
     }));
 
     // Transform RSVPs
-    const transformedRSVPs = user.rsvps.map(rsvp => ({
+    const transformedRSVPs = user.WebinarRSVP.map((rsvp: any) => ({
       id: rsvp.id,
-      webinar: rsvp.webinar,
+      webinar: rsvp.Webinar,
       rsvpDate: rsvp.rsvpDate,
       attended: rsvp.attended,
     }));

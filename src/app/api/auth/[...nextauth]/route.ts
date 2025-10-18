@@ -47,7 +47,7 @@ export const authOptions: AuthOptions = {
         return {
           id: user.id,
           email: user.email,
-          name: user.name,
+          name: user.name ?? undefined,
         };
       },
     }),
@@ -59,7 +59,7 @@ export const authOptions: AuthOptions = {
     signIn: '/auth/login',
   },
   callbacks: {
-    async signIn({ user, account, _profile }) {
+    async signIn({ user, account }) {
       if (account?.provider === 'google' || account?.provider === 'azure-ad') {
         try {
           // Check if user already exists
@@ -98,12 +98,13 @@ export const authOptions: AuthOptions = {
       }
       return true;
     },
-    async jwt({ token, user, _account }) {
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
         token.email = user.email;
         token.name = user.name;
         token.image = user.image;
+        token.organizationId = user.organizationId;
       }
       return token;
     },
@@ -113,6 +114,7 @@ export const authOptions: AuthOptions = {
         session.user.email = token.email as string;
         session.user.name = token.name as string;
         session.user.image = token.image as string;
+        session.user.organizationId = token.organizationId as string | null | undefined;
       }
       return session;
     },

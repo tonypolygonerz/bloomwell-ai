@@ -19,7 +19,7 @@ export default function TestSidebarPage() {
             <li>✓ Sidebar appears on left (desktop only)</li>
             <li>✓ Fixed width: 240px (w-60)</li>
             <li>✓ Logo at top with green gradient circle</li>
-            <li>✓ "Bloomwell AI" text next to logo</li>
+            <li>✓ &quot;Bloomwell AI&quot; text next to logo</li>
             <li>✓ 7 navigation items visible</li>
             <li>✓ Icons and labels aligned properly</li>
             <li>✓ Hover effects on nav items (should turn gray)</li>

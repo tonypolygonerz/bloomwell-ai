@@ -36,7 +36,7 @@ export async function GET(
       include: {
         _count: {
           select: {
-            rsvps: true,
+            WebinarRSVP: true,
           },
         },
       },
@@ -48,7 +48,7 @@ export async function GET(
 
     // Parse JSON fields with type safety
     const categoriesResult = safeJsonParse<WebinarCategories>(
-      webinar.categories,
+      typeof webinar.categories === 'string' ? webinar.categories : JSON.stringify(webinar.categories),
       'categories'
     );
     if (!categoriesResult.success && categoriesResult.errors) {
@@ -67,7 +67,7 @@ export async function GET(
     }
 
     const materialsResult = safeJsonParse<WebinarMaterial[]>(
-      webinar.materials,
+      typeof webinar.materials === 'string' ? webinar.materials : JSON.stringify(webinar.materials),
       'materials'
     );
     if (!materialsResult.success && materialsResult.errors) {
@@ -82,7 +82,7 @@ export async function GET(
       categories: categoriesResult.data || { primary: 'General' },
       guestSpeakers: guestSpeakersResult.data || [],
       materials: materialsResult.data || [],
-      rsvpCount: webinar._count.rsvps,
+      rsvpCount: webinar._count.WebinarRSVP,
     };
 
     return NextResponse.json(formattedWebinar);

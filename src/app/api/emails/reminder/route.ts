@@ -17,9 +17,9 @@ export async function POST(request: NextRequest) {
     const webinar = await prisma.webinar.findUnique({
       where: { id: webinarId },
       include: {
-        rsvps: {
+        WebinarRSVP: {
           include: {
-            user: true,
+            User: true,
           },
         },
       },
@@ -29,13 +29,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Webinar not found' }, { status: 404 });
     }
 
-    // Send reminder emails to all RSVPs
-    const emailPromises = webinar.rsvps.map(async rsvp => {
+      // Send reminder emails to all RSVPs
+      const emailPromises = webinar.WebinarRSVP.map(async (rsvp: any) => {
       const timeUntilEvent = getTimeUntilEvent(webinar.scheduledDate);
 
       return EmailService.sendReminderEmail(
         {
-          userName: rsvp.user.name || rsvp.user.email,
+          userName: rsvp.User.name || rsvp.User.email,
           webinarTitle: webinar.title,
           webinarDate: webinar.scheduledDate.toISOString(),
           joinUrl: `${process.env.NEXTAUTH_URL}/webinar/${webinar.slug || webinar.uniqueSlug}`,
@@ -51,7 +51,11 @@ export async function POST(request: NextRequest) {
     // Update reminder sent status for this webinar
     await prisma.webinarNotification.create({
       data: {
-        webinarId: webinar.id,
+        id: `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        updatedAt: new Date(),
+        Webinar: {
+          connect: { id: webinar.id },
+        },
         type: reminderType,
         scheduledAt: new Date(),
         sentAt: new Date(),
@@ -62,7 +66,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       message: `Reminder emails sent successfully`,
       sent: successCount,
-      total: webinar.rsvps.length,
+      total: webinar.WebinarRSVP.length,
     });
   } catch (error) {
     console.error('Error sending reminder emails:', error);

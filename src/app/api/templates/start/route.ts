@@ -36,10 +36,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Get the template with its steps
-    const template = await prisma.projectTemplate.findUnique({
+    const template = await prisma.project_templates.findUnique({
       where: { id: templateId },
       include: {
-        steps: {
+        project_steps: {
           where: { isActive: true },
           orderBy: { order: 'asc' },
         },
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user already has an active project for this template
-    const existingProject = await prisma.userProject.findFirst({
+    const existingProject = await prisma.user_projects.findFirst({
       where: {
         userId: session.user.id,
         templateId: templateId,
@@ -88,24 +88,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    let userIntelligence = getUserIntelligenceProfile(user.intelligenceProfile);
-    if (!userIntelligence) {
-      userIntelligence = createDefaultUserIntelligenceProfile();
-    }
+    // Use default user intelligence profile for new projects
+    const userIntelligence = createDefaultUserIntelligenceProfile();
 
     // Create initial workflow progress
     const initialProgress: TemplateWorkflowProgress = {
       templateId: template.id,
       currentStep: 1,
-      totalSteps: template.steps.length,
+      totalSteps: template.project_steps.length,
       completedSteps: [],
       skippedSteps: [],
       stepProgress: {},
       overallProgress: 0,
       estimatedTimeRemaining: estimateTimeRemaining(
         1,
-        template.steps.length,
-        template.estimatedTime / template.steps.length,
+        template.project_steps.length,
+        template.estimatedTime / template.project_steps.length,
         {
           userProfile: userIntelligence,
           completedTemplates: [],
@@ -123,8 +121,9 @@ export async function POST(request: NextRequest) {
     };
 
     // Create the user project
-    const userProject = await prisma.userProject.create({
+    const userProject = await prisma.user_projects.create({
       data: {
+        id: `project-${session.user.id}-${template.id}-${Date.now()}`,
         userId: session.user.id,
         templateId: template.id,
         title: template.name,
@@ -138,6 +137,8 @@ export async function POST(request: NextRequest) {
           templateVersion: template.updatedAt,
         }),
         intelligenceProfile: JSON.stringify(userIntelligence),
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
     });
 
@@ -146,7 +147,7 @@ export async function POST(request: NextRequest) {
       templateId: template.id,
       templateName: template.name,
       currentStep: 1,
-      totalSteps: template.steps.length,
+      totalSteps: template.project_steps.length,
       message: 'Template started successfully',
     });
   } catch (error) {

@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
         include: {
           _count: {
             select: {
-              userNotifications: true,
+              UserNotification: true,
             },
           },
         },
@@ -92,6 +92,7 @@ export async function POST(request: NextRequest) {
     // Create admin notification
     const adminNotification = await prisma.adminNotification.create({
       data: {
+        id: `admin-notif-${admin.id}-${Date.now()}`,
         title,
         message,
         type,
@@ -100,6 +101,8 @@ export async function POST(request: NextRequest) {
         scheduledAt: scheduledAt ? new Date(scheduledAt) : null,
         status: scheduledAt ? 'scheduled' : 'draft',
         adminId: admin.id,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
     });
 
@@ -162,12 +165,15 @@ async function sendNotificationToUsers(adminNotification: any) {
 
     // Create user notifications
     if (targetUsers.length > 0) {
-      const userNotifications = targetUsers.map(user => ({
+      const userNotifications = targetUsers.map((user: any, index: number) => ({
+        id: `user-notif-${user.id}-${adminNotification.id}-${index}`,
         title: adminNotification.title,
         message: adminNotification.message,
         type: adminNotification.type,
         userId: user.id,
         adminNotificationId: adminNotification.id,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       }));
 
       await prisma.userNotification.createMany({

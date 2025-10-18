@@ -39,14 +39,14 @@ export async function GET(request: NextRequest) {
         where: {
           OR: [
             {
-              conversations: {
+              Conversation: {
                 some: {
                   createdAt: { gte: start, lte: end },
                 },
               },
             },
             {
-              rsvps: {
+              WebinarRSVP: {
                 some: {
                   rsvpDate: { gte: start, lte: end },
                 },
@@ -160,12 +160,12 @@ export async function GET(request: NextRequest) {
           title: true,
           _count: {
             select: {
-              rsvps: true,
+              WebinarRSVP: true,
             },
           },
         },
         orderBy: {
-          rsvps: {
+          WebinarRSVP: {
             _count: 'desc',
           },
         },
@@ -180,7 +180,7 @@ export async function GET(request: NextRequest) {
         prisma.user
           .count({
             where: {
-              accounts: {
+              Account: {
                 some: {},
               },
             },
@@ -189,21 +189,24 @@ export async function GET(request: NextRequest) {
 
         // Subscription breakdown
         prisma.user
-          .groupBy({
-            by: ['id'],
+          .findMany({
             where: {
               createdAt: { gte: start, lte: end },
             },
-            _count: {
-              accounts: true,
+            include: {
+              Account: {
+                select: {
+                  id: true,
+                },
+              },
             },
           })
-          .then(results => {
-            const oauthUsers = results.filter(
-              r => r._count.accounts > 0
+          .then(users => {
+            const oauthUsers = users.filter(
+              u => u.Account.length > 0
             ).length;
-            const emailUsers = results.filter(
-              r => r._count.accounts === 0
+            const emailUsers = users.filter(
+              u => u.Account.length === 0
             ).length;
             return {
               trial: emailUsers,
@@ -219,14 +222,14 @@ export async function GET(request: NextRequest) {
             AND: [
               { createdAt: { lt: start } },
               {
-                conversations: {
+                Conversation: {
                   none: {
                     createdAt: { gte: start },
                   },
                 },
               },
               {
-                rsvps: {
+                WebinarRSVP: {
                   none: {
                     rsvpDate: { gte: start },
                   },

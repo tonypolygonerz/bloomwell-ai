@@ -22,15 +22,15 @@ export async function GET(request: NextRequest) {
       whereConditions.OR = [
         { name: { contains: search } },
         { email: { contains: search } },
-        { organization: { name: { contains: search } } },
+        { Organization: { name: { contains: search } } },
       ];
     }
 
     if (accountType) {
       if (accountType === 'oauth') {
-        whereConditions.accounts = { some: {} };
+        whereConditions.Account = { some: {} };
       } else if (accountType === 'email') {
-        whereConditions.accounts = { none: {} };
+        whereConditions.Account = { none: {} };
       }
     }
 
@@ -41,14 +41,14 @@ export async function GET(request: NextRequest) {
         case 'active':
           whereConditions.OR = [
             {
-              conversations: {
+              Conversation: {
                 some: {
                   createdAt: { gte: thirtyDaysAgo },
                 },
               },
             },
             {
-              webinarRSVPs: {
+              WebinarRSVP: {
                 some: {
                   rsvpDate: { gte: thirtyDaysAgo },
                 },
@@ -59,14 +59,14 @@ export async function GET(request: NextRequest) {
         case 'inactive':
           whereConditions.AND = [
             {
-              conversations: {
+              Conversation: {
                 none: {
                   createdAt: { gte: thirtyDaysAgo },
                 },
               },
             },
             {
-              webinarRSVPs: {
+              WebinarRSVP: {
                 none: {
                   rsvpDate: { gte: thirtyDaysAgo },
                 },
@@ -75,8 +75,8 @@ export async function GET(request: NextRequest) {
           ];
           break;
         case 'never_logged_in':
-          whereConditions.conversations = { none: {} };
-          whereConditions.webinarRSVPs = { none: {} };
+          whereConditions.Conversation = { none: {} };
+          whereConditions.WebinarRSVP = { none: {} };
           break;
       }
     }
@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
     const users = await prisma.user.findMany({
       where: whereConditions,
       include: {
-        organization: {
+        Organization: {
           select: {
             name: true,
             mission: true,
@@ -93,7 +93,7 @@ export async function GET(request: NextRequest) {
             staffSize: true,
           },
         },
-        accounts: {
+        Account: {
           select: {
             provider: true,
             type: true,
@@ -101,8 +101,8 @@ export async function GET(request: NextRequest) {
         },
         _count: {
           select: {
-            conversations: true,
-            rsvps: true,
+            Conversation: true,
+            WebinarRSVP: true,
           },
         },
       },
@@ -124,15 +124,15 @@ export async function GET(request: NextRequest) {
       'Status',
     ];
 
-    const csvRows = users.map(user => [
+    const csvRows = users.map((user: any) => [
       user.name || '',
       user.email,
-      user.organization?.name || '',
-      user.accounts.length > 0 ? user.accounts[0].provider : 'email',
+      user.Organization?.name || '',
+      user.Account.length > 0 ? user.Account[0].provider : 'email',
       user.createdAt.toISOString().split('T')[0],
       user.updatedAt.toISOString().split('T')[0],
-      user._count.conversations.toString(),
-      user._count.rsvps.toString(),
+      user._count.Conversation.toString(),
+      user._count.WebinarRSVP.toString(),
       'active',
     ]);
 

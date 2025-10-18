@@ -143,7 +143,7 @@ async function searchGrantsForUser(
     }
 
     // Query grants directly from database
-    const grants = await prisma.grants.findMany({
+    const grants = await prisma.grant.findMany({
       where: whereConditions,
       orderBy: { closeDate: 'asc' },
       take: 5, // Limit to top 5 results for chat
@@ -191,7 +191,7 @@ Would you like me to search for grants in a specific category or agency?`;
     });
 
     // Get total count for context
-    const totalCount = await prisma.grants.count({
+    const totalCount = await prisma.grant.count({
       where: {
         isActive: true,
         closeDate: { gte: new Date() },
@@ -425,18 +425,24 @@ Please let me know your preference by typing "search online" or "use local knowl
     // Save user message
     await prisma.message.create({
       data: {
+        id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         content: message,
         role: 'user',
-        conversationId: conversationId,
+        Conversation: {
+          connect: { id: conversationId },
+        },
       },
     });
 
     // Save assistant response
     await prisma.message.create({
       data: {
+        id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         content: aiResponse,
         role: 'assistant',
-        conversationId: conversationId,
+        Conversation: {
+          connect: { id: conversationId },
+        },
       },
     });
 

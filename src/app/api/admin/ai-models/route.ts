@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { getAdminFromRequest } from '@/lib/admin-auth';
 
 // Cloud model configuration with dynamic state
-let CLOUD_MODELS = {
+const CLOUD_MODELS = {
   'deepseek-v3.1:671b-cloud': {
     modelName: 'deepseek-v3.1:671b-cloud',
     enabled: true,

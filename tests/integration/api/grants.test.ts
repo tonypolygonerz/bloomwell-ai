@@ -68,9 +68,9 @@ describe('Grants API Integration', () => {
     ];
 
     it('should return active grants sorted by close date', async () => {
-      (prisma.grants.findMany as jest.Mock).mockResolvedValue(mockGrants);
+      (prisma.grant.findMany as jest.Mock).mockResolvedValue(mockGrants);
 
-      const result = await prisma.grants.findMany({
+      const result = await prisma.grant.findMany({
         where: {
           isActive: true,
           closeDate: { gte: new Date() },
@@ -88,9 +88,9 @@ describe('Grants API Integration', () => {
         g.title.toLowerCase().includes('education')
       );
 
-      (prisma.grants.findMany as jest.Mock).mockResolvedValue(filteredGrants);
+      (prisma.grant.findMany as jest.Mock).mockResolvedValue(filteredGrants);
 
-      const result = await prisma.grants.findMany({
+      const result = await prisma.grant.findMany({
         where: {
           isActive: true,
           closeDate: { gte: new Date() },
@@ -111,9 +111,9 @@ describe('Grants API Integration', () => {
     it('should filter grants by category', async () => {
       const healthGrants = mockGrants.filter(g => g.category === 'Health');
 
-      (prisma.grants.findMany as jest.Mock).mockResolvedValue(healthGrants);
+      (prisma.grant.findMany as jest.Mock).mockResolvedValue(healthGrants);
 
-      const result = await prisma.grants.findMany({
+      const result = await prisma.grant.findMany({
         where: {
           isActive: true,
           closeDate: { gte: new Date() },
@@ -129,9 +129,9 @@ describe('Grants API Integration', () => {
     it('should filter grants by award ceiling range', async () => {
       const largeGrants = mockGrants.filter(g => g.awardCeiling >= 500000);
 
-      (prisma.grants.findMany as jest.Mock).mockResolvedValue(largeGrants);
+      (prisma.grant.findMany as jest.Mock).mockResolvedValue(largeGrants);
 
-      const result = await prisma.grants.findMany({
+      const result = await prisma.grant.findMany({
         where: {
           isActive: true,
           closeDate: { gte: new Date() },
@@ -149,9 +149,9 @@ describe('Grants API Integration', () => {
     it('should limit results to specified number', async () => {
       const limitedGrants = mockGrants.slice(0, 2);
 
-      (prisma.grants.findMany as jest.Mock).mockResolvedValue(limitedGrants);
+      (prisma.grant.findMany as jest.Mock).mockResolvedValue(limitedGrants);
 
-      const result = await prisma.grants.findMany({
+      const result = await prisma.grant.findMany({
         where: {
           isActive: true,
           closeDate: { gte: new Date() },
@@ -164,9 +164,9 @@ describe('Grants API Integration', () => {
     });
 
     it('should return empty array when no grants match criteria', async () => {
-      (prisma.grants.findMany as jest.Mock).mockResolvedValue([]);
+      (prisma.grant.findMany as jest.Mock).mockResolvedValue([]);
 
-      const result = await prisma.grants.findMany({
+      const result = await prisma.grant.findMany({
         where: {
           isActive: true,
           closeDate: { gte: new Date() },
@@ -179,9 +179,9 @@ describe('Grants API Integration', () => {
     });
 
     it('should count total active grants correctly', async () => {
-      (prisma.grants.count as jest.Mock).mockResolvedValue(73542);
+      (prisma.grant.count as jest.Mock).mockResolvedValue(73542);
 
-      const count = await prisma.grants.count({
+      const count = await prisma.grant.count({
         where: {
           isActive: true,
           closeDate: { gte: new Date() },
@@ -197,9 +197,9 @@ describe('Grants API Integration', () => {
         g => g.closeDate && g.closeDate >= now
       );
 
-      (prisma.grants.findMany as jest.Mock).mockResolvedValue(activeGrants);
+      (prisma.grant.findMany as jest.Mock).mockResolvedValue(activeGrants);
 
-      const result = await prisma.grants.findMany({
+      const result = await prisma.grant.findMany({
         where: {
           isActive: true,
           OR: [{ closeDate: null }, { closeDate: { gte: now } }],
@@ -232,9 +232,9 @@ describe('Grants API Integration', () => {
         },
       ];
 
-      (prisma.grants.findMany as jest.Mock).mockResolvedValue(grantsWithNull);
+      (prisma.grant.findMany as jest.Mock).mockResolvedValue(grantsWithNull);
 
-      const result = await prisma.grants.findMany({
+      const result = await prisma.grant.findMany({
         where: {
           isActive: true,
           OR: [{ closeDate: null }, { closeDate: { gte: new Date() } }],
@@ -262,12 +262,12 @@ describe('Grants API Integration', () => {
         },
       ];
 
-      (prisma.grants.findMany as jest.Mock).mockResolvedValue(mockGrants);
+      (prisma.grant.findMany as jest.Mock).mockResolvedValue(mockGrants);
 
       const userMessage = 'Show me grants for youth education programs';
       const searchTerm = 'youth education';
 
-      const result = await prisma.grants.findMany({
+      const result = await prisma.grant.findMany({
         where: {
           isActive: true,
           closeDate: { gte: new Date() },
@@ -306,9 +306,9 @@ describe('Grants API Integration', () => {
       }));
 
       const limitedGrants = manyGrants.slice(0, 5);
-      (prisma.grants.findMany as jest.Mock).mockResolvedValue(limitedGrants);
+      (prisma.grant.findMany as jest.Mock).mockResolvedValue(limitedGrants);
 
-      const result = await prisma.grants.findMany({
+      const result = await prisma.grant.findMany({
         where: {
           isActive: true,
           closeDate: { gte: new Date() },
@@ -325,12 +325,12 @@ describe('Grants API Integration', () => {
     it('should calculate correct grant statistics', async () => {
       const now = new Date();
 
-      (prisma.grants.count as jest.Mock)
+      (prisma.grant.count as jest.Mock)
         .mockResolvedValueOnce(73542) // Total grants
         .mockResolvedValueOnce(12345); // Active grants
 
-      const totalGrants = await prisma.grants.count();
-      const activeGrants = await prisma.grants.count({
+      const totalGrants = await prisma.grant.count();
+      const activeGrants = await prisma.grant.count({
         where: {
           isActive: true,
           OR: [{ closeDate: null }, { closeDate: { gte: now } }],
@@ -353,9 +353,9 @@ describe('Grants API Integration', () => {
         },
       ];
 
-      (prisma.grants.findMany as jest.Mock).mockResolvedValue(californiaGrants);
+      (prisma.grant.findMany as jest.Mock).mockResolvedValue(californiaGrants);
 
-      const result = await prisma.grants.findMany({
+      const result = await prisma.grant.findMany({
         where: {
           isActive: true,
           closeDate: { gte: new Date() },
@@ -370,12 +370,12 @@ describe('Grants API Integration', () => {
 
   describe('Error Handling', () => {
     it('should handle database connection errors', async () => {
-      (prisma.grants.findMany as jest.Mock).mockRejectedValue(
+      (prisma.grant.findMany as jest.Mock).mockRejectedValue(
         new Error('Database connection failed')
       );
 
       await expect(
-        prisma.grants.findMany({
+        prisma.grant.findMany({
           where: {
             isActive: true,
           },
@@ -384,9 +384,9 @@ describe('Grants API Integration', () => {
     });
 
     it('should handle invalid date filters', async () => {
-      (prisma.grants.findMany as jest.Mock).mockResolvedValue([]);
+      (prisma.grant.findMany as jest.Mock).mockResolvedValue([]);
 
-      const result = await prisma.grants.findMany({
+      const result = await prisma.grant.findMany({
         where: {
           isActive: true,
           closeDate: { gte: new Date('invalid-date') },
@@ -462,9 +462,9 @@ describe('Grants API Integration', () => {
 
   describe('Performance Considerations', () => {
     it('should use indexed fields for efficient queries', async () => {
-      (prisma.grants.findMany as jest.Mock).mockResolvedValue([]);
+      (prisma.grant.findMany as jest.Mock).mockResolvedValue([]);
 
-      await prisma.grants.findMany({
+      await prisma.grant.findMany({
         where: {
           isActive: true, // Indexed field
           closeDate: { gte: new Date() }, // Indexed field
@@ -473,7 +473,7 @@ describe('Grants API Integration', () => {
         take: 10,
       });
 
-      expect(prisma.grants.findMany).toHaveBeenCalledWith(
+      expect(prisma.grant.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
             isActive: true,
@@ -486,9 +486,9 @@ describe('Grants API Integration', () => {
     });
 
     it('should use select to limit returned fields for large datasets', async () => {
-      (prisma.grants.findMany as jest.Mock).mockResolvedValue([]);
+      (prisma.grant.findMany as jest.Mock).mockResolvedValue([]);
 
-      await prisma.grants.findMany({
+      await prisma.grant.findMany({
         where: { isActive: true },
         select: {
           id: true,
@@ -501,7 +501,7 @@ describe('Grants API Integration', () => {
         take: 10,
       });
 
-      expect(prisma.grants.findMany).toHaveBeenCalledWith(
+      expect(prisma.grant.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           select: expect.objectContaining({
             id: true,

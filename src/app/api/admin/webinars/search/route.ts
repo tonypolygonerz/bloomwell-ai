@@ -56,19 +56,14 @@ export async function GET(request: NextRequest) {
     const webinars = await prisma.webinar.findMany({
       where: whereConditions,
       include: {
-        rsvps: {
-          select: {
-            id: true,
-          },
-        },
-        adminUser: {
+        AdminUser: {
           select: {
             username: true,
           },
         },
         _count: {
           select: {
-            rsvps: true,
+            WebinarRSVP: true,
           },
         },
       },
@@ -87,8 +82,8 @@ export async function GET(request: NextRequest) {
       uniqueSlug: webinar.uniqueSlug,
       status: webinar.status,
       createdAt: webinar.createdAt,
-      rsvpCount: webinar._count.rsvps,
-      createdBy: webinar.adminUser?.username || 'Unknown',
+      rsvpCount: webinar._count.WebinarRSVP,
+      createdBy: webinar.AdminUser?.username || 'Unknown',
     }));
 
     return NextResponse.json({

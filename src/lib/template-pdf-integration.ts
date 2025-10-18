@@ -48,10 +48,10 @@ export class TemplatePDFIntegration {
 
     try {
       // Get template step information
-      const templateStep = await prisma.projectStep.findUnique({
+      const templateStep = await prisma.project_steps.findUnique({
         where: { id: stepId },
         include: {
-          template: true,
+          project_templates: true,
         },
       });
 
@@ -62,7 +62,7 @@ export class TemplatePDFIntegration {
       // Get PDF context if provided
       let pdfContext = null;
       if (pdfProcessingId) {
-        const pdfProcessing = await prisma.pDFProcessing.findUnique({
+        const pdfProcessing = await prisma.pdf_processings.findUnique({
           where: { id: pdfProcessingId },
         });
 
@@ -217,7 +217,7 @@ Respond in JSON format:
   // Get user's recent PDF processings for template context
   async getUserRecentPDFs(userId: string, limit: number = 5): Promise<any[]> {
     try {
-      const recentPDFs = await prisma.pDFProcessing.findMany({
+      const recentPDFs = await prisma.pdf_processings.findMany({
         where: {
           userId,
           status: 'COMPLETED',
@@ -250,9 +250,9 @@ Respond in JSON format:
   ): Promise<any[]> {
     try {
       // Get template step information
-      const templateStep = await prisma.projectStep.findUnique({
+      const templateStep = await prisma.project_steps.findUnique({
         where: { id: stepId },
-        include: { template: true },
+        include: { project_templates: true },
       });
 
       if (!templateStep) {
@@ -264,7 +264,7 @@ Respond in JSON format:
 
       // Simple keyword matching for relevance
       const stepKeywords = this.extractKeywords(templateStep.questionText);
-      const templateKeywords = this.extractKeywords(templateStep.template.name);
+      const templateKeywords = this.extractKeywords(templateStep.project_templates.name);
 
       const relevantPDFs = userPDFs.filter(pdf => {
         const pdfKeywords = [

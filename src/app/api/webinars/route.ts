@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
         include: {
           _count: {
             select: {
-              rsvps: true,
+              WebinarRSVP: true,
             },
           },
         },
@@ -83,11 +83,11 @@ export async function GET(request: NextRequest) {
       thumbnailUrl: webinar.thumbnailUrl,
       slug: webinar.slug || webinar.uniqueSlug, // Use new slug field, fallback to uniqueSlug
       status: webinar.status,
-      rsvpCount: webinar._count.rsvps,
+      rsvpCount: webinar._count.WebinarRSVP,
       maxAttendees: webinar.maxAttendees,
       categories: (() => {
         const result = safeJsonParse<WebinarCategories>(
-          webinar.categories,
+          typeof webinar.categories === 'string' ? webinar.categories : JSON.stringify(webinar.categories),
           'categories'
         );
         if (!result.success && result.errors) {
@@ -110,7 +110,7 @@ export async function GET(request: NextRequest) {
       })(),
       materials: (() => {
         const result = safeJsonParse<WebinarMaterial[]>(
-          webinar.materials,
+          typeof webinar.materials === 'string' ? webinar.materials : JSON.stringify(webinar.materials),
           'materials'
         );
         if (!result.success && result.errors) {

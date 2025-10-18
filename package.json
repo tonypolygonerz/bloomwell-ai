@@ -40,6 +40,7 @@
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@prisma/client": "^6.15.0",
+    "@react-email/render": "^1.4.0",
     "@stripe/stripe-js": "^7.9.0",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/pdf-parse": "^1.1.5",

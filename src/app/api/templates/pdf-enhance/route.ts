@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify user owns the project
-    const project = await prisma.userProject.findFirst({
+    const project = await prisma.user_projects.findFirst({
       where: {
         id: projectId,
         userId,
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
       );
 
     // Save the enhanced response to the database
-    const templateResponse = await prisma.templateResponse.upsert({
+    const templateResponse = await prisma.template_responses.upsert({
       where: {
         projectId_stepId: {
           projectId,
@@ -74,8 +74,14 @@ export async function POST(request: NextRequest) {
         },
       },
       create: {
-        projectId,
-        stepId,
+        id: `resp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        updatedAt: new Date(),
+        user_projects: {
+          connect: { id: projectId },
+        },
+        project_steps: {
+          connect: { id: stepId },
+        },
         rawAnswer: userResponse,
         enhancedAnswer: enhancedResponse.enhancedResponse,
         confidence: enhancedResponse.confidence,

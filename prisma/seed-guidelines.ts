@@ -106,7 +106,7 @@ async function seedGuidelines() {
 
     // Clear existing guidelines to avoid duplicates
     console.log('🧹 Clearing existing guidelines...');
-    await prisma.aIGuideline.deleteMany({});
+    await prisma.ai_guidelines.deleteMany({});
     console.log('✅ Existing guidelines cleared');
 
     // Create each guideline
@@ -116,14 +116,17 @@ async function seedGuidelines() {
       const guidelineData = guidelinesData[i];
 
       try {
-        const createdGuideline = await prisma.aIGuideline.create({
+        const createdGuideline = await prisma.ai_guidelines.create({
           data: {
+            id: `guideline-${guidelineData.category}-${i}-${Date.now()}`,
             name: guidelineData.name,
             category: guidelineData.category,
             conditions: guidelineData.conditions,
             priority: guidelineData.priority,
             guidanceText: guidelineData.guidanceText,
             isActive: guidelineData.isActive,
+            createdAt: new Date(),
+            updatedAt: new Date(),
           },
         });
 
@@ -140,13 +143,13 @@ async function seedGuidelines() {
     }
 
     // Verify creation
-    const totalGuidelines = await prisma.aIGuideline.count();
+    const totalGuidelines = await prisma.ai_guidelines.count();
     console.log(
       `🎉 Seeding completed! Total guidelines in database: ${totalGuidelines}`
     );
 
     // Display summary by category
-    const guidelinesByCategory = await prisma.aIGuideline.groupBy({
+    const guidelinesByCategory = await prisma.ai_guidelines.groupBy({
       by: ['category'],
       _count: {
         id: true,

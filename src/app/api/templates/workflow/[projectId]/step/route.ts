@@ -24,7 +24,7 @@ import {
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { projectId: string } }
+  { params }: { params: Promise<{ projectId: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -33,7 +33,7 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { projectId } = params;
+    const { projectId } = await params;
     const { stepId, response } = await request.json();
 
     if (!stepId || !response) {
@@ -44,21 +44,21 @@ export async function POST(
     }
 
     // Get user project with template and steps
-    const userProject = await prisma.userProject.findFirst({
+    const userProject = await prisma.user_projects.findFirst({
       where: {
         id: projectId,
         userId: session.user.id,
       },
       include: {
-        template: {
+        project_templates: {
           include: {
-            steps: {
+            project_steps: {
               where: { isActive: true },
               orderBy: { order: 'asc' },
             },
           },
         },
-        responses: true,
+        template_responses: true,
       },
     });
 
@@ -67,8 +67,8 @@ export async function POST(
     }
 
     // Get the current step
-    const currentStep = userProject.template.steps.find(
-      step => step.id === stepId
+    const currentStep = userProject.project_templates.project_steps.find(
+      (step: any) => step.id === stepId
     );
     if (!currentStep) {
       return NextResponse.json({ error: 'Step not found' }, { status: 404 });
@@ -134,8 +134,9 @@ export async function POST(
       );
 
     // Save the response to database
-    const savedResponse = await prisma.templateResponse.create({
+    const savedResponse = await prisma.template_responses.create({
       data: {
+        id: `response-${userProject.id}-${currentStep.id}-${Date.now()}`,
         projectId: userProject.id,
         stepId: currentStep.id,
         rawAnswer: response,
@@ -145,6 +146,8 @@ export async function POST(
         isComplete: true,
         submittedAt: new Date(),
         metadata: JSON.stringify(stepResponse.metadata),
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
     });
 
@@ -182,8 +185,8 @@ export async function POST(
 
     // Move to next step
     const nextStepNumber = currentStep.stepNumber + 1;
-    const nextStep = userProject.template.steps.find(
-      step => step.stepNumber === nextStepNumber
+    const nextStep = userProject.project_templates.project_steps.find(
+      (step: any) => step.stepNumber === nextStepNumber
     );
 
     if (nextStep) {
@@ -194,7 +197,7 @@ export async function POST(
       };
     } else {
       // Workflow completed
-      progress.currentStep = userProject.template.steps.length;
+      progress.currentStep = userProject.project_templates.project_steps.length;
     }
 
     // Update overall progress
@@ -209,7 +212,7 @@ export async function POST(
     progress.estimatedTimeRemaining = estimateTimeRemaining(
       progress.currentStep,
       progress.totalSteps,
-      userProject.template.estimatedTime / progress.totalSteps,
+      userProject.project_templates.estimatedTime / progress.totalSteps,
       {
         userProfile: updatedIntelligence,
         completedTemplates: [],
@@ -230,7 +233,7 @@ export async function POST(
     ];
 
     // Update user project
-    const updatedProject = await prisma.userProject.update({
+    const updatedProject = await prisma.user_projects.update({
       where: { id: projectId },
       data: {
         currentStep: progress.currentStep,
@@ -246,9 +249,9 @@ export async function POST(
       },
     });
 
-    // Update user's intelligence profile
-    await prisma.user.update({
-      where: { id: session.user.id },
+    // Update project's intelligence profile
+    await prisma.user_projects.update({
+      where: { id: updatedProject.id },
       data: {
         intelligenceProfile: JSON.stringify(updatedIntelligence),
       },
@@ -262,7 +265,7 @@ export async function POST(
       status: updatedProject.status.toLowerCase() as any,
       progress,
       intelligenceProfile: updatedIntelligence,
-      responses: [...userProject.responses, savedResponse].map(response => ({
+      responses: [...userProject.template_responses, savedResponse].map((response: any) => ({
         stepId: response.stepId,
         questionKey: response.stepId, // This should be mapped properly
         rawAnswer: response.rawAnswer,

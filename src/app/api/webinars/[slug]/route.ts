@@ -6,7 +6,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
     const { slug } = await params;
@@ -25,7 +25,7 @@ export async function GET(
       include: {
         _count: {
           select: {
-            rsvps: true,
+            WebinarRSVP: true,
           },
         },
       },
@@ -59,7 +59,7 @@ export async function GET(
       slug: webinar.slug || webinar.uniqueSlug,
       uniqueSlug: webinar.uniqueSlug,
       status: webinar.status,
-      rsvpCount: webinar._count.rsvps,
+      rsvpCount: webinar._count.WebinarRSVP,
       hasRSVPed,
       maxAttendees: webinar.maxAttendees,
       categories: webinar.categories || [],

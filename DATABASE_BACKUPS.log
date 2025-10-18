@@ -1,8 +1,0 @@
----
-Database backup created: October 9, 2025
-Backup file: prisma/schema.backup.20251009.prisma
-Tables: User, Organization, Grant, Conversation, Message, Webinar, MaintenanceMode, WebinarRSVP, AdminUser, NotificationTemplate, Notification
-Last migration: 20251010000408_add_maintenance_mode
-Migration status: All migrations applied
-Schema valid: Yes
-Production ready: Yes

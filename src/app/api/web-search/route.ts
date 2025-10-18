@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const searchCount = await prisma.webSearchLog.count({
+    const searchCount = await prisma.web_search_logs.count({
       where: {
         userId: session.user.id,
         timestamp: { gte: today },
@@ -71,8 +71,9 @@ export async function POST(req: NextRequest) {
     const processingTime = Date.now() - startTime;
 
     // Log search for analytics
-    await prisma.webSearchLog.create({
+    await prisma.web_search_logs.create({
       data: {
+        id: `search-${session.user.id}-${Date.now()}`,
         userId: session.user.id,
         query: query.trim(),
         category,

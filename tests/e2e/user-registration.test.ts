@@ -348,7 +348,7 @@ describe('User Registration E2E', () => {
           email: registrationData.email,
           name: registrationData.name,
           password: `hashed_${registrationData.password}`,
-          phone: registrationData.phone,
+          // phone: registrationData.phone,
           subscriptionStatus: 'TRIAL',
           trialStartDate: new Date(),
           trialEndDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),

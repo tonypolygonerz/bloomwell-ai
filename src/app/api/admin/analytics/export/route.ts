@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
 
     // Get comprehensive analytics data
     const [userEngagementData, webinarData, revenueData, dailyMetrics] =
-      await Promise.all([
+      (await Promise.all([
         // User engagement metrics
         prisma.$queryRaw`
         SELECT 
@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
         GROUP BY DATE(c.createdAt)
         ORDER BY date
       `,
-      ]);
+      ])) as any[];
 
     // Generate CSV content
     const csvRows = [];

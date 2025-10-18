@@ -6,6 +6,8 @@
  * prioritized, and integrated into focused prompts.
  */
 
+import { prisma } from './prisma';
+
 // Define types locally to avoid import issues
 interface GuidelineContext {
   user: {
@@ -139,7 +141,7 @@ async function main() {
 
     // Fetch all active guidelines from database
     console.log('📊 Fetching active guidelines from database...');
-    const dbGuidelines = await prisma.aIGuideline.findMany({
+    const dbGuidelines = await prisma.ai_guidelines.findMany({
       where: { isActive: true },
       orderBy: { priority: 'desc' },
     });

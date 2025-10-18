@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
       apiUrl = `${PROPUBLICA_API_BASE}/organizations/${ein}.json`;
     } else {
       // Search by organization name
-      apiUrl = `${PROPUBLICA_API_BASE}/search.json?q=${encodeURIComponent(query)}`;
+      apiUrl = `${PROPUBLICA_API_BASE}/search.json?q=${encodeURIComponent(query!)}`;
     }
 
     const response = await fetch(apiUrl, {

@@ -449,23 +449,22 @@ export default function WebinarDetailClient({
                           {speaker.image ? (
                             <img
                               src={speaker.image}
-                              alt={`${speaker.firstName} ${speaker.lastName}`}
+                              alt={speaker.name}
                               className='w-16 h-16 rounded-full object-cover'
                             />
                           ) : (
-                            `${speaker.firstName} ${speaker.lastName}`
+                            speaker.name
                               .charAt(0)
                               .toUpperCase()
                           )}
                         </div>
                         <div className='flex-1'>
                           <h4 className='font-semibold text-gray-900'>
-                            {speaker.honorific ? `${speaker.honorific} ` : ''}
-                            {speaker.firstName} {speaker.lastName}
+                            {speaker.name}
                           </h4>
                           <p className='text-gray-600'>{speaker.title}</p>
                           <p className='text-sm text-gray-500'>
-                            {speaker.institution}
+                            {speaker.company}
                           </p>
                           {speaker.bio && (
                             <p className='text-sm text-gray-700 mt-2'>

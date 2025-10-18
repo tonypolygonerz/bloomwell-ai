@@ -91,7 +91,7 @@ async function getWebinarBySlug(slug: string) {
       include: {
         _count: {
           select: {
-            rsvps: true,
+            WebinarRSVP: true,
           },
         },
       },
@@ -104,13 +104,17 @@ async function getWebinarBySlug(slug: string) {
     // Parse JSON fields from database
     const parsedWebinar = {
       ...webinar,
-      categories: webinar.categories ? JSON.parse(webinar.categories) : [],
+      scheduledDate: webinar.scheduledDate.toISOString(),
+      categories: webinar.categories ? (typeof webinar.categories === 'string' ? JSON.parse(webinar.categories) : webinar.categories) : [],
       guestSpeakers: webinar.guestSpeakers
-        ? JSON.parse(webinar.guestSpeakers)
+        ? (typeof webinar.guestSpeakers === 'string' ? JSON.parse(webinar.guestSpeakers) : webinar.guestSpeakers)
         : [],
-      materials: webinar.materials ? JSON.parse(webinar.materials) : [],
-      rsvpCount: webinar._count.rsvps,
-    };
+      materials: webinar.materials ? (typeof webinar.materials === 'string' ? JSON.parse(webinar.materials) : webinar.materials) : [],
+      rsvpCount: webinar._count.WebinarRSVP,
+      _count: {
+        rsvps: webinar._count.WebinarRSVP,
+      },
+    } as any;
 
     return parsedWebinar;
   } catch (error) {
@@ -169,7 +173,7 @@ export default async function WebinarPage({ params }: WebinarPageProps) {
 
   // Add guest speakers if available
   if (webinar.guestSpeakers && Array.isArray(webinar.guestSpeakers)) {
-    structuredData.performer = webinar.guestSpeakers.map((speaker: any) => ({
+    (structuredData as any).performer = webinar.guestSpeakers.map((speaker: any) => ({
       '@type': 'Person',
       name: speaker.name,
       jobTitle: speaker.title,

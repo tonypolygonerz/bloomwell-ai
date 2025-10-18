@@ -10,6 +10,7 @@ import PDFUsageWidget from '@/components/PDFUsageWidget';
 
 import IntelligenceProfileManager from '@/components/IntelligenceProfileManager';
 import AppLayout from '@/components/layout/AppLayout';
+import CompleteYourProfileWidget from '@/components/CompleteYourProfileWidget';
 
 export default async function Dashboard() {
   const session = await getServerSession();
@@ -45,6 +46,11 @@ export default async function Dashboard() {
         <p className='mt-2 text-gray-600'>
           Your Bloomwell AI nonprofit management dashboard
         </p>
+      </div>
+
+      {/* Complete Your Profile Widget - Full Width */}
+      <div className='mb-6'>
+        <CompleteYourProfileWidget />
       </div>
 
       <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>

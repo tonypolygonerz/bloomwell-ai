@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
       include: {
         _count: {
           select: {
-            rsvps: true,
+            WebinarRSVP: true,
           },
         },
       },
@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
       uniqueSlug: webinar.uniqueSlug,
       status: webinar.status,
       createdAt: webinar.createdAt.toISOString(),
-      rsvpCount: webinar._count.rsvps,
+      rsvpCount: webinar._count.WebinarRSVP,
     }));
 
     return NextResponse.json(formattedWebinars);
@@ -95,6 +95,7 @@ export async function POST(request: NextRequest) {
 
     const webinar = await prisma.webinar.create({
       data: {
+        id: `webinar-${uniqueSlug}-${Date.now()}`,
         title,
         description,
         scheduledDate: new Date(scheduledDate),
@@ -111,6 +112,8 @@ export async function POST(request: NextRequest) {
         guestSpeakers: JSON.stringify(guestSpeakers),
         materials: JSON.stringify(materials),
         createdBy: adminUserId,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
     });
 

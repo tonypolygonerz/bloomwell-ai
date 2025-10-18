@@ -68,10 +68,13 @@ export async function POST(request: NextRequest) {
     // Create notification template
     const template = await prisma.notificationTemplate.create({
       data: {
+        id: `template-${type}-${Date.now()}`,
         name,
         subject,
         content,
         type,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
     });
 

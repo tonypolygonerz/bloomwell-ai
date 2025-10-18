@@ -8,10 +8,10 @@ import { EmailService } from '@/lib/email-service';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const { slug } = params;
+    const { slug } = await params;
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
@@ -80,7 +80,7 @@ export async function POST(
         description: webinar.description,
         scheduledDate: webinar.scheduledDate.toISOString(),
         duration: webinar.duration,
-        jitsiRoomUrl: webinar.jitsiRoomUrl,
+        jitsiRoomUrl: webinar.jitsiRoomUrl || undefined,
       });
 
       await EmailService.sendRSVPConfirmation({

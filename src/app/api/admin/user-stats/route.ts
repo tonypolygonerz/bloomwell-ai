@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
       // OAuth users
       prisma.user.count({
         where: {
-          accounts: {
+          Account: {
             some: {},
           },
         },
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
       // Email users (users without OAuth accounts)
       prisma.user.count({
         where: {
-          accounts: {
+          Account: {
             none: {},
           },
         },
@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
         where: {
           OR: [
             {
-              conversations: {
+              Conversation: {
                 some: {
                   createdAt: {
                     gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
               },
             },
             {
-              rsvps: {
+              WebinarRSVP: {
                 some: {
                   rsvpDate: {
                     gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),

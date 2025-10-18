@@ -230,8 +230,8 @@ export async function downloadAndExtractZip(fileName: string): Promise<string> {
     return xmlContent;
   } catch (error) {
     console.error(`Error downloading/extracting ${fileName}:`, {
-      message: error.message,
-      stack: error.stack,
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
       fileName,
       step: 'download/extract',
     });
@@ -382,7 +382,7 @@ export async function parseGrantsXML(xmlContent: string): Promise<GrantData[]> {
         return [];
       }
 
-      throw new Error(`XML parsing failed: ${xmlParseError.message}`);
+      throw new Error(`XML parsing failed: ${xmlParseError instanceof Error ? xmlParseError.message : String(xmlParseError)}`);
     }
 
     // Handle both single opportunity and array of opportunities
@@ -844,9 +844,9 @@ export async function syncGrants(): Promise<SyncResult> {
     };
   } catch (error) {
     console.error('Grants sync failed with detailed error:', {
-      message: error.message,
-      stack: error.stack,
-      name: error.name,
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      name: error instanceof Error ? error.name : 'Unknown',
       fileName: syncRecord?.fileName || 'unknown',
       step: 'main_sync_process',
     });

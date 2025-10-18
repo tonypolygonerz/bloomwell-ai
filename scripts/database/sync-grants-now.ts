@@ -1,5 +1,5 @@
 // Grants Sync Script - Run directly to sync grants from grants.gov
-import { syncGrants } from '../src/lib/grants-sync';
+import { syncGrants } from '../../src/lib/grants-sync';
 
 async function main() {
   console.log('🔄 Starting grants sync from grants.gov...');

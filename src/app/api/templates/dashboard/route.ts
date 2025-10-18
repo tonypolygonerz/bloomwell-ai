@@ -31,11 +31,11 @@ export async function GET(request: NextRequest) {
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
       include: {
-        organization: true,
-        userProjects: {
+        Organization: true,
+        user_projects: {
           include: {
-            template: true,
-            responses: true,
+            project_templates: true,
+            template_responses: true,
           },
         },
       },
@@ -45,20 +45,23 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Get user intelligence profile
-    let userIntelligence = getUserIntelligenceProfile(user.intelligenceProfile);
-    if (!userIntelligence) {
+    // Get user intelligence profile from most recent project or use default
+    let userIntelligence: UserIntelligence;
+    const mostRecentProject = user.user_projects[0];
+    if (mostRecentProject?.intelligenceProfile) {
+      userIntelligence = getUserIntelligenceProfile(mostRecentProject.intelligenceProfile) || createDefaultUserIntelligenceProfile();
+    } else {
       userIntelligence = createDefaultUserIntelligenceProfile();
     }
 
     // Get all active templates
-    const templates = await prisma.projectTemplate.findMany({
+    const templates = await prisma.project_templates.findMany({
       where: {
         isActive: true,
         isPublic: true,
       },
       include: {
-        steps: {
+        project_steps: {
           where: { isActive: true },
           orderBy: { order: 'asc' },
         },
@@ -66,10 +69,10 @@ export async function GET(request: NextRequest) {
     });
 
     // Get user's project history
-    const userProjects = user.userProjects;
-    const activeProjects = userProjects.filter(p => p.status === 'ACTIVE');
+    const userProjects = user.user_projects;
+    const activeProjects = userProjects.filter((p: any) => p.status === 'ACTIVE');
     const completedProjects = userProjects.filter(
-      p => p.status === 'COMPLETED'
+      (p: any) => p.status === 'COMPLETED'
     );
 
     // Calculate template selection intelligence
@@ -106,7 +109,7 @@ export async function GET(request: NextRequest) {
     // Determine preferred categories
     const categoryCounts = completedProjects.reduce(
       (acc, project) => {
-        const category = project.template.category;
+        const category = project.project_templates.category;
         acc[category] = (acc[category] || 0) + 1;
         return acc;
       },
@@ -136,8 +139,8 @@ export async function GET(request: NextRequest) {
       lastTemplateCompleted:
         completedProjects.length > 0
           ? completedProjects.sort(
-              (a, b) => b.completedAt!.getTime() - a.completedAt!.getTime()
-            )[0].completedAt
+              (a, b) => (b.completedAt?.getTime() || 0) - (a.completedAt?.getTime() || 0)
+            )[0].completedAt || undefined
           : undefined,
       successRate,
       averageCompletionTime,
@@ -165,8 +168,8 @@ export async function GET(request: NextRequest) {
           estimatedTime: template.estimatedTime,
           recommendationScore: recommendationScore.score,
           isRecommended: recommendationScore.score >= 70,
-          prerequisites: template.prerequisites || [],
-          outcomes: template.outcomes || [],
+          prerequisites: (template.prerequisites as any[]) || [],
+          outcomes: (template.outcomes as any[]) || [],
         };
       })
       .sort((a, b) => b.recommendationScore - a.recommendationScore);
@@ -174,11 +177,11 @@ export async function GET(request: NextRequest) {
     // Format active projects
     const activeProjectsFormatted = activeProjects.map(project => ({
       id: project.id,
-      templateName: project.template.name,
+      templateName: project.project_templates.name,
       progress: Math.round(project.progress * 100),
       currentStep: `Step ${project.currentStep}`,
       estimatedTimeRemaining: Math.round(
-        (1 - project.progress) * project.template.estimatedTime * 60
+        (1 - project.progress) * project.project_templates.estimatedTime * 60
       ), // Convert to minutes
       lastActiveAt: project.lastActiveAt,
     }));
@@ -186,10 +189,10 @@ export async function GET(request: NextRequest) {
     // Format completed projects
     const completedProjectsFormatted = completedProjects.map(project => ({
       id: project.id,
-      templateName: project.template.name,
+      templateName: project.project_templates.name,
       completedAt: project.completedAt!,
       finalScore: Math.round(project.progress * 100),
-      skillsGained: [], // Could be extracted from project metadata
+      skillsGained: [] as string[], // Could be extracted from project metadata
     }));
 
     // Generate intelligence insights
