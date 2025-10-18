@@ -2,6 +2,43 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getAdminFromRequest } from '@/lib/admin-auth';
 
+interface AdminNotificationWhereInput {
+  adminId: string;
+  status?: string;
+}
+
+interface AdminNotificationWithCount {
+  id: string;
+  title: string;
+  message: string;
+  type: string;
+  targetType: string;
+  targetData: string | null;
+  scheduledAt: string | null;
+  status: string;
+  adminId: string;
+  createdAt: string;
+  updatedAt: string;
+  _count: {
+    UserNotification: number;
+  };
+}
+
+interface UserWithId {
+  id: string;
+}
+
+interface UserNotificationData {
+  id: string;
+  title: string;
+  message: string;
+  type: string;
+  userId: string;
+  adminNotificationId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export async function GET(request: NextRequest) {
   try {
     // Verify admin authentication
@@ -18,7 +55,7 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Build where conditions
-    const whereConditions: any = {
+    const whereConditions: AdminNotificationWhereInput = {
       adminId: admin.id,
     };
 
@@ -125,9 +162,9 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function sendNotificationToUsers(adminNotification: any) {
+async function sendNotificationToUsers(adminNotification: AdminNotificationWithCount) {
   try {
-    let targetUsers: any[] = [];
+    let targetUsers: UserWithId[] = [];
 
     // Get target users based on targetType
     switch (adminNotification.targetType) {
@@ -165,7 +202,7 @@ async function sendNotificationToUsers(adminNotification: any) {
 
     // Create user notifications
     if (targetUsers.length > 0) {
-      const userNotifications = targetUsers.map((user: any, index: number) => ({
+      const userNotifications: UserNotificationData[] = targetUsers.map((user: UserWithId, index: number) => ({
         id: `user-notif-${user.id}-${adminNotification.id}-${index}`,
         title: adminNotification.title,
         message: adminNotification.message,
