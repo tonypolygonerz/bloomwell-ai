@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getAdminFromRequest } from '@/lib/admin-auth';
 
+interface NotificationTemplateWhereInput {
+  isActive: boolean;
+  type?: string;
+}
+
 export async function GET(request: NextRequest) {
   try {
     // Verify admin authentication
@@ -14,7 +19,7 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get('type') || '';
 
     // Build where conditions
-    const whereConditions: any = {
+    const whereConditions: NotificationTemplateWhereInput = {
       isActive: true,
     };
 
