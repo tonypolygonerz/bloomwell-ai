@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, Suspense } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useHybridChat } from '../../hooks/useHybridChat';
@@ -32,7 +32,7 @@ interface Conversation {
   messages: Message[];
 }
 
-export default function ChatPage() {
+function ChatPageClient() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -859,5 +859,13 @@ export default function ChatPage() {
         message={pendingMessage}
       />
     </AppLayout>
+  );
+}
+
+export default function ChatPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div></div>}>
+      <ChatPageClient />
+    </Suspense>
   );
 }

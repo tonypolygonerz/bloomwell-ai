@@ -29,7 +29,7 @@ function askQuestion(question) {
 async function testOllamaCloudAPI(apiKey) {
   console.log('🔍 Testing Ollama Cloud API connection...');
 
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, _reject) => {
     const data = JSON.stringify({
       model: 'gpt-oss:20b-cloud',
       messages: [

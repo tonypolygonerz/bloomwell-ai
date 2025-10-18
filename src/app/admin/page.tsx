@@ -74,11 +74,12 @@ export default function AdminDashboard() {
       setAdminUser(sessionData.admin);
       fetchWebinars(sessionData.token);
       fetchStats(sessionData.token);
-    } catch (error) {
+    } catch (_error) {
       localStorage.removeItem('adminSession');
       setLoading(false);
       router.push('/admin/login');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router]);
 
   const fetchWebinars = async (token: string) => {
@@ -141,7 +142,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const _getStatusColor = (status: string) => {
     switch (status) {
       case 'draft':
         return 'bg-gray-100 text-gray-800';
@@ -156,7 +157,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const getTimeRemaining = (scheduledDate: string) => {
+  const _getTimeRemaining = (scheduledDate: string) => {
     const now = new Date();
     const webinarDate = new Date(scheduledDate);
     const diffMs = webinarDate.getTime() - now.getTime();
@@ -174,7 +175,7 @@ export default function AdminDashboard() {
     return `${diffMinutes}m`;
   };
 
-  const handleStatusChange = async (webinarId: string, newStatus: string) => {
+  const _handleStatusChange = async (webinarId: string, newStatus: string) => {
     try {
       const adminSession = localStorage.getItem('adminSession');
       if (!adminSession) return;
@@ -198,7 +199,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleDeleteWebinar = async (
+  const _handleDeleteWebinar = async (
     webinarId: string,
     webinarTitle: string
   ) => {
@@ -231,7 +232,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleBulkStatusChange = async (newStatus: string) => {
+  const _handleBulkStatusChange = async (newStatus: string) => {
     if (selectedWebinars.size === 0) return;
 
     if (
@@ -269,7 +270,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleBulkDelete = async () => {
+  const _handleBulkDelete = async () => {
     if (selectedWebinars.size === 0) return;
 
     if (
@@ -305,7 +306,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleSelectWebinar = (webinarId: string) => {
+  const _handleSelectWebinar = (webinarId: string) => {
     const newSelected = new Set(selectedWebinars);
     if (newSelected.has(webinarId)) {
       newSelected.delete(webinarId);
@@ -316,7 +317,7 @@ export default function AdminDashboard() {
     setShowBulkActions(newSelected.size > 0);
   };
 
-  const handleSelectAll = () => {
+  const _handleSelectAll = () => {
     if (selectedWebinars.size === webinars.length) {
       setSelectedWebinars(new Set());
       setShowBulkActions(false);
@@ -326,7 +327,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const formatDate = (dateString: string) => {
+  const _formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',

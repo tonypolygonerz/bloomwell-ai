@@ -511,7 +511,7 @@ async function seedTemplates() {
 
       // Create the steps
       for (const stepData of templateData.steps) {
-        const step = await prisma.projectStep.create({
+        await prisma.projectStep.create({
           data: {
             templateId: template.id,
             stepNumber: stepData.stepNumber,

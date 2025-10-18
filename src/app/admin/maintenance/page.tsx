@@ -20,12 +20,10 @@ export default function AdminMaintenancePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
-  const [selectedEnvironment, setSelectedEnvironment] = useState<
-    'production' | 'staging'
-  >('staging');
 
   useEffect(() => {
     fetchMaintenanceModes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchMaintenanceModes = async () => {
@@ -48,9 +46,9 @@ export default function AdminMaintenancePage() {
         const data = await response.json();
         setMaintenanceModes(data.maintenanceModes);
 
-        // Set message from current environment if exists
+        // Set message from staging environment if exists
         const current = data.maintenanceModes.find(
-          (m: MaintenanceMode) => m.environment === selectedEnvironment
+          (m: MaintenanceMode) => m.environment === 'staging'
         );
         if (current?.message) {
           setMessage(current.message);

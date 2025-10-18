@@ -1,11 +1,6 @@
-import { Metadata } from 'next';
-import PDFUploader from '@/components/PDFUploader';
+'use client';
 
-export const metadata: Metadata = {
-  title: 'Document Analysis | Bloomwell AI',
-  description:
-    'Upload and analyze PDF documents with AI-powered insights for your nonprofit organization.',
-};
+import PDFUploader from '@/components/PDFUploader';
 
 export default function DocumentsPage() {
   return (

@@ -56,7 +56,6 @@ export default function UserDetail() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [rsvps, setRsvps] = useState<WebinarRSVP[]>([]);
   const [loading, setLoading] = useState(true);
-  const [adminUser, setAdminUser] = useState<any>(null);
 
   useEffect(() => {
     // Check for admin session
@@ -68,12 +67,12 @@ export default function UserDetail() {
 
     try {
       const sessionData = JSON.parse(adminSession);
-      setAdminUser(sessionData.admin);
       fetchUserData(sessionData.token);
-    } catch (error) {
+    } catch (_error) {
       localStorage.removeItem('adminSession');
       router.push('/admin/login');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router, userId]);
 
   const fetchUserData = async (token: string) => {

@@ -46,7 +46,7 @@ function parseDeadline(deadlineString) {
       return null;
     }
     return date;
-  } catch (error) {
+  } catch (_error) {
     return null;
   }
 }

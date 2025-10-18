@@ -30,7 +30,6 @@ interface AdminNotification {
 
 export default function AdminNotificationCenter() {
   const router = useRouter();
-  const [adminUser, setAdminUser] = useState<any>(null);
   const [notifications, setNotifications] = useState<AdminNotification[]>([]);
   const [templates, setTemplates] = useState<NotificationTemplate[]>([]);
   const [loading, setLoading] = useState(true);
@@ -54,9 +53,8 @@ export default function AdminNotificationCenter() {
 
     try {
       const sessionData = JSON.parse(adminSession);
-      setAdminUser(sessionData.admin);
       fetchData(sessionData.token);
-    } catch (error) {
+    } catch (_error) {
       localStorage.removeItem('adminSession');
       router.push('/admin/login');
     }

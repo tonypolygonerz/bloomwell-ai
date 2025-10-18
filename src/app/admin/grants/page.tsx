@@ -50,6 +50,7 @@ export default function AdminGrantsPage() {
       localStorage.removeItem('adminSession');
       router.push('/admin/login');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router]);
 
   const fetchGrantsData = async (token: string) => {
