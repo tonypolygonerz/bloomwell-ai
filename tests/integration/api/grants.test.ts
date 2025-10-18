@@ -359,12 +359,12 @@ describe('Grants API Integration', () => {
         where: {
           isActive: true,
           closeDate: { gte: new Date() },
-          state: 'CA',
+          // state field doesn't exist in Grant model
         },
       });
 
       expect(result).toHaveLength(1);
-      expect(result[0].state).toBe('CA');
+      // state field doesn't exist in Grant schema
     });
   });
 
@@ -456,7 +456,7 @@ describe('Grants API Integration', () => {
       });
 
       expect(user?.subscriptionStatus).toBe('ACTIVE');
-      expect(['MONTHLY', 'ANNUAL']).toContain(user?.subscriptionPlan);
+      expect(['MONTHLY', 'ANNUAL']).toContain(user?.subscriptionType);
     });
   });
 

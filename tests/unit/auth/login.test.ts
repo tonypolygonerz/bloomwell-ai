@@ -293,7 +293,7 @@ describe('Authentication - Login Logic', () => {
 
   describe('Session Management', () => {
     it('should add user data from token to session', () => {
-      const session = {
+      const session: any = {
         user: {},
         expires: '2025-12-31',
       };
