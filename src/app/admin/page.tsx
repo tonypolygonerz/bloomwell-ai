@@ -58,7 +58,7 @@ export default function AdminDashboard() {
   const [selectedWebinars, setSelectedWebinars] = useState<Set<string>>(
     new Set()
   );
-  const [showBulkActions, setShowBulkActions] = useState(false);
+  const [_showBulkActions, setShowBulkActions] = useState(false);
 
   useEffect(() => {
     // Check for admin session

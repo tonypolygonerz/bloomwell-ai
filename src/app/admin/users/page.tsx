@@ -4,6 +4,12 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import AdminSearchFilters from '@/components/AdminSearchFilters';
 
+type AdminUser = {
+  id: string;
+  username: string;
+  role: string;
+};
+
 interface User {
   id: string;
   name: string;
@@ -39,7 +45,7 @@ export default function UserManagement() {
   const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [adminUser, setAdminUser] = useState<any>(null);
+  const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
   const [searchParams, setSearchParams] = useState<Record<string, string>>({});
   const [pagination, setPagination] = useState<Pagination>({
     page: 1,
@@ -62,17 +68,18 @@ export default function UserManagement() {
       const sessionData = JSON.parse(adminSession);
       setAdminUser(sessionData.admin);
       fetchUsers(sessionData.token);
-    } catch (error) {
+    } catch (_error) {
       localStorage.removeItem('adminSession');
       router.push('/admin/login');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router]);
 
   useEffect(() => {
     if (adminUser) {
       fetchUsers();
     }
-  }, [searchParams, pagination.page]);
+  }, [searchParams, pagination.page, adminUser]);
 
   const fetchUsers = async (token?: string) => {
     if (!token) {
