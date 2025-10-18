@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import AdminBreadcrumb from '@/components/AdminBreadcrumb';
 
 interface UserDetail {
@@ -68,7 +69,8 @@ export default function UserDetail() {
     try {
       const sessionData = JSON.parse(adminSession);
       fetchUserData(sessionData.token);
-    } catch (_error) {
+    } catch (error) {
+      console.error('Error loading admin session:', error);
       localStorage.removeItem('adminSession');
       router.push('/admin/login');
     }
@@ -183,10 +185,12 @@ export default function UserDetail() {
           <div className='flex items-center'>
             <div className='flex-shrink-0 h-12 w-12'>
               {user.image ? (
-                <img
+                <Image
                   className='h-12 w-12 rounded-full'
                   src={user.image}
-                  alt=''
+                  alt={`${user.name} avatar`}
+                  width={48}
+                  height={48}
                 />
               ) : (
                 <div className='h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center'>

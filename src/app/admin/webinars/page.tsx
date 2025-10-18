@@ -53,7 +53,8 @@ export default function AdminWebinarsPage() {
       const sessionData = JSON.parse(adminSession);
       setAdminUser(sessionData.admin);
       fetchWebinarsData(sessionData.token);
-    } catch (_error) {
+    } catch (error) {
+      console.error('Error loading admin session:', error);
       localStorage.removeItem('adminSession');
       router.push('/admin/login');
     }

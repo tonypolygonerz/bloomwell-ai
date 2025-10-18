@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import AdminSearchFilters from '@/components/AdminSearchFilters';
 
 type AdminUser = {
@@ -56,32 +57,7 @@ export default function UserManagement() {
     hasPrev: false,
   });
 
-  useEffect(() => {
-    // Check for admin session
-    const adminSession = localStorage.getItem('adminSession');
-    if (!adminSession) {
-      router.push('/admin/login');
-      return;
-    }
-
-    try {
-      const sessionData = JSON.parse(adminSession);
-      setAdminUser(sessionData.admin);
-      fetchUsers(sessionData.token);
-    } catch (_error) {
-      localStorage.removeItem('adminSession');
-      router.push('/admin/login');
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router]);
-
-  useEffect(() => {
-    if (adminUser) {
-      fetchUsers();
-    }
-  }, [searchParams, pagination.page, adminUser]);
-
-  const fetchUsers = async (token?: string) => {
+  const fetchUsers = useCallback(async (token?: string) => {
     if (!token) {
       const adminSession = localStorage.getItem('adminSession');
       if (!adminSession) return;
@@ -116,7 +92,33 @@ export default function UserManagement() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.page, pagination.limit, router, searchParams]);
+
+  useEffect(() => {
+    // Check for admin session
+    const adminSession = localStorage.getItem('adminSession');
+    if (!adminSession) {
+      router.push('/admin/login');
+      return;
+    }
+
+    try {
+      const sessionData = JSON.parse(adminSession);
+      setAdminUser(sessionData.admin);
+      fetchUsers(sessionData.token);
+    } catch (error) {
+      console.error('Error loading admin session:', error);
+      localStorage.removeItem('adminSession');
+      router.push('/admin/login');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router]);
+
+  useEffect(() => {
+    if (adminUser) {
+      fetchUsers();
+    }
+  }, [fetchUsers, adminUser]);
 
   const handleSearch = (params: Record<string, string>) => {
     setSearchParams(params);
@@ -364,10 +366,12 @@ export default function UserManagement() {
                           <div className='flex items-center'>
                             <div className='flex-shrink-0 h-10 w-10'>
                               {user.image ? (
-                                <img
-                                  className='h-10 w-10 rounded-full'
+                                <Image
+                                  className='rounded-full'
                                   src={user.image}
-                                  alt=''
+                                  alt={`${user.name} avatar`}
+                                  width={40}
+                                  height={40}
                                 />
                               ) : (
                                 <div className='h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center'>

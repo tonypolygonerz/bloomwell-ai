@@ -46,7 +46,8 @@ function parseDeadline(deadlineString) {
       return null;
     }
     return date;
-  } catch (_error) {
+  } catch (error) {
+    console.error('Error parsing date:', error.message);
     return null;
   }
 }
@@ -168,8 +169,8 @@ async function importCaGrants() {
 
       console.log(`\n✅ Completed file: ${path.basename(csvFile)}\n`);
 
-    } catch (error) {
-      console.error(`❌ Error reading file ${csvFile}:`, error.message);
+    } catch (_error) {
+      console.error(`❌ Error reading file ${csvFile}:`, _error.message);
     }
   }
 
@@ -191,8 +192,8 @@ async function importCaGrants() {
 async function main() {
   try {
     await importCaGrants();
-  } catch (error) {
-    console.error('Fatal error:', error);
+    } catch (_error) {
+      console.error('Fatal error:', _error);
     process.exit(1);
   } finally {
     await prisma.$disconnect();

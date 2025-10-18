@@ -14,7 +14,7 @@ jest.mock('next-auth/next', () => ({
 // Mock Prisma
 jest.mock('@/lib/prisma', () => ({
   prisma: {
-    grants: {
+    grant: {
       findMany: jest.fn(),
       count: jest.fn(),
       findFirst: jest.fn(),
@@ -456,7 +456,7 @@ describe('Grants API Integration', () => {
       });
 
       expect(user?.subscriptionStatus).toBe('ACTIVE');
-      expect(['MONTHLY', 'ANNUAL']).toContain(user?.subscriptionType);
+      expect(['MONTHLY', 'ANNUAL']).toContain(user?.subscriptionPlan);
     });
   });
 

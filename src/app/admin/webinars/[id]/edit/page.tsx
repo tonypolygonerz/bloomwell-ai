@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import AdminBreadcrumb from '@/components/AdminBreadcrumb';
@@ -15,11 +16,6 @@ interface Guest {
   bio: string;
 }
 
-interface Material {
-  file: File;
-  name: string;
-}
-
 interface Webinar {
   id: string;
   title: string;
@@ -32,7 +28,7 @@ interface Webinar {
   metaDescription: string;
   categories: string[];
   guestSpeakers: Guest[];
-  materials: any[];
+  materials: unknown[];
   thumbnailUrl?: string;
   uniqueSlug: string;
 }
@@ -61,9 +57,7 @@ export default function EditWebinar() {
   });
 
   // File uploads
-  const [selectedThumbnail, setSelectedThumbnail] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
-  const [materials, setMaterials] = useState<Material[]>([]);
   const [guests, setGuests] = useState<Guest[]>([
     {
       honorific: '',
@@ -90,6 +84,7 @@ export default function EditWebinar() {
     }
 
     fetchWebinarData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [webinarId, router]);
 
   const fetchWebinarData = async () => {
@@ -196,7 +191,7 @@ export default function EditWebinar() {
         duration: formData.duration,
         status: formData.status,
         guestSpeakers: formattedGuests,
-        materials: materials.map(m => ({ name: m.name, url: '', type: 'PDF' })),
+        materials: [],
         metaDescription: formData.metaDescription,
         categories: formData.categories
           .split(',')
@@ -693,11 +688,15 @@ export default function EditWebinar() {
                     <label className='block text-sm font-medium text-gray-700 mb-2'>
                       Thumbnail
                     </label>
-                    <img
+                    <div className='relative w-full h-32'>
+                      <Image
                       src={thumbnailPreview}
                       alt='Thumbnail preview'
-                      className='w-full h-32 object-cover rounded-md'
+                        fill
+                        className='object-cover rounded-md'
+                        sizes='(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 300px'
                     />
+                    </div>
                   </div>
                 )}
               </div>

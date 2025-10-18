@@ -74,7 +74,8 @@ export default function AdminDashboard() {
       setAdminUser(sessionData.admin);
       fetchWebinars(sessionData.token);
       fetchStats(sessionData.token);
-    } catch (_error) {
+    } catch (error) {
+      console.error('Error loading admin session:', error);
       localStorage.removeItem('adminSession');
       setLoading(false);
       router.push('/admin/login');
