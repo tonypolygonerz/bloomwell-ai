@@ -6,7 +6,7 @@ import jwt from 'jsonwebtoken';
 
 // Admin credentials from environment variables for security
 // Note: Using direct hash due to environment variable loading issue with $ characters
-const ADMIN_CREDENTIALS = {
+const _ADMIN_CREDENTIALS = {
   username: process.env.ADMIN_USERNAME || 'admin',
   password: '$2b$10$EFBYmuVedoaaVHQA2dWgX.thEF3hS/L7n4EI8HLuKYINiKS8c15I6', // admin123
   role: process.env.ADMIN_ROLE || 'super_admin',
