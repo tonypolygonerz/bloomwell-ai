@@ -23,7 +23,6 @@ export default function AdminMaintenancePage() {
 
   useEffect(() => {
     fetchMaintenanceModes();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchMaintenanceModes = async () => {
