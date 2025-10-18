@@ -87,7 +87,9 @@ export async function GET(request: NextRequest) {
       maxAttendees: webinar.maxAttendees,
       categories: (() => {
         const result = safeJsonParse<WebinarCategories>(
-          typeof webinar.categories === 'string' ? webinar.categories : JSON.stringify(webinar.categories),
+          typeof webinar.categories === 'string'
+            ? webinar.categories
+            : JSON.stringify(webinar.categories),
           'categories'
         );
         if (!result.success && result.errors) {
@@ -110,7 +112,9 @@ export async function GET(request: NextRequest) {
       })(),
       materials: (() => {
         const result = safeJsonParse<WebinarMaterial[]>(
-          typeof webinar.materials === 'string' ? webinar.materials : JSON.stringify(webinar.materials),
+          typeof webinar.materials === 'string'
+            ? webinar.materials
+            : JSON.stringify(webinar.materials),
           'materials'
         );
         if (!result.success && result.errors) {

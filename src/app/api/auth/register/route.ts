@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create organization and user in a transaction
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async tx => {
       // Create organization
       const org = await tx.organization.create({
         data: {

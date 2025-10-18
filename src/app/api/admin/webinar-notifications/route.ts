@@ -165,17 +165,17 @@ export async function processScheduledNotifications() {
           lte: now,
         },
       },
-        include: {
-          Webinar: {
-            include: {
-              WebinarRSVP: {
-                include: {
-                  User: true,
-                },
+      include: {
+        Webinar: {
+          include: {
+            WebinarRSVP: {
+              include: {
+                User: true,
               },
             },
           },
         },
+      },
     });
 
     for (const notification of dueNotifications) {

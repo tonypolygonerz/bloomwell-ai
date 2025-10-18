@@ -134,9 +134,10 @@ export async function PUT(request: NextRequest) {
         },
       });
       if (userWithProjects?.user_projects[0]?.intelligenceProfile) {
-        currentIntelligence = getUserIntelligenceProfile(
-          userWithProjects.user_projects[0].intelligenceProfile
-        ) || createDefaultUserIntelligenceProfile();
+        currentIntelligence =
+          getUserIntelligenceProfile(
+            userWithProjects.user_projects[0].intelligenceProfile
+          ) || createDefaultUserIntelligenceProfile();
       } else {
         currentIntelligence = createDefaultUserIntelligenceProfile();
       }
@@ -294,9 +295,10 @@ export async function POST(request: NextRequest) {
     });
     let currentIntelligence: UserIntelligence;
     if (userWithProjects?.user_projects[0]?.intelligenceProfile) {
-      currentIntelligence = getUserIntelligenceProfile(
-        userWithProjects.user_projects[0].intelligenceProfile
-      ) || createDefaultUserIntelligenceProfile();
+      currentIntelligence =
+        getUserIntelligenceProfile(
+          userWithProjects.user_projects[0].intelligenceProfile
+        ) || createDefaultUserIntelligenceProfile();
     } else {
       currentIntelligence = createDefaultUserIntelligenceProfile();
     }

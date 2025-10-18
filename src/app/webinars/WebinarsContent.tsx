@@ -361,4 +361,3 @@ function WebinarEventCard({ webinar }: { webinar: Webinar }) {
     </div>
   );
 }
-

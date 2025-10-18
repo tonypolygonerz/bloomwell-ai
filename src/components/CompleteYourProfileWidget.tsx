@@ -85,17 +85,17 @@ export default function CompleteYourProfileWidget() {
   const fetchProgress = async () => {
     try {
       setError(null);
-      
+
       // Add cache-busting for development, but use cache in production
       const cacheKey = 'onboarding-progress';
       const cachedData = sessionStorage.getItem(cacheKey);
-      
+
       if (cachedData) {
         try {
           const parsed = JSON.parse(cachedData);
           const cacheAge = Date.now() - parsed.timestamp;
           const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
-          
+
           if (cacheAge < CACHE_DURATION) {
             setProgress(parsed.progress);
             setLoading(false);
@@ -111,16 +111,19 @@ export default function CompleteYourProfileWidget() {
           'Cache-Control': 'max-age=300', // 5 minutes
         },
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setProgress(data.progress);
-        
+
         // Cache the result
-        sessionStorage.setItem(cacheKey, JSON.stringify({
-          progress: data.progress,
-          timestamp: Date.now(),
-        }));
+        sessionStorage.setItem(
+          cacheKey,
+          JSON.stringify({
+            progress: data.progress,
+            timestamp: Date.now(),
+          })
+        );
       } else {
         setError('Failed to load progress data');
       }

@@ -47,7 +47,8 @@ export default function ProfileBasicsPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [selectedOrganization, setSelectedOrganization] = useState<ProPublicaOrganization | null>(null);
+  const [selectedOrganization, setSelectedOrganization] =
+    useState<ProPublicaOrganization | null>(null);
   const [formData, setFormData] = useState<BasicsData>({
     name: '',
     organizationType: '',
@@ -181,8 +182,8 @@ export default function ProfileBasicsPage() {
             onOrganizationSelect={handleOrganizationSelect}
             onClearSelection={handleClearSelection}
             selectedOrganization={selectedOrganization}
-            label="Organization Name *"
-            placeholder="Search for your organization or enter manually..."
+            label='Organization Name *'
+            placeholder='Search for your organization or enter manually...'
           />
 
           {/* Manual Organization Name Input (fallback) */}
@@ -199,12 +200,15 @@ export default function ProfileBasicsPage() {
                 id='name'
                 required
                 value={formData.name}
-                onChange={e => setFormData({ ...formData, name: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
                 className='mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 px-4 py-2 border'
                 placeholder='e.g., Bloomwell Community Services'
               />
               <p className='mt-1 text-sm text-gray-500'>
-                💡 Tip: Use the search above to auto-fill organization details from ProPublica
+                💡 Tip: Use the search above to auto-fill organization details
+                from ProPublica
               </p>
             </div>
           )}

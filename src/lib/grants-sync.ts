@@ -382,7 +382,9 @@ export async function parseGrantsXML(xmlContent: string): Promise<GrantData[]> {
         return [];
       }
 
-      throw new Error(`XML parsing failed: ${xmlParseError instanceof Error ? xmlParseError.message : String(xmlParseError)}`);
+      throw new Error(
+        `XML parsing failed: ${xmlParseError instanceof Error ? xmlParseError.message : String(xmlParseError)}`
+      );
     }
 
     // Handle both single opportunity and array of opportunities

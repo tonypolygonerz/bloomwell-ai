@@ -65,7 +65,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    console.log('User found:', { id: user.id, email: user.email, hasOrganization: !!user.Organization });
+    console.log('User found:', {
+      id: user.id,
+      email: user.email,
+      hasOrganization: !!user.Organization,
+    });
 
     // Check if user already has an organization
     if (user.organizationId && user.Organization) {
@@ -112,7 +116,7 @@ export async function POST(request: NextRequest) {
       staffSize,
       state,
     });
-    
+
     const organization = await prisma.organization.create({
       data: {
         id: randomUUID(),

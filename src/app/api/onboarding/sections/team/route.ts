@@ -53,7 +53,8 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { fullTimeStaff, partTimeStaff, contractors, volunteers, boardSize } = body;
+    const { fullTimeStaff, partTimeStaff, contractors, volunteers, boardSize } =
+      body;
 
     if (!session.user.organizationId) {
       return NextResponse.json(
@@ -146,7 +147,10 @@ export async function DELETE(request: NextRequest) {
     const memberId = searchParams.get('id');
 
     if (!memberId) {
-      return NextResponse.json({ error: 'Member ID required' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Member ID required' },
+        { status: 400 }
+      );
     }
 
     await prisma.teamMember.delete({

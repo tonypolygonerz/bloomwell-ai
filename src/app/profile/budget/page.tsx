@@ -151,7 +151,9 @@ export default function ProfileBudgetPage() {
               id='budget'
               required
               value={formData.budget}
-              onChange={e => setFormData({ ...formData, budget: e.target.value })}
+              onChange={e =>
+                setFormData({ ...formData, budget: e.target.value })
+              }
               className='mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 px-4 py-2 border'
             >
               <option value=''>Select budget range...</option>
@@ -255,5 +257,3 @@ export default function ProfileBudgetPage() {
     </div>
   );
 }
-
-

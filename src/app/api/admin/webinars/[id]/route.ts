@@ -48,7 +48,9 @@ export async function GET(
 
     // Parse JSON fields with type safety
     const categoriesResult = safeJsonParse<WebinarCategories>(
-      typeof webinar.categories === 'string' ? webinar.categories : JSON.stringify(webinar.categories),
+      typeof webinar.categories === 'string'
+        ? webinar.categories
+        : JSON.stringify(webinar.categories),
       'categories'
     );
     if (!categoriesResult.success && categoriesResult.errors) {
@@ -67,7 +69,9 @@ export async function GET(
     }
 
     const materialsResult = safeJsonParse<WebinarMaterial[]>(
-      typeof webinar.materials === 'string' ? webinar.materials : JSON.stringify(webinar.materials),
+      typeof webinar.materials === 'string'
+        ? webinar.materials
+        : JSON.stringify(webinar.materials),
       'materials'
     );
     if (!materialsResult.success && materialsResult.errors) {

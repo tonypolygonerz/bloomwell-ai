@@ -275,7 +275,8 @@ export default function CreateWebinar() {
     } catch (error) {
       console.error('Webinar creation error:', error);
       setError(
-        'An error occurred while creating the webinar: ' + (error instanceof Error ? error.message : 'Unknown error')
+        'An error occurred while creating the webinar: ' +
+          (error instanceof Error ? error.message : 'Unknown error')
       );
     } finally {
       setLoading(false);

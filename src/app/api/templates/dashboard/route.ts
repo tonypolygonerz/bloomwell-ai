@@ -49,7 +49,9 @@ export async function GET(request: NextRequest) {
     let userIntelligence: UserIntelligence;
     const mostRecentProject = user.user_projects[0];
     if (mostRecentProject?.intelligenceProfile) {
-      userIntelligence = getUserIntelligenceProfile(mostRecentProject.intelligenceProfile) || createDefaultUserIntelligenceProfile();
+      userIntelligence =
+        getUserIntelligenceProfile(mostRecentProject.intelligenceProfile) ||
+        createDefaultUserIntelligenceProfile();
     } else {
       userIntelligence = createDefaultUserIntelligenceProfile();
     }
@@ -70,7 +72,9 @@ export async function GET(request: NextRequest) {
 
     // Get user's project history
     const userProjects = user.user_projects;
-    const activeProjects = userProjects.filter((p: any) => p.status === 'ACTIVE');
+    const activeProjects = userProjects.filter(
+      (p: any) => p.status === 'ACTIVE'
+    );
     const completedProjects = userProjects.filter(
       (p: any) => p.status === 'COMPLETED'
     );
@@ -139,7 +143,9 @@ export async function GET(request: NextRequest) {
       lastTemplateCompleted:
         completedProjects.length > 0
           ? completedProjects.sort(
-              (a, b) => (b.completedAt?.getTime() || 0) - (a.completedAt?.getTime() || 0)
+              (a, b) =>
+                (b.completedAt?.getTime() || 0) -
+                (a.completedAt?.getTime() || 0)
             )[0].completedAt || undefined
           : undefined,
       successRate,

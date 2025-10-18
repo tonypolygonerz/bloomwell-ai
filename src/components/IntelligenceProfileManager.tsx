@@ -575,11 +575,13 @@ export default function IntelligenceProfileManager({
                     Missing Fields
                   </h4>
                   <div className='space-y-1'>
-                      {((validation as any).missingFields || []).map((field: any, index: number) => (
-                      <div key={index} className='text-sm text-red-600'>
-                        • {field}
-                      </div>
-                    ))}
+                    {((validation as any).missingFields || []).map(
+                      (field: any, index: number) => (
+                        <div key={index} className='text-sm text-red-600'>
+                          • {field}
+                        </div>
+                      )
+                    )}
                   </div>
                 </div>
               )}

@@ -264,7 +264,9 @@ Respond in JSON format:
 
       // Simple keyword matching for relevance
       const stepKeywords = this.extractKeywords(templateStep.questionText);
-      const templateKeywords = this.extractKeywords(templateStep.project_templates.name);
+      const templateKeywords = this.extractKeywords(
+        templateStep.project_templates.name
+      );
 
       const relevantPDFs = userPDFs.filter(pdf => {
         const pdfKeywords = [

@@ -114,7 +114,10 @@ export const authOptions: AuthOptions = {
         session.user.email = token.email as string;
         session.user.name = token.name as string;
         session.user.image = token.image as string;
-        session.user.organizationId = token.organizationId as string | null | undefined;
+        session.user.organizationId = token.organizationId as
+          | string
+          | null
+          | undefined;
       }
       return session;
     },

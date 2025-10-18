@@ -265,24 +265,26 @@ export async function POST(
       status: updatedProject.status.toLowerCase() as any,
       progress,
       intelligenceProfile: updatedIntelligence,
-      responses: [...userProject.template_responses, savedResponse].map((response: any) => ({
-        stepId: response.stepId,
-        questionKey: response.stepId, // This should be mapped properly
-        rawAnswer: response.rawAnswer,
-        enhancedAnswer: response.enhancedAnswer || undefined,
-        confidence: response.confidence || 0.5,
-        qualityScore: response.qualityScore || 0.5,
-        intelligenceInsights: {
-          skillLevelIndicators: [],
-          focusAreaSuggestions: [],
-          capabilityAssessments: [],
-          nextStepRecommendations: [],
-        },
-        metadata: response.metadata
-          ? JSON.parse(response.metadata as string)
-          : {},
-        submittedAt: response.submittedAt,
-      })),
+      responses: [...userProject.template_responses, savedResponse].map(
+        (response: any) => ({
+          stepId: response.stepId,
+          questionKey: response.stepId, // This should be mapped properly
+          rawAnswer: response.rawAnswer,
+          enhancedAnswer: response.enhancedAnswer || undefined,
+          confidence: response.confidence || 0.5,
+          qualityScore: response.qualityScore || 0.5,
+          intelligenceInsights: {
+            skillLevelIndicators: [],
+            focusAreaSuggestions: [],
+            capabilityAssessments: [],
+            nextStepRecommendations: [],
+          },
+          metadata: response.metadata
+            ? JSON.parse(response.metadata as string)
+            : {},
+          submittedAt: response.submittedAt,
+        })
+      ),
       recommendations: [],
       createdAt: updatedProject.createdAt,
       updatedAt: updatedProject.updatedAt,

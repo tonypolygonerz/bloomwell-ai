@@ -105,11 +105,21 @@ async function getWebinarBySlug(slug: string) {
     const parsedWebinar = {
       ...webinar,
       scheduledDate: webinar.scheduledDate.toISOString(),
-      categories: webinar.categories ? (typeof webinar.categories === 'string' ? JSON.parse(webinar.categories) : webinar.categories) : [],
-      guestSpeakers: webinar.guestSpeakers
-        ? (typeof webinar.guestSpeakers === 'string' ? JSON.parse(webinar.guestSpeakers) : webinar.guestSpeakers)
+      categories: webinar.categories
+        ? typeof webinar.categories === 'string'
+          ? JSON.parse(webinar.categories)
+          : webinar.categories
         : [],
-      materials: webinar.materials ? (typeof webinar.materials === 'string' ? JSON.parse(webinar.materials) : webinar.materials) : [],
+      guestSpeakers: webinar.guestSpeakers
+        ? typeof webinar.guestSpeakers === 'string'
+          ? JSON.parse(webinar.guestSpeakers)
+          : webinar.guestSpeakers
+        : [],
+      materials: webinar.materials
+        ? typeof webinar.materials === 'string'
+          ? JSON.parse(webinar.materials)
+          : webinar.materials
+        : [],
       rsvpCount: webinar._count.WebinarRSVP,
       _count: {
         rsvps: webinar._count.WebinarRSVP,
@@ -173,15 +183,17 @@ export default async function WebinarPage({ params }: WebinarPageProps) {
 
   // Add guest speakers if available
   if (webinar.guestSpeakers && Array.isArray(webinar.guestSpeakers)) {
-    (structuredData as any).performer = webinar.guestSpeakers.map((speaker: any) => ({
-      '@type': 'Person',
-      name: speaker.name,
-      jobTitle: speaker.title,
-      worksFor: {
-        '@type': 'Organization',
-        name: speaker.company,
-      },
-    }));
+    (structuredData as any).performer = webinar.guestSpeakers.map(
+      (speaker: any) => ({
+        '@type': 'Person',
+        name: speaker.name,
+        jobTitle: speaker.title,
+        worksFor: {
+          '@type': 'Organization',
+          name: speaker.company,
+        },
+      })
+    );
   }
 
   return (

@@ -106,7 +106,7 @@ export async function PUT(request: NextRequest) {
       // Update user to link to organization
       await prisma.user.update({
         where: { id: user.id },
-        data: { 
+        data: {
           Organization: {
             connect: { id: organization.id },
           },

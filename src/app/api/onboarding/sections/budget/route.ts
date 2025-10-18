@@ -69,7 +69,11 @@ export async function PUT(request: NextRequest) {
     // Calculate section score (0-100)
     let score = 0;
     if (budget) score += 60;
-    if (budgetPriorities && Array.isArray(budgetPriorities) && budgetPriorities.length > 0) {
+    if (
+      budgetPriorities &&
+      Array.isArray(budgetPriorities) &&
+      budgetPriorities.length > 0
+    ) {
       score += 40;
     }
 
@@ -87,5 +91,3 @@ export async function PUT(request: NextRequest) {
     );
   }
 }
-
-

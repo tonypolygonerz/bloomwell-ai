@@ -31,7 +31,11 @@ export default function ProfileTeamPage() {
   });
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [newMember, setNewMember] = useState({ name: '', title: '', type: 'staff' });
+  const [newMember, setNewMember] = useState({
+    name: '',
+    title: '',
+    type: 'staff',
+  });
 
   useEffect(() => {
     fetchTeamData();
@@ -400,5 +404,3 @@ export default function ProfileTeamPage() {
     </div>
   );
 }
-
-

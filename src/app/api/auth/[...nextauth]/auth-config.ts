@@ -141,12 +141,13 @@ export const authOptions: AuthOptions = {
         session.user.id = token.id as string;
         session.user.email = token.email as string;
         session.user.name = token.name as string;
-        session.user.organizationId = token.organizationId as string | null | undefined;
+        session.user.organizationId = token.organizationId as
+          | string
+          | null
+          | undefined;
       }
 
       return session;
     },
   },
 };
-
-

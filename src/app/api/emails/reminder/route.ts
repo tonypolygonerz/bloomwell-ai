@@ -29,8 +29,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Webinar not found' }, { status: 404 });
     }
 
-      // Send reminder emails to all RSVPs
-      const emailPromises = webinar.WebinarRSVP.map(async (rsvp: any) => {
+    // Send reminder emails to all RSVPs
+    const emailPromises = webinar.WebinarRSVP.map(async (rsvp: any) => {
       const timeUntilEvent = getTimeUntilEvent(webinar.scheduledDate);
 
       return EmailService.sendReminderEmail(

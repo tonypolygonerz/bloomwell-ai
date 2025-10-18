@@ -44,13 +44,14 @@ export async function GET() {
     }
 
     // Parse JSON fields efficiently (only once)
-    const completedSections = Array.isArray(progress.completedSections) 
-      ? progress.completedSections 
-      : JSON.parse(progress.completedSections as string || '[]');
-    
-    const sectionScores = typeof progress.sectionScores === 'object' 
-      ? progress.sectionScores 
-      : JSON.parse(progress.sectionScores as string || '{}');
+    const completedSections = Array.isArray(progress.completedSections)
+      ? progress.completedSections
+      : JSON.parse((progress.completedSections as string) || '[]');
+
+    const sectionScores =
+      typeof progress.sectionScores === 'object'
+        ? progress.sectionScores
+        : JSON.parse((progress.sectionScores as string) || '{}');
 
     return NextResponse.json({
       progress: {

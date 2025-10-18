@@ -87,8 +87,7 @@ export async function GET(
             focusAreas: user.Organization.focusAreas,
           }
         : null,
-      accountType:
-        user.Account.length > 0 ? user.Account[0].provider : 'email',
+      accountType: user.Account.length > 0 ? user.Account[0].provider : 'email',
       lastLogin: user.updatedAt, // Using updatedAt as proxy
       createdAt: user.createdAt,
       status: 'active', // All users are active for now

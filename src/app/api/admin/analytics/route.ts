@@ -202,12 +202,8 @@ export async function GET(request: NextRequest) {
             },
           })
           .then(users => {
-            const oauthUsers = users.filter(
-              u => u.Account.length > 0
-            ).length;
-            const emailUsers = users.filter(
-              u => u.Account.length === 0
-            ).length;
+            const oauthUsers = users.filter(u => u.Account.length > 0).length;
+            const emailUsers = users.filter(u => u.Account.length === 0).length;
             return {
               trial: emailUsers,
               paid: oauthUsers,

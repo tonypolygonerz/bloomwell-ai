@@ -187,4 +187,3 @@ export default function WebinarCalendar({ webinars }: WebinarCalendarProps) {
     </div>
   );
 }
-

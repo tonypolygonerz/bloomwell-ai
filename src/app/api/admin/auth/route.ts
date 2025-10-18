@@ -78,7 +78,11 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Admin auth error:', error);
     return NextResponse.json(
-      { error: 'Internal server error: ' + (error instanceof Error ? error.message : 'Unknown error') },
+      {
+        error:
+          'Internal server error: ' +
+          (error instanceof Error ? error.message : 'Unknown error'),
+      },
       { status: 500 }
     );
   }

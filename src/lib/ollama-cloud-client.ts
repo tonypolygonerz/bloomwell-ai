@@ -297,7 +297,10 @@ export class OllamaCloudClient {
           throw error;
         }
 
-        console.warn(`Model ${model} failed, trying fallback:`, error instanceof Error ? error.message : String(error));
+        console.warn(
+          `Model ${model} failed, trying fallback:`,
+          error instanceof Error ? error.message : String(error)
+        );
       }
     }
 

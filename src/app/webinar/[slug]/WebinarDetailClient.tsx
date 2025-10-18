@@ -453,9 +453,7 @@ export default function WebinarDetailClient({
                               className='w-16 h-16 rounded-full object-cover'
                             />
                           ) : (
-                            speaker.name
-                              .charAt(0)
-                              .toUpperCase()
+                            speaker.name.charAt(0).toUpperCase()
                           )}
                         </div>
                         <div className='flex-1'>

@@ -132,7 +132,7 @@ export default function ProfileStoryPage() {
                 setFormData({ ...formData, successStory: e.target.value })
               }
               className='block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 px-4 py-2 border'
-              placeholder="Tell us about a time when your work truly transformed someone&apos;s life or community..."
+              placeholder="Tell us about a time when your work truly transformed someone's life or community..."
             />
             <p className='mt-1 text-sm text-gray-500'>
               {formData.successStory.length}/50 characters minimum
@@ -213,7 +213,7 @@ export default function ProfileStoryPage() {
                 setFormData({ ...formData, dreamScenario: e.target.value })
               }
               className='block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 px-4 py-2 border'
-              placeholder="Paint a picture of your organization&apos;s ideal future impact..."
+              placeholder="Paint a picture of your organization's ideal future impact..."
             />
             <p className='mt-1 text-sm text-gray-500'>
               {formData.dreamScenario.length}/50 characters minimum

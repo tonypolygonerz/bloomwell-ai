@@ -147,9 +147,7 @@ export default function ProfileDocumentsPage() {
         {/* Documents List */}
         <div className='space-y-4'>
           {availableTypes.map(type => {
-            const hasDocument = documents.some(
-              d => d.documentType === type.id
-            );
+            const hasDocument = documents.some(d => d.documentType === type.id);
             const document = documents.find(d => d.documentType === type.id);
 
             return (
@@ -262,5 +260,3 @@ export default function ProfileDocumentsPage() {
     </div>
   );
 }
-
-
