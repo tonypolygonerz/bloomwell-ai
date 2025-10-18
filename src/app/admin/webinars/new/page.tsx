@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import AdminBreadcrumb from '@/components/AdminBreadcrumb';
 
 interface Guest {
@@ -752,9 +753,11 @@ export default function CreateWebinar() {
                   <div className='flex items-center space-x-4 p-4 border border-gray-300 rounded-md bg-gray-50'>
                     {thumbnailPreview && (
                       <div className='flex-shrink-0'>
-                        <img
+                        <Image
                           src={thumbnailPreview}
                           alt='Preview'
+                          width={128}
+                          height={80}
                           className='h-20 w-32 object-cover rounded-md'
                         />
                       </div>
@@ -855,9 +858,11 @@ export default function CreateWebinar() {
                   {/* Thumbnail Preview */}
                   <div className='mb-3'>
                     {thumbnailPreview ? (
-                      <img
+                      <Image
                         src={thumbnailPreview}
                         alt='Webinar thumbnail'
+                        width={400}
+                        height={192}
                         className='w-full h-48 object-cover rounded-lg'
                       />
                     ) : (
