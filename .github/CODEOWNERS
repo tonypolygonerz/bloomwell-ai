@@ -1,0 +1,26 @@
+# Bloomwell AI Code Owners
+# These owners will be requested for review when someone opens a pull request
+
+# Default owners for everything in the repo
+* @newberlin
+
+# Database schema and migrations
+/prisma/ @newberlin
+/scripts/database/ @newberlin
+
+# Authentication and security
+/src/app/api/auth/ @newberlin
+/src/middleware.ts @newberlin
+
+# Payment and subscription logic
+/src/app/api/stripe/ @newberlin
+/src/app/pricing/ @newberlin
+
+# Admin dashboard
+/src/app/admin/ @newberlin
+
+# Documentation
+/docs/ @newberlin
+*.md @newberlin
+
+

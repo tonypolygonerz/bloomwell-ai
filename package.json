@@ -13,7 +13,29 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "type-check": "tsc --noEmit"
+    "test:unit": "jest tests/unit",
+    "test:integration": "jest tests/integration",
+    "test:e2e": "jest tests/e2e",
+    "type-check": "tsc --noEmit",
+    "db:seed:admin": "node scripts/database/seed-admin.js",
+    "db:seed:admin:simple": "node scripts/database/seed-admin-simple.js",
+    "db:seed:webinars": "node scripts/database/seed-webinars.js",
+    "db:seed:templates": "node scripts/database/seed-templates.js",
+    "db:seed:notifications": "node scripts/database/seed-notification-templates.js",
+    "db:seed:maintenance": "node scripts/maintenance/seed-maintenance-mode.js",
+    "db:create:test-user": "node scripts/database/create-test-user.js",
+    "db:clear:test-org": "node scripts/database/clear-test-organization.js",
+    "db:fix:trial-dates": "node scripts/database/fix-trial-dates.js",
+    "grants:import:ca": "node scripts/database/import-ca-grants.js",
+    "grants:sync": "tsx scripts/database/sync-grants-now.ts",
+    "grants:check": "node scripts/database/check-grants-count.js",
+    "grants:health": "node scripts/database/grant-health-check.js",
+    "grants:verify:ca": "node scripts/database/verify-ca-grants.js",
+    "grants:cleanup": "node scripts/database/cleanup-expired-grants.js",
+    "deploy:setup:admin": "node scripts/deployment/setup-admin-session.js",
+    "deploy:setup:ollama": "node scripts/deployment/setup-ollama-cloud.js",
+    "maintenance:test:ollama": "node scripts/maintenance/test-ollama-cloud.js",
+    "maintenance:test:search": "node scripts/maintenance/test-web-search-api.js"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
@@ -60,6 +82,7 @@
     "jest-environment-jsdom": "^29.7.0",
     "prettier": "^3.2.5",
     "prisma": "^6.15.0",
+    "tsx": "^4.7.0",
     "typescript": "^5"
   }
 }
