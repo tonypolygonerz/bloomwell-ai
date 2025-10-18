@@ -1,8 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+
+interface AdminUser {
+  id: string;
+  email: string;
+  name?: string;
+  role: string;
+}
 
 interface Webinar {
   id: string;
@@ -31,7 +38,7 @@ interface WebinarStats {
 export default function AdminWebinarsPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [adminUser, setAdminUser] = useState<any>(null);
+  const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
   const [webinars, setWebinars] = useState<Webinar[]>([]);
   const [stats, setStats] = useState<WebinarStats>({
     totalWebinars: 0,
@@ -43,24 +50,7 @@ export default function AdminWebinarsPage() {
   });
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    const adminSession = localStorage.getItem('adminSession');
-    if (!adminSession) {
-      router.push('/admin/login');
-      return;
-    }
-    try {
-      const sessionData = JSON.parse(adminSession);
-      setAdminUser(sessionData.admin);
-      fetchWebinarsData(sessionData.token);
-    } catch (error) {
-      console.error('Error loading admin session:', error);
-      localStorage.removeItem('adminSession');
-      router.push('/admin/login');
-    }
-  }, [router]);
-
-  const fetchWebinarsData = async (token: string) => {
+  const fetchWebinarsData = useCallback(async (token: string) => {
     setLoading(true);
     try {
       const response = await fetch('/api/admin/webinars', {
@@ -76,13 +66,10 @@ export default function AdminWebinarsPage() {
         // Calculate stats from the webinars data
         const totalWebinars = webinarsData.length;
         const publishedWebinars = webinarsData.filter(
-          (w: any) => w.status === 'published'
-        ).length;
-        const draftWebinars = webinarsData.filter(
-          (w: any) => w.status === 'draft'
+          (w: Webinar) => w.status === 'published'
         ).length;
         const totalAttendees = webinarsData.reduce(
-          (sum: any, w: any) => sum + (w.rsvpCount || 0),
+          (sum: number, w: Webinar) => sum + (w.rsvpCount || 0),
           0
         );
         const averageAttendance =
@@ -108,7 +95,24 @@ export default function AdminWebinarsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
+
+  useEffect(() => {
+    const adminSession = localStorage.getItem('adminSession');
+    if (!adminSession) {
+      router.push('/admin/login');
+      return;
+    }
+    try {
+      const sessionData = JSON.parse(adminSession);
+      setAdminUser(sessionData.admin);
+      fetchWebinarsData(sessionData.token);
+    } catch (error) {
+      console.error('Error loading admin session:', error);
+      localStorage.removeItem('adminSession');
+      router.push('/admin/login');
+    }
+  }, [router, fetchWebinarsData]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
