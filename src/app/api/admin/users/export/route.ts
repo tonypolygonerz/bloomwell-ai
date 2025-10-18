@@ -2,6 +2,43 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getAdminFromRequest } from '@/lib/admin-auth';
 
+interface UserExportWhereInput {
+  OR?: Array<{
+    name?: { contains: string };
+    email?: { contains: string };
+    Organization?: { name: { contains: string } };
+  }>;
+  Account?: { some?: Record<string, never>; none?: Record<string, never> };
+  Conversation?: { some?: { createdAt: { gte: Date } }; none?: { createdAt: { gte: Date } } };
+  WebinarRSVP?: { some?: { rsvpDate: { gte: Date } }; none?: { rsvpDate: { gte: Date } } };
+  AND?: Array<{
+    Conversation: { none: { createdAt: { gte: Date } } };
+    WebinarRSVP: { none: { rsvpDate: { gte: Date } } };
+  }>;
+}
+
+interface UserWithRelations {
+  id: string;
+  name: string | null;
+  email: string;
+  createdAt: string;
+  updatedAt: string;
+  Organization?: {
+    name: string | null;
+    mission: string | null;
+    budget: string | null;
+    staffSize: string | null;
+  } | null;
+  Account: Array<{
+    provider: string;
+    type: string;
+  }>;
+  _count: {
+    Conversation: number;
+    WebinarRSVP: number;
+  };
+}
+
 export async function GET(request: NextRequest) {
   try {
     // Verify admin authentication
@@ -16,7 +53,7 @@ export async function GET(request: NextRequest) {
     const activityFilter = searchParams.get('activity') || '';
 
     // Build search conditions (same as users API)
-    const whereConditions: any = {};
+    const whereConditions: UserExportWhereInput = {};
 
     if (search) {
       whereConditions.OR = [
@@ -124,7 +161,7 @@ export async function GET(request: NextRequest) {
       'Status',
     ];
 
-    const csvRows = users.map((user: any) => [
+    const csvRows = users.map((user: UserWithRelations) => [
       user.name || '',
       user.email,
       user.Organization?.name || '',
