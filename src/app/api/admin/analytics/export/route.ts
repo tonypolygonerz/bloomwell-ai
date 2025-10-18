@@ -2,6 +2,38 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getAdminFromRequest } from '@/lib/admin-auth';
 
+interface UserEngagementData {
+  category: string;
+  totalUsers: number;
+  activeUsers: number;
+  newUsers: number;
+  totalConversations: number;
+}
+
+interface WebinarData {
+  category: string;
+  totalWebinars: number;
+  totalRegistrations: number;
+  uniqueAttendees: number;
+  avgRegistrationsPerWebinar: number;
+}
+
+interface RevenueData {
+  category: string;
+  paidUsers: number;
+  trialUsers: number;
+  totalUsers: number;
+}
+
+interface DailyMetricsData {
+  date: string;
+  dailyActiveUsers: number;
+  dailyConversations: number;
+  dailyWebinarRegistrations: number;
+}
+
+type AnalyticsData = UserEngagementData | WebinarData | RevenueData | DailyMetricsData;
+
 export async function GET(request: NextRequest) {
   try {
     // Verify admin authentication
@@ -26,7 +58,7 @@ export async function GET(request: NextRequest) {
       (await Promise.all([
         // User engagement metrics
         prisma.$queryRaw`
-        SELECT 
+        SELECT
           'User Engagement' as category,
           COUNT(DISTINCT u.id) as totalUsers,
           COUNT(DISTINCT CASE WHEN c.createdAt >= ${start} THEN c.userId END) as activeUsers,
@@ -38,7 +70,7 @@ export async function GET(request: NextRequest) {
 
         // Webinar metrics
         prisma.$queryRaw`
-        SELECT 
+        SELECT
           'Webinar Performance' as category,
           COUNT(DISTINCT w.id) as totalWebinars,
           COUNT(DISTINCT r.id) as totalRegistrations,
@@ -51,7 +83,7 @@ export async function GET(request: NextRequest) {
 
         // Revenue metrics
         prisma.$queryRaw`
-        SELECT 
+        SELECT
           'Revenue Metrics' as category,
           COUNT(DISTINCT CASE WHEN a.id IS NOT NULL THEN u.id END) as paidUsers,
           COUNT(DISTINCT CASE WHEN a.id IS NULL THEN u.id END) as trialUsers,
@@ -63,7 +95,7 @@ export async function GET(request: NextRequest) {
 
         // Daily metrics
         prisma.$queryRaw`
-        SELECT 
+        SELECT
           DATE(c.createdAt) as date,
           COUNT(DISTINCT c.userId) as dailyActiveUsers,
           COUNT(c.id) as dailyConversations,
@@ -74,7 +106,7 @@ export async function GET(request: NextRequest) {
         GROUP BY DATE(c.createdAt)
         ORDER BY date
       `,
-      ])) as any[];
+      ])) as AnalyticsData[];
 
     // Generate CSV content
     const csvRows = [];
@@ -164,7 +196,7 @@ export async function GET(request: NextRequest) {
       'Daily Conversations',
       'Daily Webinar Registrations',
     ]);
-    dailyMetrics.forEach((day: any) => {
+    dailyMetrics.forEach((day: DailyMetricsData) => {
       csvRows.push([
         day.date,
         day.dailyActiveUsers || 0,
