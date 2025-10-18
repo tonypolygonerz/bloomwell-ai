@@ -2,6 +2,27 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getAdminFromRequest } from '@/lib/admin-auth';
 
+interface ConversationWithCount {
+  id: string;
+  title: string;
+  createdAt: string;
+  _count: {
+    Message: number;
+  };
+}
+
+interface RSVPWithWebinar {
+  id: string;
+  rsvpDate: string;
+  attended: boolean | null;
+  Webinar: {
+    id: string;
+    title: string;
+    scheduledDate: string;
+    status: string;
+  };
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -98,7 +119,7 @@ export async function GET(
     };
 
     // Transform conversations
-    const transformedConversations = user.Conversation.map((conv: any) => ({
+    const transformedConversations = user.Conversation.map((conv: ConversationWithCount) => ({
       id: conv.id,
       title: conv.title,
       createdAt: conv.createdAt,
@@ -106,7 +127,7 @@ export async function GET(
     }));
 
     // Transform RSVPs
-    const transformedRSVPs = user.WebinarRSVP.map((rsvp: any) => ({
+    const transformedRSVPs = user.WebinarRSVP.map((rsvp: RSVPWithWebinar) => ({
       id: rsvp.id,
       webinar: rsvp.Webinar,
       rsvpDate: rsvp.rsvpDate,
