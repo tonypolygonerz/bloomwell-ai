@@ -8,12 +8,12 @@ import { createPDFProcessor } from '@/shared/lib/pdf-processor';
 
 import {
   safeJsonStringify,
-  parsePDFKeyPoints,
-  parsePDFRecommendations,
+  _parsePDFKeyPoints,
+  _parsePDFRecommendations,
   logValidationErrors,
-  logValidationWarnings,
+  _logValidationWarnings,
 } from '@/shared/lib/json-field-utils';
-import { PDFKeyPoint, PDFRecommendation } from '@/shared/types/json-fields';
+import { _PDFKeyPoint, _PDFRecommendation } from '@/shared/types/json-fields';
 
 // PDF processing limits
 const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
@@ -190,7 +190,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Update processing record with results
-      const updatedProcessing = await prisma.pdf_processings.update({
+      const _updatedProcessing = await prisma.pdf_processings.update({
         where: { id: pdfProcessing.id },
         data: {
           pageCount: extractionResult.pageCount,

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/shared/lib/prisma';
 import { getServerSession } from 'next-auth';
+import { GrantWhereInput } from '@prisma/client';
 
 import { authOptions } from '@/features/auth/api/[...nextauth]/route';
 
@@ -121,14 +122,14 @@ function isGrantsSearchRequest(message: string): boolean {
 
 async function searchGrantsForUser(
   message: string,
-  _user: unknown
+  _user: { id: string; email: string; Organization?: { id: string; name: string } }
 ): Promise<string> {
   try {
     // Extract potential search terms from the message
     const searchTerms = extractSearchTerms(message);
 
     // Internal database query - NO API calls
-    const whereConditions: unknown = {
+    const whereConditions: GrantWhereInput = {
       isActive: true,
       closeDate: { gte: new Date() }, // Only active grants
     };
@@ -235,13 +236,13 @@ function extractSearchTerms(message: string): string | undefined {
 
 async function generateOllamaResponse(
   message: string,
-  conversationHistory: unknown[]
+  conversationHistory: Array<{ role: string; content: string }>
 ): Promise<string> {
   try {
     const conversationContext = `You are Bloomwell AI, a helpful AI assistant specializing in nonprofit organization management. You provide expert guidance on topics like grant writing, fundraising, board governance, volunteer management, strategic planning, and nonprofit operations. Be concise but comprehensive in your responses.
 
 Previous conversation context:
-${conversationHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n')}
+${conversationHistory.map((msg: { role: string; content: string }) => `${msg.role}: ${msg.content}`).join('\n')}
 
 Current question: ${message}
 

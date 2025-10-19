@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/shared/lib/prisma';
 import { getServerSession } from 'next-auth';
+import { UserNotificationWhereInput, UserNotificationUpdateInput } from '@prisma/client';
 
 import { authOptions } from '@/features/auth/api/[...nextauth]/route';
 
@@ -20,7 +21,7 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Build where conditions
-    const whereConditions: unknown = {
+    const whereConditions: UserNotificationWhereInput = {
       userId: session.user.id,
     };
 
@@ -100,7 +101,7 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    let updateData: unknown = {};
+    let updateData: UserNotificationUpdateInput = {};
 
     switch (action) {
       case 'mark_read':

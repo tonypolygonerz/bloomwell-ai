@@ -40,3 +40,4 @@ const MonitoringProvider: React.FC<MonitoringProviderProps> = ({
 };
 
 export default MonitoringProvider;
+

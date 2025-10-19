@@ -131,3 +131,4 @@ console.log(`Rollback completed successfully`);
 
 // Exit successfully
 process.exit(0);
+

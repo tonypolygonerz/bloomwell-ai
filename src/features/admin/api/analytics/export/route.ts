@@ -119,22 +119,22 @@ export async function GET(request: NextRequest) {
     csvRows.push([
       'User Engagement',
       'Total Users',
-      (userEngagementData as any[])![0]?.totalUsers || 0,
+      (userEngagementData as any[])[0]?.totalUsers || 0,
     ]);
     csvRows.push([
       'User Engagement',
       'Active Users',
-      (userEngagementData as any[])![0]?.activeUsers || 0,
+      (userEngagementData as any[])[0]?.activeUsers || 0,
     ]);
     csvRows.push([
       'User Engagement',
       'New Users',
-      (userEngagementData as any[])![0]?.newUsers || 0,
+      (userEngagementData as any[])[0]?.newUsers || 0,
     ]);
     csvRows.push([
       'User Engagement',
       'Total Conversations',
-      (userEngagementData as any[])![0]?.totalConversations || 0,
+      (userEngagementData as any[])[0]?.totalConversations || 0,
     ]);
     csvRows.push(['', '', '']);
 
@@ -142,22 +142,22 @@ export async function GET(request: NextRequest) {
     csvRows.push([
       'Webinar Performance',
       'Total Webinars',
-      (webinarData as any[])![0]?.totalWebinars || 0,
+      (webinarData as any[])[0]?.totalWebinars || 0,
     ]);
     csvRows.push([
       'Webinar Performance',
       'Total Registrations',
-      (webinarData as any[])![0]?.totalRegistrations || 0,
+      (webinarData as any[])[0]?.totalRegistrations || 0,
     ]);
     csvRows.push([
       'Webinar Performance',
       'Unique Attendees',
-      (webinarData as any[])![0]?.uniqueAttendees || 0,
+      (webinarData as any[])[0]?.uniqueAttendees || 0,
     ]);
     csvRows.push([
       'Webinar Performance',
       'Avg Registrations/Webinar',
-      Math.round(((webinarData as any[])![0]?.avgRegistrationsPerWebinar || 0) * 100) / 100,
+      Math.round(((webinarData as any[])[0]?.avgRegistrationsPerWebinar || 0) * 100) / 100,
     ]);
     csvRows.push(['', '', '']);
 
@@ -165,24 +165,24 @@ export async function GET(request: NextRequest) {
     csvRows.push([
       'Revenue Metrics',
       'Paid Users',
-      (revenueData as any[])![0]?.paidUsers || 0,
+      (revenueData as any[])[0]?.paidUsers || 0,
     ]);
     csvRows.push([
       'Revenue Metrics',
       'Trial Users',
-      (revenueData as any[])![0]?.trialUsers || 0,
+      (revenueData as any[])[0]?.trialUsers || 0,
     ]);
     csvRows.push([
       'Revenue Metrics',
       'Total Users',
-      (revenueData as any[])![0]?.totalUsers || 0,
+      (revenueData as any[])[0]?.totalUsers || 0,
     ]);
     csvRows.push([
       'Revenue Metrics',
       'Conversion Rate',
-      (revenueData as any[])![0]?.totalUsers > 0
+      (revenueData as any[])[0]?.totalUsers > 0
         ? Math.round(
-            ((revenueData as any[])![0]?.paidUsers || 0) / (revenueData as any[])![0]?.totalUsers *
+            ((revenueData as any[])[0]?.paidUsers || 0) / (revenueData as any[])[0]?.totalUsers *
               10000
           ) / 100
         : 0,

@@ -212,3 +212,4 @@ For additional support, contact the Bloomwell AI development team:
 
 - **Email**: dev@bloomwell-ai.com
 - **Slack**: #bloomwell-production channel
+

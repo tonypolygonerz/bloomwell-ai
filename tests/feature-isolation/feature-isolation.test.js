@@ -109,3 +109,4 @@ describe('Feature Isolation', () => {
     expect(screen.queryByText('Outer Feature Failed')).not.toBeInTheDocument();
   });
 });
+

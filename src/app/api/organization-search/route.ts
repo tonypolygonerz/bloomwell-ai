@@ -69,7 +69,29 @@ export async function GET(request: NextRequest) {
   }
 }
 
-function transformOrganizationData(org: any) {
+interface PropublicaOrganization {
+  ein: string;
+  name: string;
+  city: string;
+  state: string;
+  zip: string;
+  country?: string;
+  category: string;
+  subsection: string;
+  ruling_date: string;
+  deductibility: string;
+  classification: string;
+  asset_amount: number;
+  income_amount: number;
+  revenue_amount: number;
+  ntee_code: string;
+  ntee_classification: string;
+  website?: string;
+  mission?: string;
+  street?: string;
+}
+
+function transformOrganizationData(org: PropublicaOrganization) {
   return {
     ein: org.ein,
     name: org.name,
