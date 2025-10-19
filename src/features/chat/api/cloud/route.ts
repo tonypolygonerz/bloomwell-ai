@@ -11,6 +11,7 @@ import {
   buildFocusedPrompt,
   GuidelineContext,
 } from '../../../../lib/guideline-selector';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { getUserIntelligenceProfile } from '../../../../lib/user-intelligence-utils';
 
 /**

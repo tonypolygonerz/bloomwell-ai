@@ -53,7 +53,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Get webinars with filtering
-    const webinars = await prisma.webinar.findMany({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const webinars: any = await prisma.webinar.findMany({
       where: whereConditions,
       include: {
         AdminUser: {

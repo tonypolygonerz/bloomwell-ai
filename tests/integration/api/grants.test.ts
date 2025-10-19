@@ -3,8 +3,10 @@
  * Tests the grants search, filtering, and retrieval functionality
  */
 
-import { prisma } from '@/lib/prisma';
-import { NextRequest } from 'next/server';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { NextRequest, NextResponse } from 'next/server';
+import { GET } from '@/app/api/grants/route';
+import { prisma } from '@/shared/lib/prisma';
 
 // Mock NextAuth
 jest.mock('next-auth/next', () => ({

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Unit Tests for Authentication Login Logic
  * Tests the credential validation and authentication flow

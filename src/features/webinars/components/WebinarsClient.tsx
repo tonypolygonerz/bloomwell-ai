@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { format } from 'date-fns';
 
@@ -46,13 +46,28 @@ export default function WebinarsClient() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [filteredWebinars, setFilteredWebinars] = useState<Webinar[]>([]);
 
+  const filterWebinars = useCallback(() => {
+    if (!searchTerm) {
+      setFilteredWebinars(webinars);
+      return;
+    }
+
+    const lowercasedFilter = searchTerm.toLowerCase();
+    const filtered = webinars.filter(webinar => {
+      return Object.values(webinar).some(value =>
+        String(value).toLowerCase().includes(lowercasedFilter)
+      );
+    });
+    setFilteredWebinars(filtered);
+  }, [searchTerm, webinars]);
+
   useEffect(() => {
     fetchWebinars();
   }, []);
 
   useEffect(() => {
     filterWebinars();
-  }, [webinars, searchTerm, selectedCategory]);
+  }, [searchTerm, webinars, filterWebinars]);
 
   const fetchWebinars = async () => {
     try {
@@ -66,32 +81,6 @@ export default function WebinarsClient() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const filterWebinars = () => {
-    let filtered = webinars;
-
-    // Filter by category
-    if (selectedCategory !== 'All') {
-      filtered = filtered.filter(
-        webinar =>
-          webinar.categories && webinar.categories.includes(selectedCategory)
-      );
-    }
-
-    // Filter by search term
-    if (searchTerm) {
-      filtered = filtered.filter(
-        webinar =>
-          webinar.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          webinar.description.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // Only show published webinars
-    filtered = filtered.filter(webinar => webinar.status === 'published');
-
-    setFilteredWebinars(filtered);
   };
 
   if (loading) {

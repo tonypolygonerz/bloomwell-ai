@@ -1,5 +1,6 @@
-import { renderHook } from '@testing-library/react';
-import { useFeatureFlag, setFeatureFlag, resetFeatureFlag } from '@/shared/lib/feature-flags';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { renderHook } from '@testing-library/react-hooks';
+import { useFeatureFlag } from '@/shared/hooks/useFeatureFlag';
 
 // Mock localStorage
 const localStorageMock = (() => {

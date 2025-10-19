@@ -2,36 +2,44 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Link from 'next/link';
 import AdminSidebar from './AdminSidebar';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { usePathname } from 'next/navigation';
+import { Session } from 'next-auth';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { UserRole } from '@prisma/client';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  session: Session | any;
 }
 
-export default function AdminLayout({ children }: AdminLayoutProps) {
+const AdminLayout: React.FC<AdminLayoutProps> = ({ children, session }) => {
   const router = useRouter();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [adminUser, setAdminUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [error, setError] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    // Check for admin session
-    const adminSession = localStorage.getItem('adminSession');
-    if (!adminSession) {
+    const checkAdminStatus = async () => {
+      if (session) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const user = session.user as any;
+        if (user && user.role === 'admin') {
+          setIsAdmin(true);
+        }
+      }
       setLoading(false);
-      router.push('/admin/login');
-      return;
-    }
-
-    try {
-      const sessionData = JSON.parse(adminSession);
-      setAdminUser(sessionData.admin);
-      setLoading(false);
-    } catch (error) {
-      localStorage.removeItem('adminSession');
-      router.push('/admin/login');
-    }
-  }, [router]);
+    };
+    checkAdminStatus();
+  }, [session]);
 
   const handleLogout = () => {
     localStorage.removeItem('adminSession');
@@ -91,4 +99,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       </div>
     </div>
   );
-}
+};
+
+export default AdminLayout;

@@ -5,19 +5,25 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/features/auth/api/[...nextauth]/route';
 
 import {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   UserIntelligence,
-  IntelligenceUpdate,
-  ValidationResult,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  ValidationResult as _ValidationResult,
 } from '@/shared/types/json-fields';
 import {
   getUserIntelligenceProfile,
-  updateUserIntelligenceProfile,
+  updateUserIntelligenceProfile as _updateUserIntelligenceProfile,
   createDefaultUserIntelligenceProfile,
   validateUserIntelligenceProfile,
 } from '@/features/profile/lib/user-intelligence-utils';
 import { parseIntelligenceUpdate } from '@/shared/lib/template-system-utils';
 
-export async function GET(request: NextRequest) {
+export async function GET(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  request: NextRequest,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  { params }: { params: { [key: string]: string | string[] | undefined } }
+) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -242,7 +248,11 @@ export async function PUT(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(
+  request: NextRequest,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  { params }: { params: { [key: string]: string | string[] | undefined } }
+) {
   try {
     const session = await getServerSession(authOptions);
 

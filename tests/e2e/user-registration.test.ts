@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * End-to-End Tests for User Registration Flow
  * Tests the complete user registration journey from form submission to account creation

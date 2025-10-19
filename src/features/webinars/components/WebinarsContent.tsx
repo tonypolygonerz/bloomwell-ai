@@ -2,6 +2,13 @@
 
 import AppLayout from '@/shared/components/layout/AppLayout';
 import WebinarCalendar from '@/components/WebinarCalendar';
+import WebinarCard from './WebinarCard';
+import {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  getRelativeDate,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  getTimeUntilEvent,
+} from '@/shared/lib/date-utils';
 
 interface Webinar {
   id: string;
@@ -32,16 +39,18 @@ interface UserRSVP {
 }
 
 interface WebinarsContentProps {
-  webinars: Webinar[];
-  userRSVPs: UserRSVP[];
-  isAuthenticated: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  webinars: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  error: any;
+  isLoading: boolean;
 }
 
-export default function WebinarsContent({
+const WebinarsContent: React.FC<WebinarsContentProps> = ({
   webinars,
   userRSVPs,
   isAuthenticated,
-}: WebinarsContentProps) {
+}: WebinarsContentProps) => {
   return (
     <AppLayout>
       <div className=''>
@@ -175,7 +184,7 @@ export default function WebinarsContent({
             ) : (
               <div className='space-y-6'>
                 {webinars.map(webinar => (
-                  <WebinarEventCard key={webinar.id} webinar={webinar} />
+                  <WebinarCard key={webinar.id} webinar={webinar} />
                 ))}
               </div>
             )}

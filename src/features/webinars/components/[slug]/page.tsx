@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -44,17 +44,15 @@ export default function WebinarPage() {
   const router = useRouter();
   const slug = params.slug as string;
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [webinar, setWebinar] = useState<Webinar | null>(null);
-  const [loading, setLoading] = useState(true);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [rsvpLoading, setRsvpLoading] = useState(false);
-  const [error, setError] = useState('');
   const [showShareModal, setShowShareModal] = useState(false);
 
-  useEffect(() => {
-    fetchWebinar();
-  }, [slug]);
-
-  const fetchWebinar = async () => {
+  const fetchWebinar = useCallback(async () => {
     try {
       const response = await fetch(`/api/webinars/${slug}`);
       if (response.ok) {
@@ -66,9 +64,13 @@ export default function WebinarPage() {
     } catch (error) {
       setError('Failed to load webinar');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
-  };
+  }, [slug]);
+
+  useEffect(() => {
+    fetchWebinar();
+  }, [slug, fetchWebinar]);
 
   const handleRSVP = async () => {
     if (!session) {
@@ -199,7 +201,7 @@ export default function WebinarPage() {
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className='min-h-screen bg-gray-50 flex items-center justify-center'>
         <div className='text-center'>

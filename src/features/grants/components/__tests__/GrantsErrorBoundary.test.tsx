@@ -1,7 +1,13 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import GrantsErrorBoundary, { GrantsErrorTest } from '../GrantsErrorBoundary';
+import { render, fireEvent } from '@testing-library/react';
+import GrantsErrorBoundary from '../GrantsErrorBoundary';
+
+// Mock component that throws an error
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const ProblematicComponent = () => {
+  throw new Error('Test error');
+};
 
 // Mock the feature flags module
 jest.mock('@/shared/lib/feature-flags', () => ({

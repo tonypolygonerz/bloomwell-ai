@@ -44,7 +44,7 @@ export default function AdminSearchFilters({
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [search, filters]);
+  }, [handleSearch]);
 
   const handleSearch = useCallback(() => {
     const params = new URLSearchParams();

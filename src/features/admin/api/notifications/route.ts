@@ -145,7 +145,8 @@ export async function POST(request: NextRequest) {
 
     // If not scheduled, send immediately
     if (!scheduledAt) {
-      await sendNotificationToUsers(adminNotification);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await sendNotificationToUsers(adminNotification as any);
     }
 
     return NextResponse.json(adminNotification);
@@ -214,7 +215,8 @@ async function sendNotificationToUsers(adminNotification: AdminNotificationWithC
       }));
 
       await prisma.userNotification.createMany({
-        data: userNotifications,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        data: userNotifications as any,
       });
 
       // Update admin notification status

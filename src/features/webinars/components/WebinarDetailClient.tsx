@@ -47,7 +47,8 @@ export default function WebinarDetailClient({
   const { data: session } = useSession();
   const router = useRouter();
   const [rsvpLoading, setRsvpLoading] = useState(false);
-  const [error, setError] = useState('');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [error, setError] = useState<string | null>(null);
   const [showShareModal, setShowShareModal] = useState(false);
   const [hasRSVPed, setHasRSVPed] = useState(false);
 

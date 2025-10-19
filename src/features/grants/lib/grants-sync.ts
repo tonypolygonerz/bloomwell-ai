@@ -1,6 +1,11 @@
 import { parseStringPromise } from 'xml2js';
 import AdmZip from 'adm-zip';
 import { prisma } from './prisma';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { Grant } from '@prisma/client';
+import { scrapeGrantOpportunity } from '@/shared/lib/grant-scraper';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import {maineCommunityFoundation} from '@/shared/lib/grant-scraper'
 
 export interface GrantFileInfo {
   fileName: string;

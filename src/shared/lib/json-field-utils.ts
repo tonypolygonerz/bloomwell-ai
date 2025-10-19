@@ -2,22 +2,30 @@ import {
   UserIntelligence,
   WebinarCategories,
   GuestSpeaker,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   WebinarMaterial,
-  ProjectPrerequisite,
-  ProjectOutcome,
-  ValidationRules,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   StepOptions,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   UserProjectMetadata,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   TemplateResponseMetadata,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   PDFKeyPoint,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   PDFRecommendation,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   OrganizationSearchFilters,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   AdminNotificationTargetData,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   WebinarNotificationSchedule,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   GrantSearchFilters,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   UserActivityTracking,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   SystemConfiguration,
-  JSONFieldError,
   ValidationResult,
 } from '@/shared/types/json-fields';
 

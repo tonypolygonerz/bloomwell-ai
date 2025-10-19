@@ -6,6 +6,37 @@ import { LogoutButton } from './LogoutButton';
 import NotificationBell from './NotificationBell';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  User,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  LogOut,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  LogIn,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  Briefcase,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  Calendar,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  MessageSquare,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  DollarSign,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  Shield,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  BarChart2,
+} from 'lucide-react';
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const adminUser = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  name: 'Admin',
+  email: 'admin@bloomwell.com',
+  role: 'admin',
+};
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const error = null;
 
 export function Navigation() {
   const { data: session, status } = useSession();

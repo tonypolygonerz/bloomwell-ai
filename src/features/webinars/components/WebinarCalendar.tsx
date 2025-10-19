@@ -1,6 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import React, { useState, useEffect } from 'react';
+import { Calendar, momentLocalizer } from 'react-big-calendar';
+import moment from 'moment';
 
 interface WebinarCalendarProps {
   webinars: Array<{

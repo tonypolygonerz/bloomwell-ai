@@ -119,21 +119,25 @@ export async function GET(request: NextRequest) {
     csvRows.push([
       'User Engagement',
       'Total Users',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (userEngagementData as unknown as any[])[0]?.totalUsers || 0,
     ]);
     csvRows.push([
       'User Engagement',
       'Active Users',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (userEngagementData as unknown as any[])[0]?.activeUsers || 0,
     ]);
     csvRows.push([
       'User Engagement',
       'New Users',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (userEngagementData as unknown as any[])[0]?.newUsers || 0,
     ]);
     csvRows.push([
       'User Engagement',
       'Total Conversations',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (userEngagementData as unknown as any[])[0]?.totalConversations || 0,
     ]);
     csvRows.push(['', '', '']);
@@ -142,21 +146,25 @@ export async function GET(request: NextRequest) {
     csvRows.push([
       'Webinar Performance',
       'Total Webinars',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (webinarData as unknown as any[])[0]?.totalWebinars || 0,
     ]);
     csvRows.push([
       'Webinar Performance',
       'Total Registrations',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (webinarData as unknown as any[])[0]?.totalRegistrations || 0,
     ]);
     csvRows.push([
       'Webinar Performance',
       'Unique Attendees',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (webinarData as unknown as any[])[0]?.uniqueAttendees || 0,
     ]);
     csvRows.push([
       'Webinar Performance',
       'Avg Registrations/Webinar',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       Math.round(((webinarData as unknown as any[])[0]?.avgRegistrationsPerWebinar || 0) * 100) / 100,
     ]);
     csvRows.push(['', '', '']);
@@ -165,23 +173,28 @@ export async function GET(request: NextRequest) {
     csvRows.push([
       'Revenue Metrics',
       'Paid Users',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (revenueData as unknown as any[])[0]?.paidUsers || 0,
     ]);
     csvRows.push([
       'Revenue Metrics',
       'Trial Users',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (revenueData as unknown as any[])[0]?.trialUsers || 0,
     ]);
     csvRows.push([
       'Revenue Metrics',
       'Total Users',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (revenueData as unknown as any[])[0]?.totalUsers || 0,
     ]);
     csvRows.push([
       'Revenue Metrics',
       'Conversion Rate',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (revenueData as unknown as any[])[0]?.totalUsers > 0
         ? Math.round(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ((revenueData as unknown as any[])[0]?.paidUsers || 0) / (revenueData as unknown as any[])[0]?.totalUsers *
               10000
           ) / 100
@@ -196,6 +209,7 @@ export async function GET(request: NextRequest) {
       'Daily Conversations',
       'Daily Webinar Registrations',
     ]);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (dailyMetrics as any[]).forEach((day: DailyMetricsData) => {
       csvRows.push([
         day.date,

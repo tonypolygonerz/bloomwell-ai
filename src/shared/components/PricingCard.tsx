@@ -7,7 +7,8 @@ import UpgradeButton from './UpgradeButton';
 import { usePricing } from '@/shared/contexts/PricingContext';
 
 const PricingCard = React.memo(function PricingCard() {
-  const { data: session, status } = useSession();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { data: session } = useSession();
   const { isAnnual } = usePricing();
 
   const monthlyPrice = 24.99;
@@ -58,7 +59,7 @@ const PricingCard = React.memo(function PricingCard() {
           )}
 
           {/* CTA Button */}
-          {status === 'authenticated' ? (
+          {session?.user ? (
             // Show upgrade button for logged-in users
             <UpgradeButton
               priceId={selectedPriceId}
@@ -77,7 +78,7 @@ const PricingCard = React.memo(function PricingCard() {
           )}
 
           <p className='text-sm text-gray-500 mt-3'>
-            {status === 'authenticated'
+            {session?.user
               ? 'Secure checkout with Stripe'
               : 'No credit card required'}
           </p>

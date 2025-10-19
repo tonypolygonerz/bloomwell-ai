@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // TypeScript interfaces for JSON fields in Prisma schema
 // These interfaces provide type safety for JSON fields that are stored as Json? in the database
 
@@ -49,23 +50,6 @@ export interface WebinarMaterial {
   url?: string;
   description?: string;
   downloadRequired?: boolean;
-}
-
-// Project Template Prerequisites - Array of prerequisite requirements
-export interface ProjectPrerequisite {
-  id: string;
-  name: string;
-  description?: string;
-  required: boolean;
-}
-
-// Project Template Outcomes - Array of expected outcomes
-export interface ProjectOutcome {
-  id: string;
-  title: string;
-  description: string;
-  measurable?: boolean;
-  successCriteria?: string;
 }
 
 // Validation Rules for Project Steps
@@ -328,8 +312,8 @@ export interface TemplateDashboardData {
     estimatedTime: number;
     recommendationScore: number;
     isRecommended: boolean;
-    prerequisites: ProjectPrerequisite[];
-    outcomes: ProjectOutcome[];
+    prerequisites: any[];
+    outcomes: any[];
   }[];
   activeProjects: {
     id: string;

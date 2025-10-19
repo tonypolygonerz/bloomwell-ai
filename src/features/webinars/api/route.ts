@@ -66,19 +66,14 @@ export async function POST(request: NextRequest) {
     const {
       title,
       description,
+      presenter,
       scheduledDate,
-      timezone = 'America/Los_Angeles',
-      duration,
-      thumbnailUrl,
-      status = 'draft',
-      guestSpeakers = [],
-      materials = [],
-      metaDescription,
-      categories = [],
-      maxAttendees = 100,
-      registrationRequired = true,
-      sendReminders = true,
-    } = body;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      registrationRequired,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      sendReminders,
+      status,
+    } = await request.json();
 
     // Generate unique slug from title
     const baseSlug = title

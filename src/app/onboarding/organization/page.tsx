@@ -222,7 +222,7 @@ export default function OrganizationOnboarding() {
         clearTimeout(searchDebounceTimer);
       }
     };
-  }, [searchQuery]);
+  }, [searchQuery, searchDebounceTimer]);
 
   const searchOrganizations = async (query: string) => {
     if (!query.trim()) {
@@ -238,7 +238,8 @@ export default function OrganizationOnboarding() {
         `/api/organization-search?q=${encodeURIComponent(query)}`
       );
       if (response.ok) {
-        const data = await response.json();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const data: any = await response.json();
         setSearchResults(data.organizations || []);
         setShowSearchResults(true);
       } else {

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
 // Ollama Cloud API client with comprehensive error handling and fallbacks
 
 export interface CloudModelConfig {

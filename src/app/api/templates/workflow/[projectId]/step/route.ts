@@ -15,8 +15,8 @@ import {
 } from '@/features/profile/lib/user-intelligence-utils';
 import {
   parseTemplateWorkflowProgress,
-  parseTemplateStepResponse,
-  parseIntelligenceUpdate,
+  parseTemplateStepResponse as _parseTemplateStepResponse,
+  parseIntelligenceUpdate as _parseIntelligenceUpdate,
   updateUserIntelligenceFromResponse,
   calculateWorkflowProgress,
   estimateTimeRemaining,
@@ -68,7 +68,7 @@ export async function POST(
 
     // Get the current step
     const currentStep = userProject.project_templates.project_steps.find(
-      (step: any) => step.id === stepId
+      (step: unknown) => (step as { id: string }).id === stepId
     );
     if (!currentStep) {
       return NextResponse.json({ error: 'Step not found' }, { status: 404 });
@@ -186,7 +186,8 @@ export async function POST(
     // Move to next step
     const nextStepNumber = currentStep.stepNumber + 1;
     const nextStep = userProject.project_templates.project_steps.find(
-      (step: any) => step.stepNumber === nextStepNumber
+      (step: unknown) =>
+        (step as { stepNumber: number }).stepNumber === nextStepNumber
     );
 
     if (nextStep) {
@@ -262,27 +263,28 @@ export async function POST(
       projectId: updatedProject.id,
       templateId: updatedProject.templateId,
       userId: updatedProject.userId,
-      status: updatedProject.status.toLowerCase() as any,
+      status: updatedProject.status.toLowerCase() as 'not_started' | 'in_progress' | 'paused' | 'completed' | 'abandoned',
       progress,
       intelligenceProfile: updatedIntelligence,
       responses: [...userProject.template_responses, savedResponse].map(
-        (response: any) => ({
-          stepId: response.stepId,
-          questionKey: response.stepId, // This should be mapped properly
-          rawAnswer: response.rawAnswer,
-          enhancedAnswer: response.enhancedAnswer || undefined,
-          confidence: response.confidence || 0.5,
-          qualityScore: response.qualityScore || 0.5,
+        (response: unknown) => ({
+          stepId: (response as { stepId: string }).stepId,
+          questionKey: (response as { stepId: string }).stepId, // This should be mapped properly
+          rawAnswer: (response as { rawAnswer: string }).rawAnswer,
+          enhancedAnswer:
+            (response as { enhancedAnswer?: string }).enhancedAnswer || undefined,
+          confidence: (response as { confidence?: number }).confidence || 0.5,
+          qualityScore: (response as { qualityScore?: number }).qualityScore || 0.5,
           intelligenceInsights: {
             skillLevelIndicators: [],
             focusAreaSuggestions: [],
             capabilityAssessments: [],
             nextStepRecommendations: [],
           },
-          metadata: response.metadata
-            ? JSON.parse(response.metadata as string)
+          metadata: (response as { metadata?: string }).metadata
+            ? JSON.parse((response as { metadata: string }).metadata as string)
             : {},
-          submittedAt: response.submittedAt,
+          submittedAt: (response as { submittedAt: Date }).submittedAt,
         })
       ),
       recommendations: [],

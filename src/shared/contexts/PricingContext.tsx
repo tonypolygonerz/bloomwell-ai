@@ -1,6 +1,17 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback } from 'react';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import React, {
+  useState,
+  createContext,
+  useContext,
+  useEffect,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  useCallback,
+} from 'react';
+import { Plan, Interval } from '@/shared/types';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { useSession } from 'next-auth/react';
 
 type PricingContextType = {
   isAnnual: boolean;

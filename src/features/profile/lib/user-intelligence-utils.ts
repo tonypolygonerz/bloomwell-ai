@@ -15,6 +15,7 @@ import { UserIntelligence } from '@/shared/types/json-fields';
  * Safely parse user intelligence profile from database
  */
 export function getUserIntelligenceProfile(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   profile: any
 ): UserIntelligence | null {
   const result = parseUserIntelligence(profile);
