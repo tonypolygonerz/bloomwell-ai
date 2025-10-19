@@ -28,15 +28,19 @@ describe('GrantsDashboard', () => {
   });
 
   it('renders loading state initially', () => {
-    render(<GrantsDashboard />);
+    act(() => {
+      render(<GrantsDashboard />);
+    });
     
     // Check for loading skeleton UI
-    const skeletonElement = screen.getByRole('status', { hidden: true });
+    const skeletonElement = document.querySelector('.animate-pulse');
     expect(skeletonElement).toBeInTheDocument();
   });
 
   it('renders grant statistics after loading', async () => {
-    render(<GrantsDashboard />);
+    act(() => {
+      render(<GrantsDashboard />);
+    });
     
     // Fast-forward through the setTimeout
     act(() => {
