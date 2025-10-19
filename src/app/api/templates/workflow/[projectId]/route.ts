@@ -15,11 +15,11 @@ import {
 } from '@/features/profile/lib/user-intelligence-utils';
 import {
   parseTemplateWorkflowProgress,
-  parseTemplateStepResponse,
-  parseIntelligenceUpdate,
-  updateUserIntelligenceFromResponse,
-  calculateWorkflowProgress,
-  estimateTimeRemaining,
+  parseTemplateStepResponse as _parseTemplateStepResponse,
+  parseIntelligenceUpdate as _parseIntelligenceUpdate,
+  updateUserIntelligenceFromResponse as _updateUserIntelligenceFromResponse,
+  calculateWorkflowProgress as _calculateWorkflowProgress,
+  estimateTimeRemaining as _estimateTimeRemaining,
 } from '@/shared/lib/template-system-utils';
 
 export async function GET(
@@ -79,7 +79,7 @@ export async function GET(
 
     // Get current step
     const currentStep = userProject.project_templates.project_steps.find(
-      (step: any) => step.stepNumber === userProject.currentStep
+      (step: unknown) => (step as { stepNumber: number }).stepNumber === userProject.currentStep
     );
 
     if (!currentStep) {
@@ -98,27 +98,27 @@ export async function GET(
       projectId: userProject.id,
       templateId: userProject.project_templates.id,
       userId: userProject.userId,
-      status: userProject.status.toLowerCase() as any,
+      status: userProject.status.toLowerCase() as unknown,
       progress,
       intelligenceProfile:
         getUserIntelligenceProfile(userProject.intelligenceProfile) || {},
-      responses: userProject.template_responses.map((response: any) => ({
-        stepId: response.stepId,
-        questionKey: response.stepId, // This should be mapped properly
-        rawAnswer: response.rawAnswer,
-        enhancedAnswer: response.enhancedAnswer || undefined,
-        confidence: response.confidence || 0.5,
-        qualityScore: response.qualityScore || 0.5,
+      responses: userProject.template_responses.map((response: unknown) => ({
+        stepId: (response as { stepId: string }).stepId,
+        questionKey: (response as { stepId: string }).stepId, // This should be mapped properly
+        rawAnswer: (response as { rawAnswer: string }).rawAnswer,
+        enhancedAnswer: (response as { enhancedAnswer?: string }).enhancedAnswer || undefined,
+        confidence: (response as { confidence?: number }).confidence || 0.5,
+        qualityScore: (response as { qualityScore?: number }).qualityScore || 0.5,
         intelligenceInsights: {
           skillLevelIndicators: [],
           focusAreaSuggestions: [],
           capabilityAssessments: [],
           nextStepRecommendations: [],
         },
-        metadata: response.metadata
-          ? JSON.parse(response.metadata as string)
+        metadata: (response as { metadata?: string }).metadata
+          ? JSON.parse((response as { metadata: string }).metadata as string)
           : {},
-        submittedAt: response.submittedAt,
+        submittedAt: (response as { submittedAt: Date }).submittedAt,
       })),
       recommendations: [],
       createdAt: userProject.createdAt,

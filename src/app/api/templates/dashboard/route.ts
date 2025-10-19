@@ -1,11 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/shared/lib/prisma';
 import { getServerSession } from 'next-auth';
-import {
-  UserProject,
-  ProjectPrerequisite,
-  ProjectOutcome,
-} from '@prisma/client';
+import { user_projects } from '@prisma/client';
 
 import { authOptions } from '@/features/auth/api/[...nextauth]/route';
 
@@ -81,10 +77,10 @@ export async function GET(request: NextRequest) {
     // Get user's project history
     const userProjects = user.user_projects;
     const activeProjects = userProjects.filter(
-      (p: UserProject) => p.status === 'ACTIVE'
+      (p: user_projects) => p.status === 'ACTIVE'
     );
     const completedProjects = userProjects.filter(
-      (p: UserProject) => p.status === 'COMPLETED'
+      (p: user_projects) => p.status === 'COMPLETED'
     );
 
     // Calculate template selection intelligence
@@ -182,9 +178,14 @@ export async function GET(request: NextRequest) {
           estimatedTime: template.estimatedTime,
           recommendationScore: recommendationScore.score,
           isRecommended: recommendationScore.score >= 70,
-          prerequisites:
-            (template.prerequisites as ProjectPrerequisite[]) || [],
-          outcomes: (template.outcomes as ProjectOutcome[]) || [],
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          prerequisites: (template.prerequisites as any[]).map((prereq: any) => ({
+              description: prereq.description,
+            })),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          outcomes: (template.outcomes as any[]).map((outcome: any) => ({
+              description: outcome.description,
+            })),
         };
       })
       .sort((a, b) => b.recommendationScore - a.recommendationScore);

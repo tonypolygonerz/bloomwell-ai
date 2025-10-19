@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/shared/lib/prisma';
-import { getAdminFromRequest } from '@/shared/lib/admin-auth';
+import { getAdminFromRequest } from '@/features/auth/lib/admin-auth';
 
 interface AdminNotificationWhereInput {
   adminId: string;
