@@ -1,0 +1,132 @@
+name: Feature Tests
+on: [push, pull_request]
+
+jobs:
+  # Grants feature tests
+  test-grants:
+    runs-on: ubuntu-latest
+    outputs:
+      status: ${{ job.status }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Run grants tests
+        run: npm run test:grants
+      - name: Report status
+        if: always()
+        run: echo "::set-output name=status::${{ job.status }}"
+
+  # Webinars feature tests
+  test-webinars:
+    runs-on: ubuntu-latest
+    outputs:
+      status: ${{ job.status }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Run webinars tests
+        run: npm run test:webinars
+      - name: Report status
+        if: always()
+        run: echo "::set-output name=status::${{ job.status }}"
+
+  # Chat feature tests
+  test-chat:
+    runs-on: ubuntu-latest
+    outputs:
+      status: ${{ job.status }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Run chat tests
+        run: npm run test:chat
+      - name: Report status
+        if: always()
+        run: echo "::set-output name=status::${{ job.status }}"
+        
+  # PDF Processing feature tests
+  test-pdf-processing:
+    runs-on: ubuntu-latest
+    outputs:
+      status: ${{ job.status }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Run PDF processing tests
+        run: npm run test:pdf
+      - name: Report status
+        if: always()
+        run: echo "::set-output name=status::${{ job.status }}"
+        
+  # Subscription feature tests
+  test-subscription:
+    runs-on: ubuntu-latest
+    outputs:
+      status: ${{ job.status }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Run subscription tests
+        run: npm run test:subscription
+      - name: Report status
+        if: always()
+        run: echo "::set-output name=status::${{ job.status }}"
+        
+  # Feature status summary
+  feature-status:
+    needs: [test-grants, test-webinars, test-chat, test-pdf-processing, test-subscription]
+    runs-on: ubuntu-latest
+    outputs:
+      grants_enabled: ${{ needs.test-grants.outputs.status == 'success' }}
+      webinars_enabled: ${{ needs.test-webinars.outputs.status == 'success' }}
+      chat_enabled: ${{ needs.test-chat.outputs.status == 'success' }}
+      pdf_processing_enabled: ${{ needs.test-pdf-processing.outputs.status == 'success' }}
+      subscription_enabled: ${{ needs.test-subscription.outputs.status == 'success' }}
+    steps:
+      - name: Summarize feature status
+        run: |
+          echo "Grants: ${{ needs.test-grants.outputs.status }}"
+          echo "Webinars: ${{ needs.test-webinars.outputs.status }}"
+          echo "Chat: ${{ needs.test-chat.outputs.status }}"
+          echo "PDF Processing: ${{ needs.test-pdf-processing.outputs.status }}"
+          echo "Subscription: ${{ needs.test-subscription.outputs.status }}"
+          
+          # Create summary file for artifact
+          mkdir -p ./feature-status
+          echo "grants=${{ needs.test-grants.outputs.status == 'success' }}" > ./feature-status/status.env
+          echo "webinars=${{ needs.test-webinars.outputs.status == 'success' }}" >> ./feature-status/status.env
+          echo "chat=${{ needs.test-chat.outputs.status == 'success' }}" >> ./feature-status/status.env
+          echo "pdf_processing=${{ needs.test-pdf-processing.outputs.status == 'success' }}" >> ./feature-status/status.env
+          echo "subscription=${{ needs.test-subscription.outputs.status == 'success' }}" >> ./feature-status/status.env
+      
+      - name: Upload feature status
+        uses: actions/upload-artifact@v3
+        with:
+          name: feature-status
+          path: ./feature-status
+          retention-days: 1

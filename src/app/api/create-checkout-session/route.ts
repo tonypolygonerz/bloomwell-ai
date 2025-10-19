@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/features/auth/api/[...nextauth]/route';
 import Stripe from 'stripe';
 
 // Debug logging for environment variables

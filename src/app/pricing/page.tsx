@@ -1,12 +1,12 @@
 import Link from 'next/link';
-import PricingToggle from '@/components/PricingToggle';
-import PricingCard from '@/components/PricingCard';
-import FeaturesGrid from '@/components/FeaturesGrid';
-import ROICalculator from '@/components/ROICalculator';
-import CompetitiveComparison from '@/components/CompetitiveComparison';
-import FAQSection from '@/components/FAQSection';
-import HomeFooter from '@/components/HomeFooter';
-import { PricingProvider } from '@/contexts/PricingContext';
+import PricingToggle from '@/shared/components/PricingToggle';
+import PricingCard from '@/shared/components/PricingCard';
+import FeaturesGrid from '@/shared/components/FeaturesGrid';
+import ROICalculator from '@/shared/components/ROICalculator';
+import CompetitiveComparison from '@/shared/components/CompetitiveComparison';
+import FAQSection from '@/shared/components/FAQSection';
+import HomeFooter from '@/shared/components/HomeFooter';
+import { PricingProvider } from '@/shared/contexts/PricingContext';
 
 export const metadata = {
   title: 'Transparent Pricing Built for Nonprofits | Bloomwell AI',

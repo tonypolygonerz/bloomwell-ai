@@ -8,7 +8,7 @@ import {
   TemplateWorkflowState,
   TemplateStepResponse,
   IntelligenceUpdate,
-} from '@/types/json-fields';
+} from '@/shared/types/json-fields';
 
 type ProjectStep = {
   id: string;

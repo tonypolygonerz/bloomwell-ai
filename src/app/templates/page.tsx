@@ -7,7 +7,7 @@ import {
   TemplateDashboardData,
   TemplateSelectionIntelligence,
   TemplateRecommendationScore,
-} from '@/types/json-fields';
+} from '@/shared/types/json-fields';
 
 type Template = {
   id: string;

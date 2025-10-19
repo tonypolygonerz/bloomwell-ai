@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { OllamaCloudClient } from '@/lib/ollama-cloud-client';
+import { authOptions } from '@/features/auth/api/[...nextauth]/route';
+import { OllamaCloudClient } from '@/shared/lib/ollama-cloud-client';
 
 export async function POST(req: NextRequest) {
   try {

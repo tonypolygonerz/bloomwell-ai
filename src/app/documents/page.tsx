@@ -1,6 +1,6 @@
 'use client';
 
-import PDFUploader from '@/components/PDFUploader';
+import PDFUploader from '@/features/admin/components/PDFUploader';
 
 export default function DocumentsPage() {
   return (

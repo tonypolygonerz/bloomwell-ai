@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/shared/lib/prisma';
 import { getServerSession } from 'next-auth';
 
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/features/auth/api/[...nextauth]/route';
 
-import { OllamaCloudClient } from '@/lib/ollama-cloud-client';
+import { OllamaCloudClient } from '@/shared/lib/ollama-cloud-client';
 
 interface WebSearchRequest {
   query: string;

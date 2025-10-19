@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/shared/lib/prisma';
 import { getServerSession } from 'next-auth';
 
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/features/auth/api/[...nextauth]/route';
 
-import { createPDFProcessor } from '@/lib/pdf-processor';
+import { createPDFProcessor } from '@/shared/lib/pdf-processor';
 
 import {
   safeJsonStringify,
@@ -12,8 +12,8 @@ import {
   parsePDFRecommendations,
   logValidationErrors,
   logValidationWarnings,
-} from '@/lib/json-field-utils';
-import { PDFKeyPoint, PDFRecommendation } from '@/types/json-fields';
+} from '@/shared/lib/json-field-utils';
+import { PDFKeyPoint, PDFRecommendation } from '@/shared/types/json-fields';
 
 // PDF processing limits
 const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB

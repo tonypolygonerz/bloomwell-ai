@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/auth-config';
-import { prisma } from '@/lib/prisma';
+import { authOptions } from '@/features/auth/api/[...nextauth]/auth-config';
+import { prisma } from '@/shared/lib/prisma';
 
 // GET - Fetch current user's onboarding progress (optimized)
 export async function GET() {

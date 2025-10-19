@@ -1,18 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/shared/lib/prisma';
 import { getServerSession } from 'next-auth';
 
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/features/auth/api/[...nextauth]/route';
 
 import {
   TemplateWorkflowState,
   TemplateStepResponse,
   IntelligenceUpdate,
-} from '@/types/json-fields';
+} from '@/shared/types/json-fields';
 import {
   getUserIntelligenceProfile,
   updateUserIntelligenceProfile,
-} from '@/lib/user-intelligence-utils';
+} from '@/features/profile/lib/user-intelligence-utils';
 import {
   parseTemplateWorkflowProgress,
   parseTemplateStepResponse,
@@ -20,7 +20,7 @@ import {
   updateUserIntelligenceFromResponse,
   calculateWorkflowProgress,
   estimateTimeRemaining,
-} from '@/lib/template-system-utils';
+} from '@/shared/lib/template-system-utils';
 
 export async function GET(
   request: NextRequest,

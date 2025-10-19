@@ -89,7 +89,7 @@ async function scheduleWebinarNotifications(webinar: unknown) {
   if (dayBefore > new Date()) {
     const notification = await prisma.webinarNotification.create({
       data: {
-        id: `notif-${(webinar as any).id}-24h-${Date.now()}`,
+        id: `notif-${(webinar as unknown as { id: string }).id}-24h-${Date.now()}`,
         type: '24_hours',
         scheduledAt: dayBefore,
         status: 'scheduled',
@@ -106,7 +106,7 @@ async function scheduleWebinarNotifications(webinar: unknown) {
   if (hourBefore > new Date()) {
     const notification = await prisma.webinarNotification.create({
       data: {
-        id: `notif-${(webinar as any).id}-1h-${Date.now()}`,
+        id: `notif-${(webinar as unknown as { id: string }).id}-1h-${Date.now()}`,
         type: '1_hour',
         scheduledAt: hourBefore,
         status: 'scheduled',
@@ -123,7 +123,7 @@ async function scheduleWebinarNotifications(webinar: unknown) {
   if (startingNow > new Date()) {
     const notification = await prisma.webinarNotification.create({
       data: {
-        id: `notif-${(webinar as any).id}-now-${Date.now()}`,
+        id: `notif-${(webinar as unknown as { id: string }).id}-now-${Date.now()}`,
         type: 'starting_now',
         scheduledAt: startingNow,
         status: 'scheduled',
@@ -139,7 +139,7 @@ async function scheduleWebinarNotifications(webinar: unknown) {
   const followUp = new Date(scheduledDate.getTime() + 60 * 60 * 1000);
   const notification = await prisma.webinarNotification.create({
     data: {
-      id: `notif-${(webinar as any).id}-followup-${Date.now()}`,
+      id: `notif-${(webinar as unknown as { id: string }).id}-followup-${Date.now()}`,
       type: 'followup',
       scheduledAt: followUp,
       status: 'scheduled',

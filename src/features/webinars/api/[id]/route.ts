@@ -5,7 +5,7 @@ import { getAdminFromRequest } from '../../../../../lib/admin-auth';
 import {
   safeJsonParse,
   safeJsonStringify,
-  parseWebinarCategories as _parseWebinarCategories,
+  _parseWebinarCategories as _parseWebinarCategories,
   parseGuestSpeakers,
   logValidationErrors,
   logValidationWarnings,

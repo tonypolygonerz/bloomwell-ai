@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import ParallaxSections from '@/components/ParallaxSections';
-import HomeFooter from '@/components/HomeFooter';
+import ParallaxSections from '@/shared/components/ParallaxSections';
+import HomeFooter from '@/shared/components/HomeFooter';
 
 export default function Home() {
   return (
