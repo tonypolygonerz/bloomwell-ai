@@ -268,7 +268,7 @@ export async function POST(request: NextRequest) {
 }
 
 // Get user's PDF processing history and usage stats
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Verify user authentication
     const session = await getServerSession(authOptions);

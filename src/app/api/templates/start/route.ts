@@ -6,15 +6,15 @@ import { authOptions } from '@/features/auth/api/[...nextauth]/route';
 
 import {
   TemplateWorkflowProgress,
-  IntelligenceUpdate,
+  IntelligenceUpdate as _IntelligenceUpdate,
 } from '@/shared/types/json-fields';
 import {
   createDefaultUserIntelligenceProfile,
-  getUserIntelligenceProfile,
+  getUserIntelligenceProfile as _getUserIntelligenceProfile,
 } from '@/features/profile/lib/user-intelligence-utils';
 import {
-  parseTemplateWorkflowProgress,
-  calculateWorkflowProgress,
+  parseTemplateWorkflowProgress as _parseTemplateWorkflowProgress,
+  calculateWorkflowProgress as _calculateWorkflowProgress,
   estimateTimeRemaining,
 } from '@/shared/lib/template-system-utils';
 

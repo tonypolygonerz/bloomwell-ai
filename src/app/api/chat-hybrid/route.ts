@@ -396,7 +396,13 @@ export async function POST(request: NextRequest) {
 
     if (isGrantsSearch) {
       // Handle grants search requests
-      aiResponse = await searchGrantsForUser(message, user as any);
+      aiResponse = await searchGrantsForUser(message, {
+        id: user.id,
+        email: user.email as string,
+        Organization: user.Organization
+          ? { id: user.Organization.id, name: user.Organization.name }
+          : undefined,
+      });
       responseType = 'local';
     } else if (useLocal) {
       // Use local Ollama for nonprofit-specific queries

@@ -30,20 +30,22 @@ export async function POST(request: NextRequest) {
     }
 
     // Send reminder emails to all RSVPs
-    const emailPromises = webinar.WebinarRSVP.map(async (rsvp: any) => {
-      const timeUntilEvent = getTimeUntilEvent(webinar.scheduledDate);
+    const emailPromises = webinar.WebinarRSVP.map(
+      async (rsvp: { User: { name?: string; email: string } }) => {
+        const timeUntilEvent = getTimeUntilEvent(webinar.scheduledDate);
 
-      return EmailService.sendReminderEmail(
-        {
-          userName: rsvp.User.name || rsvp.User.email,
-          webinarTitle: webinar.title,
-          webinarDate: webinar.scheduledDate.toISOString(),
-          joinUrl: `${process.env.NEXTAUTH_URL}/webinar/${webinar.slug || webinar.uniqueSlug}`,
-          timeUntilEvent,
-        },
-        reminderType as '24h' | '1h' | '15m'
-      );
-    });
+        return EmailService.sendReminderEmail(
+          {
+            userName: rsvp.User.name || rsvp.User.email,
+            webinarTitle: webinar.title,
+            webinarDate: webinar.scheduledDate.toISOString(),
+            joinUrl: `${process.env.NEXTAUTH_URL}/webinar/${webinar.slug || webinar.uniqueSlug}`,
+            timeUntilEvent,
+          },
+          reminderType as '24h' | '1h' | '15m'
+        );
+      }
+    );
 
     const results = await Promise.all(emailPromises);
     const successCount = results.filter(Boolean).length;

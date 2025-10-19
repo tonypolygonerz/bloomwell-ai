@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/shared/lib/prisma';
 import { getServerSession } from 'next-auth';
+import {
+  UserProject,
+  ProjectPrerequisite,
+  ProjectOutcome,
+} from '@prisma/client';
 
 import { authOptions } from '@/features/auth/api/[...nextauth]/route';
 
@@ -76,10 +81,10 @@ export async function GET(request: NextRequest) {
     // Get user's project history
     const userProjects = user.user_projects;
     const activeProjects = userProjects.filter(
-      (p: unknown) => p.status === 'ACTIVE'
+      (p: UserProject) => p.status === 'ACTIVE'
     );
     const completedProjects = userProjects.filter(
-      (p: unknown) => p.status === 'COMPLETED'
+      (p: UserProject) => p.status === 'COMPLETED'
     );
 
     // Calculate template selection intelligence
@@ -177,8 +182,9 @@ export async function GET(request: NextRequest) {
           estimatedTime: template.estimatedTime,
           recommendationScore: recommendationScore.score,
           isRecommended: recommendationScore.score >= 70,
-          prerequisites: (template.prerequisites as unknown[]) || [],
-          outcomes: (template.outcomes as unknown[]) || [],
+          prerequisites:
+            (template.prerequisites as ProjectPrerequisite[]) || [],
+          outcomes: (template.outcomes as ProjectOutcome[]) || [],
         };
       })
       .sort((a, b) => b.recommendationScore - a.recommendationScore);

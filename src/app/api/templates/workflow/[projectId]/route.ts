@@ -6,12 +6,12 @@ import { authOptions } from '@/features/auth/api/[...nextauth]/route';
 
 import {
   TemplateWorkflowState,
-  TemplateStepResponse,
+  TemplateStepResponse as _TemplateStepResponse,
   IntelligenceUpdate,
 } from '@/shared/types/json-fields';
 import {
   getUserIntelligenceProfile,
-  updateUserIntelligenceProfile,
+  updateUserIntelligenceProfile as _updateUserIntelligenceProfile,
 } from '@/features/profile/lib/user-intelligence-utils';
 import {
   parseTemplateWorkflowProgress,
