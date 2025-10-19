@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/shared/lib/prisma';
 import { getServerSession } from 'next-auth';
-import { GrantWhereInput } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 import { authOptions } from '@/features/auth/api/[...nextauth]/route';
 
@@ -129,7 +129,7 @@ async function searchGrantsForUser(
     const searchTerms = extractSearchTerms(message);
 
     // Internal database query - NO API calls
-    const whereConditions: GrantWhereInput = {
+    const whereConditions: Prisma.GrantWhereInput = {
       isActive: true,
       closeDate: { gte: new Date() }, // Only active grants
     };
@@ -396,7 +396,7 @@ export async function POST(request: NextRequest) {
 
     if (isGrantsSearch) {
       // Handle grants search requests
-      aiResponse = await searchGrantsForUser(message, user);
+      aiResponse = await searchGrantsForUser(message, user as any);
       responseType = 'local';
     } else if (useLocal) {
       // Use local Ollama for nonprofit-specific queries

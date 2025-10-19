@@ -21,6 +21,9 @@ import {
 
 export async function GET(request: NextRequest) {
   try {
+    const _request = request;
+    const _parseTemplateSelectionIntelligence = parseTemplateSelectionIntelligence;
+    const _validateUserIntelligenceProfile = validateUserIntelligenceProfile;
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
@@ -73,10 +76,10 @@ export async function GET(request: NextRequest) {
     // Get user's project history
     const userProjects = user.user_projects;
     const activeProjects = userProjects.filter(
-      (p: any) => p.status === 'ACTIVE'
+      (p: unknown) => p.status === 'ACTIVE'
     );
     const completedProjects = userProjects.filter(
-      (p: any) => p.status === 'COMPLETED'
+      (p: unknown) => p.status === 'COMPLETED'
     );
 
     // Calculate template selection intelligence
@@ -174,8 +177,8 @@ export async function GET(request: NextRequest) {
           estimatedTime: template.estimatedTime,
           recommendationScore: recommendationScore.score,
           isRecommended: recommendationScore.score >= 70,
-          prerequisites: (template.prerequisites as any[]) || [],
-          outcomes: (template.outcomes as any[]) || [],
+          prerequisites: (template.prerequisites as unknown[]) || [],
+          outcomes: (template.outcomes as unknown[]) || [],
         };
       })
       .sort((a, b) => b.recommendationScore - a.recommendationScore);

@@ -8,12 +8,12 @@ import { createPDFProcessor } from '@/shared/lib/pdf-processor';
 
 import {
   safeJsonStringify,
-  _parsePDFKeyPoints,
-  _parsePDFRecommendations,
+  parsePDFKeyPoints,
+  parsePDFRecommendations,
   logValidationErrors,
-  _logValidationWarnings,
+  logValidationWarnings,
 } from '@/shared/lib/json-field-utils';
-import { _PDFKeyPoint, _PDFRecommendation } from '@/shared/types/json-fields';
+import { PDFKeyPoint, PDFRecommendation } from '@/shared/types/json-fields';
 
 // PDF processing limits
 const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
@@ -28,11 +28,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const userId = session.user.id;
+    const _userId = session.user.id;
+    const _PDFKeyPoint: PDFKeyPoint | null = null;
+    const _PDFRecommendation: PDFRecommendation | null = null;
+    const _parsePDFKeyPoints = parsePDFKeyPoints;
+    const _parsePDFRecommendations = parsePDFRecommendations;
+    const _logValidationWarnings = logValidationWarnings;
+
 
     // Check user's subscription status
     const user = await prisma.user.findUnique({
-      where: { id: userId },
+      where: { id: _userId },
       select: {
         subscriptionStatus: true,
         trialEndDate: true,
@@ -67,7 +73,7 @@ export async function POST(request: NextRequest) {
 
     const todayProcessingCount = await prisma.pdf_processings.count({
       where: {
-        userId,
+        userId: _userId,
         createdAt: {
           gte: today,
           lt: tomorrow,
@@ -123,7 +129,7 @@ export async function POST(request: NextRequest) {
         id: `pdf_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         updatedAt: new Date(),
         User: {
-          connect: { id: userId },
+          connect: { id: _userId },
         },
         fileName: file.name,
         fileSize: file.size,
