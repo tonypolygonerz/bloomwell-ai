@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Send reminder emails to all RSVPs
-    const emailPromises = webinar.WebinarRSVP.map(async (rsvp: any) => {
+    const emailPromises = webinar.WebinarRSVP.map(async (rsvp: unknown) => {
       const timeUntilEvent = getTimeUntilEvent(webinar.scheduledDate);
 
       return EmailService.sendReminderEmail(

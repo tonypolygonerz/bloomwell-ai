@@ -121,14 +121,14 @@ function isGrantsSearchRequest(message: string): boolean {
 
 async function searchGrantsForUser(
   message: string,
-  user: any
+  _user: unknown
 ): Promise<string> {
   try {
     // Extract potential search terms from the message
     const searchTerms = extractSearchTerms(message);
 
     // Internal database query - NO API calls
-    const whereConditions: any = {
+    const whereConditions: unknown = {
       isActive: true,
       closeDate: { gte: new Date() }, // Only active grants
     };
@@ -235,7 +235,7 @@ function extractSearchTerms(message: string): string | undefined {
 
 async function generateOllamaResponse(
   message: string,
-  conversationHistory: any[]
+  conversationHistory: unknown[]
 ): Promise<string> {
   try {
     const conversationContext = `You are Bloomwell AI, a helpful AI assistant specializing in nonprofit organization management. You provide expert guidance on topics like grant writing, fundraising, board governance, volunteer management, strategic planning, and nonprofit operations. Be concise but comprehensive in your responses.

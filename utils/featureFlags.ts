@@ -60,7 +60,7 @@ export const withFeatureFlag = (
   Component: React.ComponentType<any>,
   FallbackComponent?: React.ComponentType<any>
 ) => {
-  return (props: any) => {
+  const ComponentName = (props: any) => {
     const isEnabled = isFeatureEnabled(feature);
     
     if (isEnabled) {
@@ -69,4 +69,7 @@ export const withFeatureFlag = (
     
     return FallbackComponent ? React.createElement(FallbackComponent, props) : null;
   };
+  
+  ComponentName.displayName = 'ComponentName';
+  return ComponentName;
 };

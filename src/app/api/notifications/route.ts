@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Build where conditions
-    const whereConditions: any = {
+    const whereConditions: unknown = {
       userId: session.user.id,
     };
 
@@ -100,7 +100,7 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    let updateData: any = {};
+    let updateData: unknown = {};
 
     switch (action) {
       case 'mark_read':

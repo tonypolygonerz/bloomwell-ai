@@ -72,7 +72,7 @@ class ErrorBoundary extends Component<Props, State> {
             {this.props.featureName} is currently unavailable
           </h3>
           <p className="mt-2 text-sm text-red-700">
-            We're experiencing some technical difficulties. Please try again later.
+            We&apos;re experiencing some technical difficulties. Please try again later.
           </p>
         </div>
       );

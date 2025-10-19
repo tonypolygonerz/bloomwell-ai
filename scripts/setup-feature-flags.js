@@ -7,7 +7,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const readline = require('readline');
+const _readline = require('readline');
 
 const envPath = path.join(process.cwd(), '.env.local');
 

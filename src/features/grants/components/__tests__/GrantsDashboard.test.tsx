@@ -5,13 +5,16 @@ import GrantsDashboard from '../GrantsDashboard';
 
 // Mock the next/link component
 jest.mock('next/link', () => {
-  return ({ href, children, className }) => {
+  const TestComponent = ({ href, children, className }) => {
     return (
       <a href={href} className={className}>
         {children}
       </a>
     );
   };
+  
+  TestComponent.displayName = 'TestComponent';
+  return TestComponent;
 });
 
 describe('GrantsDashboard', () => {

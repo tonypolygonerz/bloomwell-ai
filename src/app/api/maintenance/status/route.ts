@@ -6,7 +6,7 @@ import { prisma } from '@/shared/lib/prisma';
  * Public endpoint to check if the app is in maintenance mode
  * No authentication required
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Determine environment (default to production)
     const environment =
