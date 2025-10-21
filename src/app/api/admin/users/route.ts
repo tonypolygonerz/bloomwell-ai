@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
+import { NextRequest, NextResponse } from 'next/server'
+
 import { getAdminFromRequest } from '@/lib/admin-auth'
 
 const prisma = new PrismaClient()
@@ -24,7 +25,7 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit
 
     // Build search conditions (SQLite compatible)
-    let whereConditions: any = {}
+    const whereConditions: any = {}
     
     if (search) {
       whereConditions.OR = [

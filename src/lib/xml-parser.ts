@@ -169,7 +169,7 @@ export function createXMLStreamParser(): {
   // Note: For true streaming, we'd need a different XML parser
   // This is a placeholder for future streaming implementation
   const parser = {
-    write: (chunk: string) => {
+    write: (_chunk: string) => {
       // Process chunk and extract opportunities
       console.log('Processing XML chunk...')
     },

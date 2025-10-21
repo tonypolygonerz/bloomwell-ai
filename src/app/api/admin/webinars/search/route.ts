@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
+import { NextRequest, NextResponse } from 'next/server'
+
 import { getAdminFromRequest } from '@/lib/admin-auth'
 
 const prisma = new PrismaClient()
@@ -21,7 +22,7 @@ export async function GET(request: NextRequest) {
     const dateTo = searchParams.get('dateTo') || ''
 
     // Build search conditions
-    let whereConditions: any = {}
+    const whereConditions: any = {}
     
     if (search) {
       whereConditions.OR = [

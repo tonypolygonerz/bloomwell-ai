@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useParams, useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-import { useRouter, useParams } from 'next/navigation'
-import { useHybridChat } from '../../../hooks/useHybridChat'
+import { useEffect, useRef, useState } from 'react'
+
 import OnlinePermissionModal from '../../../components/OnlinePermissionModal'
+import { useHybridChat } from '../../../hooks/useHybridChat'
 
 interface Message {
   id: string

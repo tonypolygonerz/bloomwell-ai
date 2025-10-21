@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client'
-import { parseStringPromise } from 'xml2js'
 import AdmZip from 'adm-zip'
+import { parseStringPromise } from 'xml2js'
 
 const prisma = new PrismaClient()
 
@@ -75,7 +75,7 @@ export function parseAvailableFiles(html: string): GrantFileInfo[] {
     let match
 
     while ((match = fileRegex.exec(html)) !== null) {
-      const [, hrefFileName, fileName, fileSize, extractedDateStr] = match
+      const [, _hrefFileName, fileName, fileSize, extractedDateStr] = match
       
       try {
         // Parse the date - format: "Sep 13, 2025 04:38:55 AM EDT"
@@ -506,7 +506,7 @@ export async function createSyncRecord(
  * Main sync function that orchestrates the entire process
  */
 export async function syncGrants(): Promise<SyncResult> {
-  let syncRecord: any = null
+  const syncRecord: any = null
   
   try {
     console.log('1. Starting grants sync...')

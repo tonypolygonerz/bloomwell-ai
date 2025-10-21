@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
+import { NextRequest, NextResponse } from 'next/server'
+
 import { getAdminFromRequest } from '@/lib/admin-auth'
 import { syncGrants } from '@/lib/grants-sync'
 

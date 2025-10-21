@@ -1,9 +1,9 @@
-import NextAuth from 'next-auth'
-import CredentialsProvider from 'next-auth/providers/credentials'
-import GoogleProvider from 'next-auth/providers/google'
-import AzureADProvider from 'next-auth/providers/azure-ad'
 import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcryptjs'
+import NextAuth from 'next-auth'
+import AzureADProvider from 'next-auth/providers/azure-ad'
+import CredentialsProvider from 'next-auth/providers/credentials'
+import GoogleProvider from 'next-auth/providers/google'
 
 const prisma = new PrismaClient()
 

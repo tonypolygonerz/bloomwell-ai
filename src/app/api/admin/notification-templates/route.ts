@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
+import { NextRequest, NextResponse } from 'next/server'
+
 import { getAdminFromRequest } from '@/lib/admin-auth'
 
 const prisma = new PrismaClient()
@@ -16,7 +17,7 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get('type') || ''
 
     // Build where conditions
-    let whereConditions: any = {
+    const whereConditions: any = {
       isActive: true
     }
 

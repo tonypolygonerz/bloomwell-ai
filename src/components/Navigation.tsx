@@ -1,7 +1,8 @@
 'use client'
 
-import { useSession } from 'next-auth/react'
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
+
 import { LogoutButton } from './LogoutButton'
 import NotificationBell from './NotificationBell'
 

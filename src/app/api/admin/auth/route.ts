@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
-const jwt = require('jsonwebtoken')
+import jwt from 'jsonwebtoken'
+import { NextRequest, NextResponse } from 'next/server'
+
 
 // Admin credentials from environment variables for security
 // Note: Using direct hash due to environment variable loading issue with $ characters

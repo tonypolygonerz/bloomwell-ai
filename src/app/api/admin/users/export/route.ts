@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
+import { NextRequest, NextResponse } from 'next/server'
+
 import { getAdminFromRequest } from '@/lib/admin-auth'
 
 const prisma = new PrismaClient()
@@ -18,7 +19,7 @@ export async function GET(request: NextRequest) {
     const activityFilter = searchParams.get('activity') || ''
 
     // Build search conditions (same as users API)
-    let whereConditions: any = {}
+    const whereConditions: any = {}
     
     if (search) {
       whereConditions.OR = [

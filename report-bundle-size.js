@@ -7,10 +7,11 @@
 
 // edited to work with the appdir by @raphaelbadia
 
-const gzSize = require("gzip-size")
-const mkdirp = require("mkdirp")
 const fs = require("fs")
 const path = require("path")
+
+const gzSize = require("gzip-size")
+const mkdirp = require("mkdirp")
 
 // Pull options from `package.json`
 const options = getOptions()

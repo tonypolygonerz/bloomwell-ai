@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
+import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
+
 import { authOptions } from '../auth/[...nextauth]/route'
 
 const prisma = new PrismaClient()
@@ -21,7 +22,7 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit
 
     // Build where conditions
-    let whereConditions: any = {
+    const whereConditions: any = {
       userId: session.user.id
     }
 

@@ -1,0 +1,24 @@
+# Cursor Rules for Nonprofit AI Assistant
+
+## UI Design System Requirements
+
+### Radix Themes Implementation
+**Primary Theme**: `<Theme accentColor="green">`
+- Use Radix Themes green color palette (#30a46c primary)
+- All components should follow Radix Themes design patterns
+- Reference implementation: Radix Themes Playground Emulation
+
+### Component Standards
+- **Buttons**: solid, soft, surface, outline, ghost variants
+- **Color System**: Accent (green) + Gray variations
+- **Radius**: Configurable (none, small, medium, large, full)
+- **States**: Include disabled, loading, hover states
+- **Accessibility**: Proper contrast ratios and focus states
+
+### shadcn/ui Integration
+- Apply Radix green theme to existing shadcn/ui components
+- Maintain consistency with current green branding (#10B981)
+- Use Tailwind CSS v3 configuration
+
+**CRITICAL**: All new UI components must follow this Radix Themes green standard
+
