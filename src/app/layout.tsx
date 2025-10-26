@@ -1,40 +1,30 @@
-import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+/* eslint-disable import/order */
+import type { Metadata } from 'next'
+import './globals.css'
 
-import "./globals.css";
-import { Navigation } from "@/components/Navigation";
-import { Providers } from "@/components/Providers";
-
-const inter = Inter({
-  variable: "--font-sans",
-  subsets: ["latin"],
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-mono",
-  subsets: ["latin"],
-});
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '@/lib/auth'
+import SessionProvider from '@/components/SessionProvider'
 
 export const metadata: Metadata = {
-  title: "Nonprofit AI Assistant",
-  description: "Empowering nonprofits with AI-driven grant discovery and management tools",
-};
+  title: 'Bloomwell AI',
+  description: 'Nonprofit AI Assistant',
+}
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}): Promise<React.ReactElement> {
+  const session = await getServerSession(authOptions)
+
   return (
     <html lang="en">
-      <body
-        className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}
-      >
-        <Providers>
-          <Navigation />
+      <body>
+        <SessionProvider session={session}>
           {children}
-        </Providers>
+        </SessionProvider>
       </body>
     </html>
-  );
+  )
 }

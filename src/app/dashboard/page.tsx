@@ -1,81 +1,55 @@
-import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
+'use client'
 
-export default async function Dashboard() {
-  const session = await getServerSession();
-  
+import { useRouter } from 'next/navigation'
+import { signOut, useSession } from 'next-auth/react'
+import { useEffect } from 'react'
+
+export default function DashboardPage(): React.ReactElement {
+  const { data: session, status } = useSession()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (status === 'loading') return
+    if (!session) {
+      router.push('/auth/login')
+    }
+  }, [session, status, router])
+
+  if (status === 'loading') {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>
+  }
+
   if (!session) {
-    redirect("/auth/login");
+    return <div className="min-h-screen flex items-center justify-center">Redirecting...</div>
+  }
+
+  const handleLogout = async (): Promise<void> => {
+    await signOut({ callbackUrl: '/auth/login' })
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Welcome back, {session.user?.name || 'User'}!
-          </h1>
-          <p className="mt-2 text-gray-600">
-            Your nonprofit management dashboard
-          </p>
+    <div className="min-h-screen p-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <button
+            onClick={handleLogout}
+            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+          >
+            Logout
+          </button>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Quick Actions */}
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
-            <div className="space-y-2">
-              <a 
-                href="/chat" 
-                className="block w-full text-left p-3 border rounded hover:bg-gray-50 transition-colors"
-              >
-                💬 Chat with AI Assistant
-              </a>
-              <a 
-                href="/chat?prompt=find-grants" 
-                className="block w-full text-left p-3 border rounded hover:bg-gray-50 transition-colors"
-              >
-                🔍 Find Grants
-              </a>
-              <a 
-                href="/chat?prompt=board-help" 
-                className="block w-full text-left p-3 border rounded hover:bg-gray-50 transition-colors"
-              >
-                👥 Board Governance Help
-              </a>
-              <a 
-                href="/chat?prompt=funding-ideas" 
-                className="block w-full text-left p-3 border rounded hover:bg-gray-50 transition-colors"
-              >
-                💡 Funding Ideas
-              </a>
-            </div>
-          </div>
-          
-          {/* Recent Activity */}
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
-            <p className="text-gray-500">No recent activity yet</p>
-          </div>
-          
-          {/* Organization Profile */}
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-lg font-semibold mb-4">Organization Profile</h3>
-            <a 
-              href="/profile" 
-              className="block w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 text-center mb-3"
-            >
-              Complete Profile Setup
-            </a>
-            <a 
-              href="/admin" 
-              className="block w-full bg-purple-600 text-white py-2 px-4 rounded hover:bg-purple-700 text-center"
-            >
-              Admin Dashboard
-            </a>
-          </div>
+        <div className="bg-white p-6 rounded-lg shadow">
+          <h2 className="text-xl font-semibold mb-4">Welcome to Bloomwell AI</h2>
+          <p className="text-gray-600 mb-4">
+            Welcome, {session.user?.email}!
+          </p>
+          <p className="text-gray-600">
+            You have successfully authenticated. This is your protected dashboard.
+          </p>
         </div>
       </div>
     </div>
-  );
+  )
 }

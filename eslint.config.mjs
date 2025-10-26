@@ -38,6 +38,12 @@ const config = typescriptEslint.config(
     },
   },
   {
+    languageOptions: {
+      parserOptions: {
+        project: "./tsconfig.json",
+        tsconfigRootDir: process.cwd(),
+      },
+    },
     settings: {
       tailwindcss: {
         callees: ["classnames", "clsx", "ctl", "cn", "cva"],
@@ -52,13 +58,22 @@ const config = typescriptEslint.config(
       },
     },
     rules: {
+      // Stricter TypeScript rules
+      "@typescript-eslint/no-explicit-any": "error",
       "@typescript-eslint/no-unused-vars": [
-        "warn",
+        "error",
         {
           argsIgnorePattern: "^_",
           varsIgnorePattern: "^_",
         },
       ],
+      "@typescript-eslint/explicit-function-return-type": "error",
+      "@typescript-eslint/no-unsafe-assignment": "error",
+      "@typescript-eslint/no-unsafe-member-access": "error",
+      "@typescript-eslint/no-unsafe-call": "error",
+      "prefer-const": "error",
+      
+      // Import organization
       "sort-imports": [
         "error",
         {

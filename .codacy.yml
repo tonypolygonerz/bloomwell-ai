@@ -1,0 +1,11 @@
+engines:
+  eslint:
+    enabled: true
+    exclude_paths:
+      - 'node_modules/**'
+  typescript:
+    enabled: true
+exclude_paths:
+  - 'node_modules/**'
+  - '.next/**'
+

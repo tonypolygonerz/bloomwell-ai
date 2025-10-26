@@ -1,5 +1,44 @@
 # Cursor Rules for Nonprofit AI Assistant
 
+## Project Context
+A web application that helps nonprofit organizations leverage AI for fundraising, donor management, and operational efficiency. Built with modern stack focusing on simplicity, security, and scalability.
+
+**Current Phase**: MVP Development → Production Deployment  
+**Priority**: Infrastructure deployment, then beta testing  
+**Constraints**: Part-time development, volunteer resources, strict data privacy requirements
+
+---
+
+## AUTOMATED ENFORCEMENT (NON-NEGOTIABLE)
+
+### Codacy Integration Active
+- All commits blocked if Codacy finds violations
+- TypeScript errors = immediate conversation reset
+- ESLint violations = immediate conversation reset
+- Any 'any' types = immediate conversation reset
+
+### CursorAI Violation Responses
+If you suggest:
+❌ Using 'any' types → STOP. Use specific types or ask for clarification
+❌ Type assertions without justification → STOP. Fix the underlying type issue  
+❌ Adding features beyond scope → STOP. Stick to single feature implementation
+❌ Creating empty directories → STOP. Only create when immediately needed
+❌ Refactoring working code → STOP. Fix bugs only, don't improve
+
+### Quality Gate Enforcement
+Before EVERY commit:
+1. npm run quality MUST pass (no exceptions)
+2. Codacy scan MUST pass (no exceptions)  
+3. Manual browser test MUST work (no exceptions)
+4. If any fail: fix immediately, don't continue with new features
+
+### Conversation Management  
+- Fresh conversation (Cmd+N) after 15 messages (mandatory)
+- If you violate constraints 2x in one conversation → immediate reset
+- If suggesting architectural changes → immediate reset
+
+---
+
 ## UI Design System Requirements
 
 ### Radix Themes Implementation
@@ -21,4 +60,549 @@
 - Use Tailwind CSS v3 configuration
 
 **CRITICAL**: All new UI components must follow this Radix Themes green standard
+
+---
+
+## Session Management Protocol
+
+### Session Start Commands
+
+**STARTUP-DEV**: Full development session (2-6 hours)
+```
+Expected Actions:
+1. Read SPRINT_CURRENT.md for today's sprint context
+2. Check project knowledge for latest progress report
+3. Run: npm run dev
+4. Verify environment: node_modules, .env, database connection
+5. Review: Current sprint tasks (P0 priorities)
+6. Git status check: Confirm clean working state or show uncommitted changes
+7. Display summary: "Ready to work on [task from P0]"
+```
+
+**STARTUP-QUICK**: Targeted session (1-2 hours)
+```
+Expected Actions:
+1. Quick environment check only
+2. Focus on single specified task
+3. Avoid architectural changes
+4. Minimize context switching
+5. Display: "Quick session mode - what specific task?"
+```
+
+**RESUME-DEV**: Continue from previous session
+```
+Expected Actions:
+1. Read last progress report from project knowledge
+2. Check recent commits: git log --oneline -5
+3. Read SPRINT_CURRENT.md daily progress section
+4. Continue where left off
+5. Restore any in-progress work
+6. Display: "Resuming [last task from daily log]"
+```
+
+### Session End Commands
+
+**SHUTDOWN-COMPLETE**: End of day backup
+```
+Required Actions:
+1. Show uncommitted changes: git status
+2. Prompt for commit message if changes exist
+3. Git commit all changes with descriptive message
+4. Git push to GitHub (verify success)
+5. Ask: "Update SPRINT_CURRENT.md daily progress?" (if yes, prompt for accomplishments/blockers)
+6. Remind: "Update project knowledge progress report if significant changes"
+7. Create backup if database schema changed
+8. Document any blockers or next steps
+9. Graceful server shutdown
+10. Display: "✅ Session closed. All work saved and pushed."
+```
+
+**SHUTDOWN-PAUSE**: Temporary break (2-8 hours)
+```
+Required Actions:
+1. Git status check
+2. If changes exist: prompt "Commit as WIP or save for later?"
+3. If commit: git commit -m "WIP: [brief description]"
+4. Save any temp files or notes
+5. Document current task state in SPRINT_CURRENT.md
+6. Keep dev server running (optional)
+7. Display: "⏸️ Paused. Resume with RESUME-DEV"
+```
+
+**SHUTDOWN-URGENT**: Emergency stop
+```
+Required Actions:
+1. Quick save all open files
+2. git add . && git commit -m "WIP: emergency save - [brief context]"
+3. Note what was interrupted in SPRINT_CURRENT.md
+4. Fast shutdown (don't wait for tests)
+5. Display: "🚨 Emergency save complete. Resume with RESUME-DEV when ready."
+```
+
+### Status Commands (Use Anytime)
+
+**STATUS-CHECK**: Full system health
+```
+Check and display:
+- Git status (branch, uncommitted changes, commits ahead/behind)
+- Running processes (dev server, database)
+- Environment variables loaded (.env.local)
+- Database connectivity (Prisma connection test)
+- Recent errors in terminal logs
+- Port availability (3000, 5432)
+- Display: Health report with ✅/⚠️/❌ indicators
+```
+
+**GIT-STATUS**: Repository state
+```
+Display:
+- Current branch
+- Uncommitted changes (staged/unstaged)
+- Commits ahead/behind remote
+- Untracked files
+- Last 3 commits: git log --oneline -3
+```
+
+**TODO-REVIEW**: Task priorities
+```
+Actions:
+1. Read SPRINT_CURRENT.md
+2. Display P0 tasks with checkboxes
+3. Show any blockers section
+4. Highlight next recommended task
+5. Display: Prioritized task list with time estimates
+```
+
+**ENVIRONMENT-CHECK**: Development tools
+```
+Check and display:
+- Node.js version (should be v22.19.0)
+- npm packages status (any vulnerabilities?)
+- Database status (SQLite dev / PostgreSQL prod)
+- API keys loaded (Ollama, Stripe, OAuth)
+- Port availability (3000, 5432)
+- Prisma client generated
+```
+
+---
+
+## Development Workflow Integration
+
+### Phase Alignment
+```
+Planning Phase (User/PM) → STARTUP-DEV
+  ↓
+Architecture Review → Check SPRINT_CURRENT.md + project knowledge
+  ↓
+Development (SW Engineer + AI) → Core development loop
+  ↓
+Code Review (Pre-commit) → ESLint, Prettier, TypeScript check
+  ↓
+Documentation → Update comments, API docs, SPRINT_CURRENT.md
+  ↓
+Deployment → SHUTDOWN-COMPLETE with full verification
+```
+
+### AI Tool Strategy
+
+**Cursor IDE** (Primary Development):
+- Code completion and generation
+- Inline documentation
+- Refactoring assistance
+- Test generation
+- UI component creation (Radix Themes patterns)
+
+**Claude Project Knowledge** (Architecture & Planning):
+- Review specs and progress reports before coding
+- Complex problem-solving
+- Architecture decisions
+- Documentation review
+- Strategic planning
+
+**Automated Checks**:
+- ESLint/Prettier on save
+- Pre-commit hooks for quality
+- TypeScript type checking
+- Security scanning (npm audit)
+
+### Quality Gates (Every SHUTDOWN-COMPLETE)
+
+✅ **Required Checklist**:
+- [ ] All code committed to GitHub
+- [ ] Tests passing (or documented why skipped)
+- [ ] No console errors in dev mode
+- [ ] No TypeScript errors
+- [ ] UI follows Radix Themes green standard
+- [ ] Documentation updated (if API/component changed)
+- [ ] Security scan clean (npm audit)
+- [ ] SPRINT_CURRENT.md daily progress updated
+
+⚠️ **Blockers Must Be Documented**:
+- What's blocking progress
+- What information is needed
+- Who needs to be consulted
+- Estimated impact on timeline
+
+---
+
+## Project-Specific Guidelines
+
+### Architecture Principles
+1. **Simplicity First**: Choose boring, proven technology
+2. **Security by Default**: Data privacy is non-negotiable (nonprofit donor data)
+3. **Progressive Enhancement**: Start with core features, add sophistication later
+4. **Documentation as Code**: Auto-generate where possible
+5. **Green Branding Consistency**: All UI uses Radix green (#30a46c)
+
+### Data Privacy Requirements
+- All nonprofit donor data must be encrypted at rest
+- PII must never be logged to console or error tracking
+- GDPR compliance required for EU nonprofits
+- Audit trail for all data access
+- User consent for data collection beyond basic functionality
+
+### Code Style Preferences
+- **Naming**: Descriptive over clever (e.g., `fetchActiveGrants` not `getGrants`)
+- **Functions**: Single responsibility, max 50 lines
+- **Components**: Functional components only (no class components)
+- **Comments**: Why, not what (code should be self-documenting)
+- **Error Handling**: Always handle errors, never silent fails
+- **TypeScript**: Use proper types, avoid `any`
+- **Async/Await**: Prefer over .then() chains
+
+### UI Development Standards
+- **Radix Themes First**: Check Radix Themes docs before creating custom components
+- **Green Accent**: All accent colors use #30a46c (Radix green)
+- **Responsive**: Mobile-first approach, test on multiple screen sizes
+- **Accessibility**: Proper ARIA labels, keyboard navigation, focus states
+- **Loading States**: Show loading indicators for async operations
+- **Error States**: User-friendly error messages, never expose stack traces
+
+### Testing Strategy
+- **Unit Tests**: AI-assisted generation for utils and helpers
+- **Integration Tests**: Manual for now, automate after 100 users
+- **E2E Tests**: Critical user paths only (login, create campaign, donate)
+- **Manual Testing**: Required before every git push
+- **UI Testing**: Visual regression testing for Radix components
+
+### When to Ask for Help
+1. **Architecture Decisions**: Consult SPRINT_CURRENT.md architecture section, then ask user
+2. **Security Questions**: Always ask, never assume
+3. **Breaking Changes**: Get approval before refactoring core features
+4. **External Dependencies**: Discuss before adding new npm packages
+5. **UI Deviations**: Ask before deviating from Radix Themes patterns
+6. **Database Schema**: Confirm before creating migrations
+
+### Compliance Focus
+- Document security decisions in code comments
+- Track data handling practices in SPRINT_CURRENT.md
+- Generate compliance docs from code annotations
+- Flag any potential regulatory issues immediately
+- Update privacy policy implications when handling new data types
+
+---
+
+## Technology Stack Reference
+
+### Frontend
+- **Framework**: Next.js 15.5.2 (React 18, App Router)
+- **Language**: TypeScript 5.0+
+- **Styling**: Tailwind CSS 3.4.17
+- **UI Components**: Radix Themes (green accent) + shadcn/ui (themed)
+- **Icons**: Lucide React
+- **Forms**: React Hook Form
+
+### Backend
+- **Runtime**: Node.js 22.19.0
+- **API Routes**: Next.js API Routes (App Router)
+- **Authentication**: NextAuth.js (OAuth + credentials)
+- **Database ORM**: Prisma 6.17.0
+- **Database**: PostgreSQL (production), SQLite (dev)
+
+### AI & LLM
+- **Local AI**: Ollama (llama3.2:1b for development)
+- **Cloud AI**: Ollama Cloud (DeepSeek-V3.1, 671B parameters, 128K context)
+- **Web Search**: Ollama Cloud API
+- **Cost**: ~$20/month + $0.50/user/month for tokens
+
+### External Services
+- **Payments**: Stripe (live mode configured)
+- **Email**: Not implemented (future: SendGrid/Postmark)
+- **Analytics**: Not implemented (future: Plausible/PostHog)
+- **Monitoring**: Not implemented (future: Sentry)
+
+### Hosting & Infrastructure
+- **Frontend/Backend**: Cloudflare Pages ($20/month Pro plan)
+- **Database**: Railway PostgreSQL ($5-10/month)
+- **Domain**: bloomwellai.com (to be registered)
+- **CDN**: Cloudflare (included)
+- **SSL**: Automatic via Cloudflare
+
+---
+
+## Sprint Workflow
+
+### Daily Development Loop
+1. **Start**: STARTUP-DEV or RESUME-DEV
+2. **Review**: Check SPRINT_CURRENT.md for P0 tasks
+3. **Develop**: Focus on one feature/task at a time
+4. **Test**: Verify locally before committing
+5. **UI Check**: Verify Radix Themes green consistency
+6. **Document**: Update comments and SPRINT_CURRENT.md
+7. **Commit**: Meaningful commit messages (see format below)
+8. **End**: SHUTDOWN-COMPLETE with full checklist
+
+### Commit Message Format
+```
+<type>(<scope>): <short summary>
+
+<optional body>
+
+<optional footer>
+```
+
+**Types**: feat, fix, docs, style, refactor, test, chore, ui  
+**Examples**:
+- `feat(auth): add OAuth login for nonprofit users`
+- `fix(grants): correct search filter for deadline dates`
+- `ui(dashboard): implement Radix green theme on stats cards`
+- `docs(api): add JSDoc comments for grant endpoints`
+
+### Branch Strategy
+- `main`: Production-ready code (protected)
+- `develop`: Integration branch (default for PRs)
+- `feature/*`: New features (e.g., feature/webinar-registration)
+- `fix/*`: Bug fixes (e.g., fix/payment-processing-error)
+- `ui/*`: UI/design updates (e.g., ui/radix-theme-implementation)
+- `docs/*`: Documentation only
+
+---
+
+## Emergency Protocols
+
+### If Development Environment Breaks
+1. Run STATUS-CHECK to diagnose
+2. Check recent commits: `git log --oneline -5`
+3. Check for syntax errors: `npm run lint`
+4. Check TypeScript errors: `npm run type-check`
+5. Try: `rm -rf .next && npm run dev`
+6. Try: `rm -rf node_modules && npm install`
+7. Consider reverting: `git revert HEAD` (if last commit caused it)
+8. Document issue in SPRINT_CURRENT.md blockers section
+9. Ask user for help if can't resolve in 15 minutes
+
+### If Uncertain About Implementation
+1. Check SPRINT_CURRENT.md for architecture decisions
+2. Check project knowledge for specs
+3. Review similar existing code in codebase
+4. Check Radix Themes docs for UI patterns
+5. Ask clarifying question to user
+6. Document assumption if proceeding without answer
+
+### If Security Concern Arises
+1. **STOP development immediately**
+2. Document the concern in detail
+3. Flag for user review with **SECURITY** label
+4. Do not commit potentially insecure code
+5. If data privacy related: check against GDPR requirements
+6. Example concerns: exposed API keys, unencrypted PII, SQL injection risk
+
+### If UI Doesn't Match Radix Standards
+1. Check Radix Themes documentation for proper pattern
+2. Verify green accent color (#30a46c) is used
+3. Ensure accessibility requirements met
+4. Test component states (hover, disabled, loading)
+5. Ask user if intentional deviation needed
+
+---
+
+## Context Sources Priority
+
+When answering questions or making decisions, consult in this order:
+1. **SPRINT_CURRENT.md** (current sprint context and decisions)
+2. **Project Knowledge Base** (specs, progress reports, architecture docs)
+3. **Existing Codebase** (established patterns and conventions)
+4. **User Instructions** (current session commands)
+5. **Radix Themes Docs** (for UI component patterns)
+6. **Best Practices** (industry standards for Next.js, React, TypeScript)
+7. **External Documentation** (official docs for libraries)
+
+---
+
+## File Structure Reference
+
+```
+nonprofit-ai-assistant/
+├── .cursorrules                 ← This file (Cursor's config)
+├── SPRINT_CURRENT.md            ← Sprint tracking (read at STARTUP-DEV)
+├── .env.local                   ← Environment variables (never commit)
+├── package.json
+├── next.config.js
+├── tailwind.config.js
+├── tsconfig.json
+├── prisma/
+│   ├── schema.prisma           ← Database schema
+│   ├── migrations/             ← Database migrations
+│   └── seed.ts                 ← Seed data (73K+ grants)
+├── src/
+│   ├── app/                    ← Next.js App Router
+│   │   ├── (auth)/            ← Auth routes
+│   │   ├── (dashboard)/       ← Protected dashboard
+│   │   ├── admin/             ← Admin panel
+│   │   └── api/               ← API routes
+│   ├── components/             ← React components (Radix themed)
+│   │   ├── ui/                ← shadcn/ui components (green themed)
+│   │   └── ...
+│   ├── lib/                    ← Utility functions
+│   └── types/                  ← TypeScript types
+├── public/                     ← Static assets
+└── docs/                       ← Documentation (if exists)
+```
+
+---
+
+## Quick Commands Reference
+
+```bash
+# Development
+npm run dev                 # Start dev server (localhost:3000)
+npm run build              # Production build
+npm test                   # Run all tests
+npm run lint               # Check code style
+npm run lint:fix           # Auto-fix linting issues
+npm run type-check         # TypeScript type checking
+
+# Database
+npx prisma generate        # Generate Prisma client (after schema changes)
+npx prisma migrate dev     # Create and apply migration
+npx prisma migrate deploy  # Apply migrations (production)
+npx prisma studio          # Open Prisma Studio GUI
+npx prisma db seed         # Seed database with grants data
+
+# Git
+git status                 # Check working tree status
+git log --oneline -5       # Recent commits
+git diff                   # Show unstaged changes
+git add .                  # Stage all changes
+git commit -m "message"    # Commit with message
+git push origin [branch]   # Push to remote
+
+# Cursor Session Commands
+STARTUP-DEV               # Full development session
+STARTUP-QUICK             # Quick 1-2 hour session
+RESUME-DEV                # Continue from last session
+STATUS-CHECK              # Full health check
+GIT-STATUS                # Repository status
+TODO-REVIEW               # Show sprint tasks
+ENVIRONMENT-CHECK         # Verify dev tools
+SHUTDOWN-COMPLETE         # End with full backup
+SHUTDOWN-PAUSE            # Temporary pause
+SHUTDOWN-URGENT           # Emergency save
+```
+
+---
+
+## Success Metrics
+
+### Good Session Outcomes
+- ✅ Feature completed and tested
+- ✅ Code committed and pushed
+- ✅ UI follows Radix green theme
+- ✅ Documentation updated
+- ✅ No new security vulnerabilities
+- ✅ SPRINT_CURRENT.md daily log updated
+- ✅ TypeScript types properly defined
+
+### Red Flags
+- ⚠️ Multiple failed attempts at same task (>3)
+- ⚠️ Unclear requirements causing rework
+- ⚠️ Security concerns not addressed
+- ⚠️ UI deviates from Radix standards
+- ⚠️ Technical debt accumulating
+- ⚠️ Tests failing or skipped without documentation
+- ⚠️ Console errors or TypeScript warnings ignored
+
+---
+
+## Current Sprint Focus (From Project Knowledge)
+
+### Immediate Priority: Production Deployment (10-15 hours)
+**Status**: 95% code complete, infrastructure setup pending
+
+**Critical Blockers**:
+1. Railway database setup (production + staging)
+2. Domain registration (bloomwellai.com)
+3. Cloudflare Pages configuration
+4. Environment variables in production
+5. SSL and DNS configuration
+
+**Post-Deployment**:
+- Beta testing with 10-20 nonprofit organizations
+- Monitor Ollama API costs vs projections ($0.50/user/month)
+- Implement Sentry error monitoring
+- Set up database backup automation
+
+---
+
+## Notes for Cursor AI Assistant
+
+### Preferred Patterns
+- Use async/await over promises.then()
+- Prefer functional components in React (no class components)
+- Use TypeScript for type safety (avoid `any`)
+- Follow existing file structure (don't reorganize without asking)
+- Use Radix Themes components before creating custom UI
+- Implement proper error boundaries for React components
+- Use Prisma for all database operations (never raw SQL)
+
+### Avoid
+- Adding new dependencies without discussion
+- Changing established patterns without user approval
+- Skipping error handling ("try it and see" approach)
+- Committing console.logs or debug code
+- Using `any` type in TypeScript
+- Creating custom UI when Radix Themes has equivalent
+- Exposing sensitive data in error messages
+- Making database schema changes without migrations
+
+### When Uncertain
+1. Check SPRINT_CURRENT.md architecture decisions
+2. Check existing code for established patterns
+3. Reference project knowledge base
+4. Check Radix Themes docs for UI patterns
+5. Ask clarifying question to user
+6. Document assumption clearly if proceeding
+7. Add TODO comment for user review if uncertain
+
+### Communication Style
+- Be concise and direct (avoid unnecessary explanations)
+- Show code examples when relevant
+- Explain trade-offs for architectural decisions
+- Flag security concerns immediately with **SECURITY** prefix
+- Suggest next steps at end of responses
+- Use emoji indicators: ✅ (success), ⚠️ (warning), ❌ (error), 🚧 (in progress)
+
+---
+
+## Remember
+
+This is an **MVP for nonprofits** serving 501(c)(3) organizations. Prioritize:
+
+1. **Security** (donor data protection, GDPR compliance)
+2. **Core Features** (what nonprofits actually need to succeed)
+3. **UI Consistency** (Radix green theme, professional appearance)
+4. **Documentation** (for compliance, handoff, and maintenance)
+5. **Code Quality** (maintainable and testable over clever)
+
+**When in doubt, ask the user.** Better to clarify than to rework.
+
+**Current Status**: Ready for production deployment infrastructure setup.
+
+**Next Session Goal**: Complete Railway + Cloudflare deployment (10-15 hours).
+
+---
+
+**Last Updated**: October 25, 2025  
+**Cursor Rules Version**: 2.0  
+**Project Phase**: MVP → Production Deployment
 
