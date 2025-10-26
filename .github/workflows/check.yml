@@ -13,6 +13,10 @@ jobs:
   check:
     name: Check
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: "file:./prisma/dev.db"
+      NEXTAUTH_SECRET: "test-secret-for-ci-only-do-not-use-in-production"
+      NEXTAUTH_URL: "http://localhost:3000"
     steps:
       - uses: actions/checkout@v4
       - run: echo "node_version=$(cat .github/nodejs.version)" >> $GITHUB_ENV
