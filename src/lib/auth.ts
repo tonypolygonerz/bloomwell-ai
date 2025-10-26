@@ -1,7 +1,7 @@
-import { NextAuthOptions } from 'next-auth'
-import CredentialsProvider from 'next-auth/providers/credentials'
+import { NextAuthOptions } from "next-auth"
+import CredentialsProvider from "next-auth/providers/credentials"
 
-declare module 'next-auth' {
+declare module "next-auth" {
   interface Session {
     user: {
       id: string
@@ -14,10 +14,10 @@ declare module 'next-auth' {
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
-      name: 'credentials',
+      name: "credentials",
       credentials: {
-        email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' }
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
@@ -26,20 +26,20 @@ export const authOptions: NextAuthOptions = {
 
         // TODO: Add actual user validation logic here
         // For now, return a mock user for development
-        if (credentials.email === 'admin@example.com' && credentials.password === 'password') {
+        if (credentials.email === "admin@example.com" && credentials.password === "password") {
           return {
-            id: '1',
+            id: "1",
             email: credentials.email,
-            name: 'Admin User'
+            name: "Admin User",
           }
         }
 
         return null
-      }
-    })
+      },
+    }),
   ],
   pages: {
-    signIn: '/auth/login'
+    signIn: "/auth/login",
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -53,9 +53,9 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id as string
       }
       return session
-    }
+    },
   },
   session: {
-    strategy: 'jwt'
-  }
+    strategy: "jwt",
+  },
 }

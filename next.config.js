@@ -3,12 +3,12 @@ const nextConfig = {
   /* config options here */
   devIndicators: {
     buildActivity: false,
-    buildActivityPosition: 'bottom-right',
+    buildActivityPosition: "bottom-right",
   },
   // Disable the development toast
   experimental: {
-    devBundler: 'turbopack',
+    devBundler: "turbopack",
   },
-};
+}
 
-module.exports = nextConfig;
+module.exports = nextConfig
