@@ -3,6 +3,10 @@ import { expect, test } from "@playwright/test"
 test("has title", async ({ page }) => {
   await page.goto("./")
 
-  // The app currently returns 404 for all routes, so let's test for that
-  await expect(page).toHaveTitle(/404: This page could not be found/)
+  // Check that the page loads with the correct title
+  await expect(page).toHaveTitle(/Bloomwell AI/)
+  
+  // Check that the homepage content is present
+  await expect(page.locator("h1")).toContainText("Welcome to Bloomwell AI")
+  await expect(page.locator("p")).toContainText("This is the homepage")
 })
