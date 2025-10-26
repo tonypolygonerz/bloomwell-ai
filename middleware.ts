@@ -7,8 +7,8 @@ import type { NextRequest } from "next/server"
  * - Adds security headers
  * - Adds caching headers for static assets
  */
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl
+export function middleware(request: NextRequest): NextResponse {
+  const { pathname: _pathname } = request.nextUrl
 
   // Temporarily disable all middleware logic for debugging
   return NextResponse.next()

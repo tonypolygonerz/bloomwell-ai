@@ -25,6 +25,8 @@ export const authOptions: NextAuthOptions = {
         }
 
         // TODO: Add actual user validation logic here
+        // Current implementation uses mock credentials for development
+        // Future: Integrate with Prisma database for user authentication
         // For now, return a mock user for development
         if (credentials.email === "admin@example.com" && credentials.password === "password") {
           return {

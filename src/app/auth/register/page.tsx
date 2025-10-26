@@ -14,8 +14,11 @@ export default function RegisterPage(): React.ReactElement {
     e.preventDefault()
     setError("")
 
-    // TODO: Implement user registration
-    console.log("Registration attempt:", { email, password, name })
+    // TODO: Implement user registration with proper backend integration
+    // For now, redirect to login page
+    if (process.env.NODE_ENV === "development") {
+      console.log("Registration attempt:", { email, password, name })
+    }
     router.push("/auth/login")
   }
 

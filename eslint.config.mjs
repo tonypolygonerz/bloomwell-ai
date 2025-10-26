@@ -33,8 +33,8 @@ const config = typescriptEslint.config(
       "@next/next": eslintPluginNext,
     },
     rules: {
-      ...eslintPluginNext.configs.recommended.rules,
-      ...eslintPluginNext.configs["core-web-vitals"].rules,
+      ...(eslintPluginNext.configs.recommended?.rules || {}),
+      ...(eslintPluginNext.configs["core-web-vitals"]?.rules || {}),
     },
   },
   {
@@ -86,7 +86,7 @@ const config = typescriptEslint.config(
   }
 )
 
-function getDirectoriesToSort() {
+function _getDirectoriesToSort() {
   const ignoredSortingDirectories = [".git", ".next", ".vscode", "node_modules"]
   return fs
     .readdirSync(process.cwd())
