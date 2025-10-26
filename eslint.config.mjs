@@ -33,8 +33,9 @@ const config = typescriptEslint.config(
       "@next/next": eslintPluginNext,
     },
     rules: {
-      ...(eslintPluginNext.configs.recommended?.rules || {}),
-      ...(eslintPluginNext.configs["core-web-vitals"]?.rules || {}),
+      // Next.js recommended rules
+      ...(eslintPluginNext.configs?.recommended?.rules || {}),
+      ...(eslintPluginNext.configs?.["core-web-vitals"]?.rules || {}),
     },
   },
   {
