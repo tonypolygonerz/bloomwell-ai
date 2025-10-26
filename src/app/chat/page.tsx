@@ -4,6 +4,9 @@ import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { useState } from "react"
 
+// Prevent static generation to avoid useSession() errors during build
+export const dynamic = "force-dynamic"
+
 export default function ChatPage(): React.ReactElement {
   const { data: session, status } = useSession()
   const router = useRouter()

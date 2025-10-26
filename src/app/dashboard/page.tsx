@@ -4,6 +4,9 @@ import { useRouter } from "next/navigation"
 import { signOut, useSession } from "next-auth/react"
 import { useEffect } from "react"
 
+// Prevent static generation to avoid useSession() errors during build
+export const dynamic = "force-dynamic"
+
 export default function DashboardPage(): React.ReactElement {
   const { data: session, status } = useSession()
   const router = useRouter()
