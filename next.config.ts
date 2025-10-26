@@ -6,6 +6,11 @@ import { env } from "./env.mjs"
 const config: NextConfig = {
   reactStrictMode: true,
 
+  // Development configuration
+  ...(process.env.NODE_ENV === "development" && {
+    allowedDevOrigins: ["localhost:3000", "127.0.0.1:3000"],
+  }),
+
   // Logging configuration
   logging: {
     fetches: {
