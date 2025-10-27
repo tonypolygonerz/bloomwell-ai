@@ -1,4 +1,7 @@
 import type { Metadata } from "next"
+
+import SessionProvider from "@/components/SessionProvider"
+
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -10,7 +13,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en">
       <body>
-        {children}
+        <SessionProvider>{children}</SessionProvider>
       </body>
     </html>
   )
