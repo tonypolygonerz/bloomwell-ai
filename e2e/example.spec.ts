@@ -3,13 +3,10 @@ import { expect, test } from "@playwright/test"
 test("has title", async ({ page }) => {
   await page.goto("./")
 
-  // Expect the homepage to have the correct title
+  // Check that the page loads with the correct title
   await expect(page).toHaveTitle(/Bloomwell AI/)
-})
 
-test("displays homepage content", async ({ page }) => {
-  await page.goto("./")
-
-  // Expect the homepage heading to be visible
-  await expect(page.getByRole("heading", { name: "Welcome to Bloomwell AI" })).toBeVisible()
+  // Check that the homepage content is present
+  await expect(page.locator("h1")).toContainText("Welcome to Bloomwell AI")
+  await expect(page.locator("p")).toContainText("This is the homepage")
 })
