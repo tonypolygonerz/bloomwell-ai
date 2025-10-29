@@ -1,7 +1,5 @@
 import type { Metadata } from "next"
 
-import SessionProvider from "@/components/SessionProvider"
-
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -9,11 +7,11 @@ export const metadata: Metadata = {
   description: "Nonprofit AI Assistant",
 }
 
-export default async function RootLayout({ children }: { children: React.ReactNode }): Promise<React.ReactElement> {
+export default function RootLayout({ children }: { children: React.ReactNode }): React.ReactElement {
   return (
     <html lang="en">
       <body>
-        <SessionProvider>{children}</SessionProvider>
+        {children}
       </body>
     </html>
   )

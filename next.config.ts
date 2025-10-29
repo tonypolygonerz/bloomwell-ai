@@ -33,7 +33,7 @@ const config: NextConfig = {
   compress: true,
 
   // Production optimizations
-  swcMinify: true,
+  // swcMinify is deprecated in Next.js 15+
 
   // Experimental features for better performance
   experimental: {
@@ -59,13 +59,13 @@ const config: NextConfig = {
     ]
   },
 
-  // Rewrites for health checks
-  rewrites: async () => [
-    { source: "/healthz", destination: "/api/health" },
-    { source: "/api/healthz", destination: "/api/health" },
-    { source: "/health", destination: "/api/health" },
-    { source: "/ping", destination: "/api/health" },
-  ],
+  // Rewrites for health checks - temporarily disabled for debugging
+  // rewrites: async () => [
+  //   { source: "/healthz", destination: "/api/health" },
+  //   { source: "/api/healthz", destination: "/api/health" },
+  //   { source: "/health", destination: "/api/health" },
+  //   { source: "/ping", destination: "/api/health" },
+  // ],
 }
 
 export default env.ANALYZE ? withBundleAnalyzer({ enabled: env.ANALYZE })(config) : config
