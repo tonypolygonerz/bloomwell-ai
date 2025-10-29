@@ -1,27 +1,11 @@
 "use client"
 
-import { useRouter } from "next/navigation"
-import { useSession } from "next-auth/react"
 import { useState } from "react"
 
-// Prevent static generation to avoid useSession() errors during build
-export const dynamic = "force-dynamic"
-
 export default function ChatPage(): React.ReactElement {
-  const { data: session, status } = useSession()
-  const router = useRouter()
   const [messages, setMessages] = useState<Array<{ id: string; content: string; role: "user" | "assistant" }>>([])
   const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-
-  if (status === "loading") {
-    return <div className="flex min-h-screen items-center justify-center">Loading...</div>
-  }
-
-  if (!session) {
-    router.push("/auth/login")
-    return <div className="flex min-h-screen items-center justify-center">Redirecting...</div>
-  }
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault()

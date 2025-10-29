@@ -1,33 +1,13 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { signOut, useSession } from "next-auth/react"
-import { useEffect } from "react"
-
-// Prevent static generation to avoid useSession() errors during build
-export const dynamic = "force-dynamic"
 
 export default function DashboardPage(): React.ReactElement {
-  const { data: session, status } = useSession()
   const router = useRouter()
 
-  useEffect(() => {
-    if (status === "loading") return
-    if (!session) {
-      router.push("/auth/login")
-    }
-  }, [session, status, router])
-
-  if (status === "loading") {
-    return <div className="flex min-h-screen items-center justify-center">Loading...</div>
-  }
-
-  if (!session) {
-    return <div className="flex min-h-screen items-center justify-center">Redirecting...</div>
-  }
-
-  const handleLogout = async (): Promise<void> => {
-    await signOut({ callbackUrl: "/auth/login" })
+  const handleLogout = (): void => {
+    // TODO: Implement logout once NextAuth is restored
+    router.push("/auth/login")
   }
 
   return (
@@ -42,8 +22,10 @@ export default function DashboardPage(): React.ReactElement {
 
         <div className="rounded-lg bg-white p-6 shadow">
           <h2 className="mb-4 text-xl font-semibold">Welcome to Bloomwell AI</h2>
-          <p className="mb-4 text-gray-600">Welcome, {session.user?.email}!</p>
-          <p className="text-gray-600">You have successfully authenticated. This is your protected dashboard.</p>
+          <p className="mb-4 text-gray-600">Welcome, Guest!</p>
+          <p className="text-gray-600">
+            This is your dashboard. Authentication is temporarily disabled while NextAuth is being configured.
+          </p>
         </div>
       </div>
     </div>

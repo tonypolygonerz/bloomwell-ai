@@ -1,7 +1,6 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { signIn } from "next-auth/react"
 import { useState } from "react"
 
 export default function LoginPage(): React.ReactElement {
@@ -14,17 +13,12 @@ export default function LoginPage(): React.ReactElement {
     e.preventDefault()
     setError("")
 
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    })
-
-    if (result?.error) {
-      setError("Invalid credentials")
-    } else {
-      router.push("/dashboard")
+    // TODO: Implement authentication once NextAuth is restored
+    // For now, redirect to dashboard
+    if (process.env.NODE_ENV === "development") {
+      console.log("Login attempt:", { email, password })
     }
+    router.push("/dashboard")
   }
 
   return (
