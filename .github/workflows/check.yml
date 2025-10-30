@@ -32,6 +32,9 @@ jobs:
             - recursive: true
             - args: [--frozen-lockfile]
 
+      - name: Generate Prisma Client
+        run: pnpm dlx prisma generate
+
       - name: Lint check
         run: pnpm run lint
       - name: Format check

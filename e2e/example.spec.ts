@@ -8,6 +8,6 @@ test("has title", async ({ page }) => {
 
   // Check that the homepage content is present with current professional design
   await expect(page.locator("h1")).toContainText("AI-Powered Grant Discovery for Nonprofits")
-  await expect(page.locator("p")).toContainText("Access")
-  await expect(page.locator("p")).toContainText("900+")
+  await expect(page.locator("#hero-description")).toContainText("Access")
+  await expect(page.locator("#hero-description")).toContainText("900+")
 })
